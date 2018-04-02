@@ -13,6 +13,7 @@ mod op_acknowledge;
 mod op_history;
 mod op_diff;
 mod index;
+mod index_diff;
 mod index_scan;
 
 use std::env;

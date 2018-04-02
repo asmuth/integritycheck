@@ -1,4 +1,5 @@
 use std::fs;
+use std::fs::File;
 use std::io::{Read,Write};
 use std::path::{Path,PathBuf};
 use std::collections::HashMap;
@@ -88,8 +89,22 @@ impl IndexDirectory {
     return &self.index_files;
   }
 
-  pub fn load(self: &Self, idxref: &IndexReference) -> Result<IndexSnapshot, ::Error> {
-    return Err(format!("not yet implemented"));
+  pub fn load(self: &Self, reference: &IndexReference) -> Result<IndexSnapshot, ::Error> {
+    let snapshot_path = self.index_path.join(&reference.filename());
+    let mut snapshot_data = Vec::<u8>::new();
+
+    let read_result =
+        File::open(&snapshot_path)
+        .and_then(|mut f| f.read_to_end(&mut snapshot_data));
+
+    if let Err(e) = read_result {
+      return Err(e.to_string());
+    }
+
+    return match json::from_str(&String::from_utf8_lossy(&snapshot_data)) {
+      Ok(snap) => Ok(snap),
+      Err(e) => Err(e.to_string()),
+    };
   }
 
   pub fn append(self: &mut Self, snapshot: &IndexSnapshot) -> Result<IndexReference, ::Error> {
@@ -108,7 +123,7 @@ impl IndexDirectory {
     let snapshot_encoded = json::to_string(&snapshot).unwrap();
     let snapshot_checksum = ::checksum::sha256(snapshot_encoded.as_bytes());
 
-    let snapshot_ref= IndexReference {
+    let snapshot_ref = IndexReference {
       timestamp: snapshot_timestamp,
       checksum: snapshot_checksum.to_owned()
     };
