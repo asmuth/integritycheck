@@ -11,7 +11,7 @@ options:
   --help                 Print this help message and exit
 ";
 
-pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
+pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let mut flag_cfg = Options::new();
   flag_cfg.optopt("d", "data_dir", "data_dir", "PATH");
   flag_cfg.optopt("x", "index_dir", "index_dir", "PATH");
@@ -41,5 +41,5 @@ pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
 
   println!("diff: {:?}", diff);
 
-  return Ok(());
+  return Ok(diff.len() == 0);
 }

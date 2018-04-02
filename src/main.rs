@@ -52,7 +52,7 @@ enum Command {
   Operation{ op: Operation, args: Vec<String> }
 }
 
-fn perform_op(op: Operation, args: &Vec<String>) -> Result<(), Error> {
+fn perform_op(op: Operation, args: &Vec<String>) -> Result<bool, Error> {
   return match op {
     Operation::Acknowledge => op_acknowledge::perform(args),
     Operation::Diff => op_diff::perform(args),
@@ -61,7 +61,7 @@ fn perform_op(op: Operation, args: &Vec<String>) -> Result<(), Error> {
   };
 }
 
-fn print_usage(op: Option<Operation>) -> Result<(), Error> {
+fn print_usage(op: Option<Operation>) -> Result<bool, Error> {
   let usage_msg = match op {
     Some(Operation::Acknowledge) => op_acknowledge::USAGE,
     Some(Operation::Diff) => op_diff::USAGE,
@@ -72,16 +72,16 @@ fn print_usage(op: Option<Operation>) -> Result<(), Error> {
 
   match std::io::stdout().write(usage_msg.as_bytes()) {
     Err(e) => Err(e.to_string()),
-    Ok(_) => Ok(())
+    Ok(_) => Ok(true)
   }
 }
 
-fn print_version() -> Result<(), Error> {
+fn print_version() -> Result<bool, Error> {
   println!("fhistory v{}", VERSION);
   println!("Copyright (c) 2018 Paul Asmuth");
   println!("Licensed under the 3-clause BSD license");
   println!("https://github.com/asmuth/fhistory");
-  return Ok(());
+  return Ok(true);
 }
 
 fn main() {
@@ -119,8 +119,12 @@ fn main() {
     Command::Operation{op, args} => perform_op(op, &args),
   };
 
-  if let Err(e) = result {
-    writeln!(&mut std::io::stderr(), "ERROR: {}", e).expect("ERROR");
-    std::process::exit(1);
+  match result {
+    Ok(true) => return,
+    Ok(false) => std::process::exit(1),
+    Err(e) => {
+      writeln!(&mut std::io::stderr(), "ERROR: {}", e).expect("ERROR");
+      std::process::exit(1);
+    }
   }
 }

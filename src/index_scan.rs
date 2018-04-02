@@ -68,7 +68,7 @@ pub fn scan_checksums(data_path: &Path, index: ::IndexSnapshot) -> Result<::Inde
     };
 
     //println!("Calculating SHA256 checksum for {:?}", file_path);
-
+    let file_path = data_path.join(file_path).to_str().unwrap_or("").to_owned();
     let mut file_data = Vec::<u8>::new();
     if let Err(e) = File::open(&file_path).and_then(|mut f| f.read_to_end(&mut file_data)) {
       return Err(e.to_string());
