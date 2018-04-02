@@ -5,9 +5,17 @@ use std::io;
 use std::io::Write;
 use std::process;
 use getopts::Options;
+
 mod op;
 mod op_status;
+mod index;
+
 use op::*;
+
+type Error = String;
+
+const DEFAULT_DATA_DIR : &'static str = ".";
+const DEFAULT_INDEX_DIR : &'static str = ".fhistory";
 
 const USAGE : &'static str = "\
 usage: fhistory <command> [options]
@@ -31,18 +39,20 @@ enum Command {
   Operation{ op: Operation, args: Vec<String> }
 }
 
-fn perform(op: Operation, args: &Vec<String>) -> Result<(), io::Error> {
+fn perform(op: Operation, args: &Vec<String>) -> Result<(), Error> {
   return Ok(());
 }
 
-fn usage(op: Option<Operation>) -> Result<(), io::Error> {
+fn usage(op: Option<Operation>) -> Result<(), Error> {
   let usage_msg = match op {
     Some(Operation::Status) => op_status::USAGE,
-    _ => op_status::USAGE,
+    _ => USAGE,
   };
 
-  std::io::stdout().write(usage_msg.as_bytes())?;
-  return Ok(());
+  match std::io::stdout().write(usage_msg.as_bytes()) {
+    Err(e) => Err(e.to_string()),
+    Ok(_) => Ok(())
+  }
 }
 
 fn main() {
