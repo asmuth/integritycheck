@@ -1,5 +1,6 @@
 use std::fs;
 use std::path::{Path,PathBuf};
+use std::collections::HashMap;
 use regex::Regex;
 
 const INDEX_FILENAME_PATTERN : &'static str =
@@ -11,17 +12,18 @@ pub struct IndexReference {
   pub hash: String,
 }
 
-pub struct IndexList {
+pub struct IndexDirectory {
   index_dir: PathBuf,
   index_files: Vec<IndexReference>,
 }
 
 pub struct IndexData {
+  files: HashMap<String, String>
 }
 
-impl IndexList {
+impl IndexDirectory {
 
-  pub fn open(data_dir: &Path, index_dir: &Path) -> Result<IndexList, ::Error> {
+  pub fn open(data_dir: &Path, index_dir: &Path) -> Result<IndexDirectory, ::Error> {
     let index_dir : PathBuf = if index_dir.has_root() {
       index_dir.to_path_buf()
     } else {
@@ -53,7 +55,7 @@ impl IndexList {
       });
     }
 
-    return Ok(IndexList {
+    return Ok(IndexDirectory {
       index_dir: index_dir,
       index_files: index_files,
     });
@@ -65,6 +67,20 @@ impl IndexList {
 
   pub fn list(self: &Self) -> &Vec<IndexReference> {
     return &self.index_files;
+  }
+
+  pub fn load(self: &Self, idxref: &IndexReference) -> Result<IndexData, ::Error> {
+    return Err(format!("not yet implemented"));
+  }
+
+}
+
+impl IndexData {
+
+  pub fn new() -> IndexData {
+    return IndexData {
+      files: HashMap::<String, String>::new()
+    }
   }
 
 }

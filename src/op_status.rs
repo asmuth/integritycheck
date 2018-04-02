@@ -23,7 +23,7 @@ pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
 
   let data_dir = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
   let index_dir = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
-  let index_list = ::IndexList::open(&Path::new(&data_dir), &Path::new(&index_dir))?;
+  let index_list = ::IndexDirectory::open(&Path::new(&data_dir), &Path::new(&index_dir))?;
 
   let index = match index_list.latest() {
     Some(idx) => idx,
