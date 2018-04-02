@@ -1,0 +1,8 @@
+- diff calculation
+- diff printing/prompting
+- ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
+- log with diffs
+- verbose logging
+- nice progress bars
+- parallel scanning / locking
+- alternative checksums?
