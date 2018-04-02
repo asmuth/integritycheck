@@ -4,9 +4,20 @@ use std::io::Read;
 use std::path::Path;
 use walkdir::WalkDir;
 
-pub fn scan(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, ::Error> {
-  let index = scan_metadata(data_path, prefix)?;
-  let index = scan_checksums(data_path, index)?;
+pub struct ScanOptions {
+  pub calculate_checksums: bool
+}
+
+pub fn scan(
+    data_path: &Path,
+    prefix: &str,
+    opts: &ScanOptions) -> Result<::IndexSnapshot, ::Error> {
+  let mut index = scan_metadata(data_path, prefix)?;
+
+  if (opts.calculate_checksums) {
+    index = scan_checksums(data_path, index)?;
+  }
+
   return Ok(index);
 }
 
