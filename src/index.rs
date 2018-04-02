@@ -61,6 +61,8 @@ impl IndexDirectory {
       });
     }
 
+    index_files.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+
     return Ok(IndexDirectory {
       index_dir: index_dir,
       index_files: index_files,
