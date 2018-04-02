@@ -1,46 +1,48 @@
 use std::fs;
+use std::io::{Read,Write};
 use std::path::{Path,PathBuf};
 use std::collections::HashMap;
+use std::time::{SystemTime, UNIX_EPOCH};
 use regex::Regex;
-use chrono::DateTime;
+use serde_json as json;
 
 const INDEX_FILENAME_PATTERN : &'static str =
-    r"^fhistory-(?P<date>\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?)-(?P<hash>[a-z0-9]+)$";
+    r"^(?P<timestamp>\d+)-(?P<checksum>[a-z0-9]+)\.idx$";
 
 #[derive(Clone, Debug)]
 pub struct IndexReference {
   pub timestamp: i64,
-  pub hash: String,
+  pub checksum: String,
 }
 
 #[derive(Clone, Debug)]
 pub struct IndexDirectory {
-  index_dir: PathBuf,
+  index_path: PathBuf,
   index_files: Vec<IndexReference>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IndexFileInfo {
   pub size_bytes: u64,
   pub modified_timestamp: Option<u64>,
   pub checksum_sha256: Option<String>
 }
 
-#[derive(Clone, Debug)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IndexSnapshot {
   files: HashMap<String, IndexFileInfo>
 }
 
 impl IndexDirectory {
 
-  pub fn open(data_dir: &Path, index_dir: &Path) -> Result<IndexDirectory, ::Error> {
-    let index_dir : PathBuf = if index_dir.has_root() {
-      index_dir.to_path_buf()
+  pub fn open(data_dir: &Path, index_path: &Path) -> Result<IndexDirectory, ::Error> {
+    let index_path : PathBuf = if index_path.has_root() {
+      index_path.to_path_buf()
     } else {
-      data_dir.join(index_dir)
+      data_dir.join(index_path)
     };
 
-    let directory_listing = match fs::read_dir(&index_dir) {
+    let directory_listing = match fs::read_dir(&index_path) {
       Ok(d) => d,
       Err(e) => return Err(e.to_string()),
     };
@@ -59,21 +61,21 @@ impl IndexDirectory {
         None => return Err(format!("invalid file in index directory: {:?}", entry_fname)),
       };
 
-      let timestamp = match DateTime::parse_from_rfc3339(&pattern_match["date"]) {
-        Ok(v) => v.timestamp(),
+      let timestamp = match pattern_match["timestamp"].parse::<i64>() {
+        Ok(v) => v,
         Err(e) => return Err(format!("internal error: {}", e)),
       };
 
       index_files.push(IndexReference {
         timestamp: timestamp,
-        hash: pattern_match["hash"].to_string()
+        checksum: pattern_match["checksum"].to_string()
       });
     }
 
     index_files.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
 
     return Ok(IndexDirectory {
-      index_dir: index_dir,
+      index_path: index_path,
       index_files: index_files,
     });
   }
@@ -90,8 +92,37 @@ impl IndexDirectory {
     return Err(format!("not yet implemented"));
   }
 
-  pub fn append(self: &mut Self, idxsnap: &IndexSnapshot) -> Result<IndexReference, ::Error> {
-    return Err(format!("not yet implemented"));
+  pub fn append(self: &mut Self, snapshot: &IndexSnapshot) -> Result<IndexReference, ::Error> {
+    let now = SystemTime::now();
+    let snapshot_timestamp = match now.duration_since(UNIX_EPOCH) {
+      Ok(v) => v.as_secs() as i64,
+      Err(e) => return Err(format!("internal error: {}", e)),
+    };
+
+    if let Some(latest) = self.latest() {
+      if snapshot_timestamp <= latest.timestamp {
+        return Err(format!("a newer snapshot exists. did we go back into the future?"));
+      }
+    }
+
+    let snapshot_encoded = json::to_string(&snapshot).unwrap();
+    let snapshot_checksum = ::checksum::sha256(snapshot_encoded.as_bytes());
+
+    let snapshot_ref= IndexReference {
+      timestamp: snapshot_timestamp,
+      checksum: snapshot_checksum.to_owned()
+    };
+
+    println!("Write new index file {:?}", snapshot_ref.filename());
+
+    let result =
+        fs::File::create(self.index_path.join(snapshot_ref.filename()))
+        .and_then(|mut f| f.write_all(snapshot_encoded.as_bytes()));
+
+    return match result {
+      Ok(_) => Ok(snapshot_ref),
+      Err(e) => Err(format!("error while writing index: {}", e)),
+    }
   }
 
 }
@@ -136,4 +167,10 @@ impl IndexSnapshot {
 
 }
 
+impl IndexReference {
 
+  fn filename(self: &Self) -> String {
+    return format!("{}-{}.idx", self.timestamp, &self.checksum);
+  }
+
+}

@@ -3,8 +3,6 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use walkdir::WalkDir;
-use crypto::digest::Digest;
-use crypto::sha2::Sha256;
 
 pub fn scan(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, ::Error> {
   let index = scan_metadata(data_path, prefix)?;
@@ -64,21 +62,20 @@ fn scan_checksums(data_path: &Path, index: ::IndexSnapshot) -> Result<::IndexSna
   let mut index = index;
 
   for file_path in index.list() {
-    let file_info = match index.get(&file_path) {
-      Some(v) => v,
-      None => return Err(format!("invalid path")),
+    let mut file_info = match &index.get(&file_path) {
+      &Some(v) => v.to_owned(),
+      &None => return Err(format!("invalid path")),
     };
 
     println!("Calculating SHA256 checksum for {:?}", file_path);
 
     let mut file_data = Vec::<u8>::new();
-    if let Err(e) = File::open(file_path).and_then(|mut f| f.read_to_end(&mut file_data)) {
+    if let Err(e) = File::open(&file_path).and_then(|mut f| f.read_to_end(&mut file_data)) {
       return Err(e.to_string());
     }
 
-    let mut sha256 = Sha256::new();
-    sha256.input(&file_data);
-    println!("  => {}", sha256.result_str());
+    file_info.checksum_sha256 = Some(::checksum::sha256(&file_data));
+    index.update(&file_path, &file_info);
   }
 
   return Ok(index)
