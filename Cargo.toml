@@ -6,6 +6,7 @@ repository = "https://github.com/asmuth/fhistory"
 
 [dependencies]
 chrono = "*"
+rust-crypto = "*"
 getopts = "*"
 regex = "*"
 walkdir = "*"

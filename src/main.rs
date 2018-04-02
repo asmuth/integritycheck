@@ -1,4 +1,5 @@
 extern crate chrono;
+extern crate crypto;
 extern crate getopts;
 extern crate regex;
 extern crate walkdir;

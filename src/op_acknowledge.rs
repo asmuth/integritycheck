@@ -38,8 +38,6 @@ pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
   let updates = ::index_scan::scan(&Path::new(&data_path), &pathspec)?;
   snapshot.clear(&pathspec);
   snapshot.merge(&updates);
-
-  println!("snap: {:?}", snapshot);
   index.append(&snapshot)?;
 
   return Ok(());

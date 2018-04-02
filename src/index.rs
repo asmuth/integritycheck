@@ -104,6 +104,14 @@ impl IndexSnapshot {
     }
   }
 
+  pub fn list(self: &Self) -> Vec<String> {
+    return self.files.iter().map(|(path, _)| path.clone()).collect();
+  }
+
+  pub fn get(self: &mut Self, path: &str) -> Option<&IndexFileInfo> {
+    return self.files.get(path);
+  }
+
   pub fn update(self: &mut Self, path: &str, info: &IndexFileInfo) {
     self.files.insert(path.to_owned(), info.to_owned());
   }
