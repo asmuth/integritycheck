@@ -21,11 +21,11 @@ pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
     Err(e) => return Err(e.to_string()),
   };
 
-  let data_dir = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
-  let index_dir = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
-  let index_list = ::IndexDirectory::open(&Path::new(&data_dir), &Path::new(&index_dir))?;
+  let data_path = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
+  let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
+  let index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
 
-  for entry in index_list.list() {
+  for entry in index.list() {
     println!("{:?}", entry);
   }
 

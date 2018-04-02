@@ -17,7 +17,7 @@ pub struct IndexDirectory {
   index_files: Vec<IndexReference>,
 }
 
-pub struct IndexData {
+pub struct IndexSnapshot {
   files: HashMap<String, String>
 }
 
@@ -69,16 +69,16 @@ impl IndexDirectory {
     return &self.index_files;
   }
 
-  pub fn load(self: &Self, idxref: &IndexReference) -> Result<IndexData, ::Error> {
+  pub fn load(self: &Self, idxref: &IndexReference) -> Result<IndexSnapshot, ::Error> {
     return Err(format!("not yet implemented"));
   }
 
 }
 
-impl IndexData {
+impl IndexSnapshot {
 
-  pub fn new() -> IndexData {
-    return IndexData {
+  pub fn new() -> IndexSnapshot {
+    return IndexSnapshot {
       files: HashMap::<String, String>::new()
     }
   }

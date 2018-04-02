@@ -21,12 +21,12 @@ pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
     Err(e) => return Err(e.to_string()),
   };
 
-  let data_dir = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
-  let index_dir = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
-  let index_list = ::IndexDirectory::open(&Path::new(&data_dir), &Path::new(&index_dir))?;
+  let data_path = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
+  let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
+  let index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
 
-  let index = match index_list.latest() {
-    Some(idx) => idx,
+  let index = match index.latest() {
+    Some(idx) => index.load(&idx)?,
     None => return Err(format!("no snapshots"))
   };
 
