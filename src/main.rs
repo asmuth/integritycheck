@@ -10,8 +10,9 @@ extern crate serde_derive;
 mod checksum;
 mod op;
 mod op_acknowledge;
-mod op_history;
 mod op_diff;
+mod op_fsck;
+mod op_history;
 mod index;
 mod index_diff;
 mod index_scan;
@@ -54,16 +55,18 @@ enum Command {
 fn perform_op(op: Operation, args: &Vec<String>) -> Result<(), Error> {
   return match op {
     Operation::Acknowledge => op_acknowledge::perform(args),
-    Operation::History => op_history::perform(args),
     Operation::Diff => op_diff::perform(args),
+    Operation::Fsck => op_fsck::perform(args),
+    Operation::History => op_history::perform(args),
   };
 }
 
 fn print_usage(op: Option<Operation>) -> Result<(), Error> {
   let usage_msg = match op {
     Some(Operation::Acknowledge) => op_acknowledge::USAGE,
-    Some(Operation::History) => op_history::USAGE,
     Some(Operation::Diff) => op_diff::USAGE,
+    Some(Operation::Fsck) => op_fsck::USAGE,
+    Some(Operation::History) => op_history::USAGE,
     _ => USAGE,
   };
 
