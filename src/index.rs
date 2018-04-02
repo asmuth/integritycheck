@@ -128,7 +128,7 @@ impl IndexDirectory {
       checksum: snapshot_checksum.to_owned()
     };
 
-    println!("Write new index file {:?}", snapshot_ref.filename());
+    //println!("Write new index file {:?}", snapshot_ref.filename());
 
     let result =
         fs::File::create(self.index_path.join(snapshot_ref.filename()))

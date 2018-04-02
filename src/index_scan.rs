@@ -4,24 +4,7 @@ use std::io::Read;
 use std::path::Path;
 use walkdir::WalkDir;
 
-pub struct ScanOptions {
-  pub calculate_checksums: bool
-}
-
-pub fn scan(
-    data_path: &Path,
-    prefix: &str,
-    opts: &ScanOptions) -> Result<::IndexSnapshot, ::Error> {
-  let mut index = scan_metadata(data_path, prefix)?;
-
-  if (opts.calculate_checksums) {
-    index = scan_checksums(data_path, index)?;
-  }
-
-  return Ok(index);
-}
-
-fn scan_metadata(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, ::Error> {
+pub fn scan_metadata(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, ::Error> {
   let data_path = match fs::canonicalize(data_path) {
     Ok(e) => e,
     Err(e) => return Err(e.to_string()),
@@ -58,7 +41,7 @@ fn scan_metadata(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, ::Er
       None => return Err(format!("invalid path")),
     };
 
-    println!("Read metadata for {:?}", entry_path);
+    //println!("Read metadata for {:?}", entry_path);
     index.update(entry_path, &::IndexFileInfo {
       size_bytes: entry_meta.len(),
       modified_timestamp: None,
@@ -69,7 +52,7 @@ fn scan_metadata(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, ::Er
   return Ok(index);
 }
 
-fn scan_checksums(data_path: &Path, index: ::IndexSnapshot) -> Result<::IndexSnapshot, ::Error> {
+pub fn scan_checksums(data_path: &Path, index: ::IndexSnapshot) -> Result<::IndexSnapshot, ::Error> {
   let mut index = index;
 
   for file_path in index.list() {
@@ -78,7 +61,7 @@ fn scan_checksums(data_path: &Path, index: ::IndexSnapshot) -> Result<::IndexSna
       &None => return Err(format!("invalid path")),
     };
 
-    println!("Calculating SHA256 checksum for {:?}", file_path);
+    //println!("Calculating SHA256 checksum for {:?}", file_path);
 
     let mut file_data = Vec::<u8>::new();
     if let Err(e) = File::open(&file_path).and_then(|mut f| f.read_to_end(&mut file_data)) {

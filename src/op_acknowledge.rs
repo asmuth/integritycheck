@@ -28,20 +28,21 @@ pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
 
   let data_path = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
   let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
-  let mut index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
 
+  println!("[1/4] Loading index...");
+  let mut index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
   let mut snapshot = match index.latest() {
     Some(idx) => index.load(&idx)?,
     None => ::IndexSnapshot::new()
   };
 
-  let updates = ::index_scan::scan(
-      &Path::new(&data_path),
-      &pathspec,
-      &::index_scan::ScanOptions {
-        calculate_checksums: true
-      })?;
+  println!("[2/4] Scanning file metadata...");
+  let mut updates =::index_scan::scan_metadata(&Path::new(&data_path), &pathspec)?;
 
+  println!("[3/4] Computing file checksums...");
+  updates = ::index_scan::scan_checksums(&Path::new(&data_path), updates)?;
+
+  println!("[4/4] Committing new snapshot...");
   snapshot.clear(&pathspec);
   snapshot.merge(&updates);
   index.append(&snapshot)?;
