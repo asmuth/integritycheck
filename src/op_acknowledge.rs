@@ -30,10 +30,14 @@ pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
   let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
   let index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
 
-  let index_snap = match index.latest() {
+  let index_snap_old = match index.latest() {
     Some(idx) => index.load(&idx)?,
     None => ::IndexSnapshot::new()
   };
+
+  let index_snap_new = ::index_scan::scan(&Path::new(&data_path), &pathspec)?;
+
+  format!("index: {:?}", index_snap_new);
 
   return Ok(());
 }

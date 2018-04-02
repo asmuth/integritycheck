@@ -1,14 +1,15 @@
 extern crate chrono;
 extern crate getopts;
 extern crate regex;
+extern crate walkdir;
 mod op;
 mod op_acknowledge;
 mod op_history;
 mod op_status;
 mod index;
+mod index_scan;
 
 use std::env;
-use std::io;
 use std::io::Write;
 use std::process;
 use op::*;

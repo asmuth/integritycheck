@@ -18,6 +18,7 @@ pub struct IndexDirectory {
   index_files: Vec<IndexReference>,
 }
 
+#[derive(Clone, Debug)]
 pub struct IndexSnapshot {
   files: HashMap<String, String>
 }
@@ -81,6 +82,10 @@ impl IndexDirectory {
     return Err(format!("not yet implemented"));
   }
 
+  pub fn append(self: &mut Self, idxsnap: &IndexSnapshot) -> Result<IndexReference, ::Error> {
+    return Err(format!("not yet implemented"));
+  }
+
 }
 
 impl IndexSnapshot {
@@ -92,3 +97,5 @@ impl IndexSnapshot {
   }
 
 }
+
+
