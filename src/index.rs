@@ -25,7 +25,7 @@ pub struct IndexDirectory {
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IndexFileInfo {
   pub size_bytes: u64,
-  pub modified_timestamp: Option<u64>,
+  pub modified_timestamp: Option<i64>,
   pub checksum_sha256: Option<String>
 }
 

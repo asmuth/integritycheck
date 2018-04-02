@@ -2,6 +2,7 @@ use std::fs;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
+use std::time::UNIX_EPOCH;
 use walkdir::WalkDir;
 
 pub fn scan_metadata(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, ::Error> {
@@ -26,6 +27,11 @@ pub fn scan_metadata(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, 
       continue;
     }
 
+    let entry_mtime = entry_meta
+        .modified()
+        .and_then(|x| Ok(x.duration_since(UNIX_EPOCH).unwrap().as_secs() as i64))
+        .ok();
+
     let entry_path = match fs::canonicalize(entry.path()) {
       Ok(e) => e,
       Err(e) => return Err(e.to_string()),
@@ -44,7 +50,7 @@ pub fn scan_metadata(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, 
     //println!("Read metadata for {:?}", entry_path);
     index.update(entry_path, &::IndexFileInfo {
       size_bytes: entry_meta.len(),
-      modified_timestamp: None,
+      modified_timestamp: entry_mtime,
       checksum_sha256: None
     });
   }
