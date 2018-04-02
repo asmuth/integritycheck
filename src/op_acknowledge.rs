@@ -36,8 +36,7 @@ pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
   };
 
   let index_snap_new = ::index_scan::scan(&Path::new(&data_path), &pathspec)?;
-
-  format!("index: {:?}", index_snap_new);
+  println!("index: {:?}", index_snap_new);
 
   return Ok(());
 }

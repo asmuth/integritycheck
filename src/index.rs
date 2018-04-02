@@ -13,14 +13,22 @@ pub struct IndexReference {
   pub hash: String,
 }
 
+#[derive(Clone, Debug)]
 pub struct IndexDirectory {
   index_dir: PathBuf,
   index_files: Vec<IndexReference>,
 }
 
 #[derive(Clone, Debug)]
+pub struct IndexFileInfo {
+  pub size_bytes: u64,
+  pub modified_timestamp: Option<u64>,
+  pub checksum_sha256: Option<String>
+}
+
+#[derive(Clone, Debug)]
 pub struct IndexSnapshot {
-  files: HashMap<String, String>
+  files: HashMap<String, IndexFileInfo>
 }
 
 impl IndexDirectory {
@@ -92,8 +100,12 @@ impl IndexSnapshot {
 
   pub fn new() -> IndexSnapshot {
     return IndexSnapshot {
-      files: HashMap::<String, String>::new()
+      files: HashMap::<String, IndexFileInfo>::new()
     }
+  }
+
+  pub fn update(self: &mut Self, path: &str, info: &IndexFileInfo) {
+    self.files.insert(path.to_owned(), info.to_owned());
   }
 
 }
