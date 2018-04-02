@@ -1,15 +1,13 @@
 extern crate getopts;
+mod op;
+mod op_acknowledge;
+mod op_status;
+mod index;
 
 use std::env;
 use std::io;
 use std::io::Write;
 use std::process;
-use getopts::Options;
-
-mod op;
-mod op_status;
-mod index;
-
 use op::*;
 
 type Error = String;
@@ -17,10 +15,9 @@ type Error = String;
 const VERSION: &'static str = env!("CARGO_PKG_VERSION");
 const DEFAULT_DATA_DIR : &'static str = ".";
 const DEFAULT_INDEX_DIR : &'static str = ".fhistory";
-
 const USAGE : &'static str = "\
 usage: fhistory <command> [options]
-Another file integrity management tool.
+Another file integrity monitoring tool.
 
 global options:
   -d,--data_dir=PATH     Set the path of the repository/data directory
@@ -44,11 +41,15 @@ enum Command {
 }
 
 fn perform_op(op: Operation, args: &Vec<String>) -> Result<(), Error> {
-  return Ok(());
+  return match op {
+    Operation::Acknowledge => op_acknowledge::perform(args),
+    Operation::Status => op_status::perform(args),
+  };
 }
 
 fn print_usage(op: Option<Operation>) -> Result<(), Error> {
   let usage_msg = match op {
+    Some(Operation::Acknowledge) => op_acknowledge::USAGE,
     Some(Operation::Status) => op_status::USAGE,
     _ => USAGE,
   };
@@ -100,7 +101,6 @@ fn main() {
     Command::PrintUsage{topic} => print_usage(topic),
     Command::PrintVersion => print_version(),
     Command::Operation{op, args} => perform_op(op, &args),
-    _ => print_usage(None),
   };
 
   if let Err(e) = result {

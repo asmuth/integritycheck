@@ -1,8 +1,8 @@
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
-usage: fhistory status [options]
-Display status of the repository (quick)
+usage: fhistory ack [options]
+Acknowledge changes to files in the repository
 
 options:
   -d,--data_dir=PATH     Set the path of the repository/data directory
