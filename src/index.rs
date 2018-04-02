@@ -2,13 +2,14 @@ use std::fs;
 use std::path::{Path,PathBuf};
 use std::collections::HashMap;
 use regex::Regex;
+use chrono::DateTime;
 
 const INDEX_FILENAME_PATTERN : &'static str =
     r"^fhistory-(?P<date>\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?(([+-]\d\d:\d\d)|Z)?)-(?P<hash>[a-z0-9]+)$";
 
 #[derive(Clone, Debug)]
 pub struct IndexReference {
-  pub date: String,
+  pub timestamp: i64,
   pub hash: String,
 }
 
@@ -49,8 +50,13 @@ impl IndexDirectory {
         None => return Err(format!("invalid file in index directory: {:?}", entry_fname)),
       };
 
+      let timestamp = match DateTime::parse_from_rfc3339(&pattern_match["date"]) {
+        Ok(v) => v.timestamp(),
+        Err(e) => return Err(format!("internal error: {}", e)),
+      };
+
       index_files.push(IndexReference {
-        date: pattern_match["date"].to_string(),
+        timestamp: timestamp,
         hash: pattern_match["hash"].to_string()
       });
     }

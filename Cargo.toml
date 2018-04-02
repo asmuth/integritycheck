@@ -5,5 +5,6 @@ authors = ["Paul Asmuth <paul@asmuth.com>"]
 repository = "https://github.com/asmuth/fhistory"
 
 [dependencies]
+chrono = "*"
 getopts = "*"
 regex = "*"
