@@ -3,7 +3,7 @@ use getopts::Options;
 
 pub const USAGE : &'static str = "\
 usage: fhistory ack [options] <path>
-Acknowledge changes to files in the repository
+Acknowledge changes to files in the repository and create a new snapshot
 
 options:
   -d,--data_dir=PATH     Set the path of the repository/data directory

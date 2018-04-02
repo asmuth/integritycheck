@@ -3,7 +3,7 @@ use getopts::Options;
 
 pub const USAGE : &'static str = "\
 usage: fhistory diff [options]
-Display changes since the last snapshot (quick)
+Compare the current state of the repository to a snapshot (quick)
 
 options:
   -d,--data_dir=PATH     Set the path of the repository/data directory

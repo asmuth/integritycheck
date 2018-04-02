@@ -3,7 +3,7 @@ use getopts::Options;
 
 pub const USAGE : &'static str = "\
 usage: fhistory history [options]
-Display the history of the repository
+Display a historical log of snapshots and changes to the repository
 
 options:
   -d,--data_dir=PATH     Set the path of the repository/data directory
