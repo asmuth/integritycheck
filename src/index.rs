@@ -108,6 +108,24 @@ impl IndexSnapshot {
     self.files.insert(path.to_owned(), info.to_owned());
   }
 
+  pub fn merge(self: &mut Self, other: &IndexSnapshot) {
+    for (k, v) in other.files.iter() {
+      self.files.insert(k.to_owned(), v.to_owned());
+    }
+  }
+
+  pub fn clear(self: &mut Self, path_prefix: &str) {
+    let delete_paths : Vec<String> = self.files
+        .iter()
+        .filter(|&(path, _)| !path.starts_with(path_prefix))
+        .map(|(path, _)| path.clone())
+        .collect();
+
+    for path in delete_paths {
+      self.files.remove(&path);
+    }
+  }
+
 }
 
 

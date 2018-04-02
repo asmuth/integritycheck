@@ -11,7 +11,6 @@ mod index_scan;
 
 use std::env;
 use std::io::Write;
-use std::process;
 use op::*;
 use index::*;
 

@@ -28,15 +28,19 @@ pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
 
   let data_path = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
   let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
-  let index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
+  let mut index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
 
-  let index_snap_old = match index.latest() {
+  let mut snapshot = match index.latest() {
     Some(idx) => index.load(&idx)?,
     None => ::IndexSnapshot::new()
   };
 
-  let index_snap_new = ::index_scan::scan(&Path::new(&data_path), &pathspec)?;
-  println!("index: {:?}", index_snap_new);
+  let updates = ::index_scan::scan(&Path::new(&data_path), &pathspec)?;
+  snapshot.clear(&pathspec);
+  snapshot.merge(&updates);
+
+  println!("snap: {:?}", snapshot);
+  index.append(&snapshot)?;
 
   return Ok(());
 }
