@@ -6,3 +6,4 @@ repository = "https://github.com/asmuth/fhistory"
 
 [dependencies]
 getopts = "*"
+regex = "*"

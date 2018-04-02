@@ -1,6 +1,8 @@
 extern crate getopts;
+extern crate regex;
 mod op;
 mod op_acknowledge;
+mod op_history;
 mod op_status;
 mod index;
 
@@ -9,10 +11,11 @@ use std::io;
 use std::io::Write;
 use std::process;
 use op::*;
+use index::*;
 
 type Error = String;
 
-const VERSION: &'static str = env!("CARGO_PKG_VERSION");
+const VERSION : &'static str = env!("CARGO_PKG_VERSION");
 const DEFAULT_DATA_DIR : &'static str = ".";
 const DEFAULT_INDEX_DIR : &'static str = ".fhistory";
 const USAGE : &'static str = "\
@@ -43,6 +46,7 @@ enum Command {
 fn perform_op(op: Operation, args: &Vec<String>) -> Result<(), Error> {
   return match op {
     Operation::Acknowledge => op_acknowledge::perform(args),
+    Operation::History => op_history::perform(args),
     Operation::Status => op_status::perform(args),
   };
 }
@@ -50,6 +54,7 @@ fn perform_op(op: Operation, args: &Vec<String>) -> Result<(), Error> {
 fn print_usage(op: Option<Operation>) -> Result<(), Error> {
   let usage_msg = match op {
     Some(Operation::Acknowledge) => op_acknowledge::USAGE,
+    Some(Operation::History) => op_history::USAGE,
     Some(Operation::Status) => op_status::USAGE,
     _ => USAGE,
   };

@@ -2,8 +2,8 @@ use std::path::Path;
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
-usage: fhistory status [options]
-Display status of the repository (quick)
+usage: fhistory history [options]
+Display the history of the repository
 
 options:
   -d,--data_dir=PATH     Set the path of the repository/data directory
@@ -25,10 +25,9 @@ pub fn perform(args: &Vec<String>) -> Result<(), ::Error> {
   let index_dir = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
   let index_list = ::IndexList::open(&Path::new(&data_dir), &Path::new(&index_dir))?;
 
-  let index = match index_list.latest() {
-    Some(idx) => idx,
-    None => return Err(format!("no snapshots"))
-  };
+  for entry in index_list.list() {
+    println!("{:?}", entry);
+  }
 
   return Ok(());
 }
