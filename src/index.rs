@@ -22,7 +22,13 @@ pub struct IndexData {
 impl IndexList {
 
   pub fn open(data_dir: &Path, index_dir: &Path) -> Result<IndexList, ::Error> {
-    let directory_listing = match fs::read_dir(index_dir) {
+    let index_dir : PathBuf = if index_dir.has_root() {
+      index_dir.to_path_buf()
+    } else {
+      data_dir.join(index_dir)
+    };
+
+    let directory_listing = match fs::read_dir(&index_dir) {
       Ok(d) => d,
       Err(e) => return Err(e.to_string()),
     };
@@ -48,8 +54,8 @@ impl IndexList {
     }
 
     return Ok(IndexList {
-      index_dir: index_dir.to_path_buf(),
-      index_files: index_files
+      index_dir: index_dir,
+      index_files: index_files,
     });
   }
 
