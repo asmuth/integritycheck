@@ -1,15 +1,48 @@
 extern crate getopts;
 
 use std::env;
+use std::io;
 use std::io::Write;
+use std::process;
 use getopts::Options;
 mod op;
+mod op_status;
 use op::*;
+
+const USAGE : &'static str = "\
+usage: fhistory <command> [options]
+
+global options:
+  -d,--data_dir=PATH     Set the path of the repository/data directory
+  -x,--index_dir=PATH    Set the path of the history/index directory
+  --help=PATH            Print the help message for one of the commands and exit
+
+commands:
+  status  Display status of the repository (quick)
+  ack     Acknowledge changes to files in the repository
+  log     Display the history of the reposiroy
+  fsck    Perform a full check of the repository's integrity
+  help    Print the help message for one of the commands and exit
+";
 
 #[derive(Debug)]
 enum Command {
   Help{ topic: Option<Operation> },
   Operation{ op: Operation, args: Vec<String> }
+}
+
+fn perform(op: Operation, args: &Vec<String>) -> Result<(), io::Error> {
+  return Ok(());
+}
+
+fn usage(op: Option<Operation>) -> Result<(), io::Error> {
+  let usage_msg = match op {
+    Some(Operation::Status) => op_status::USAGE,
+    _ => op_status::USAGE,
+  };
+
+  std::io::stdout().write(usage_msg.as_bytes())?;
+  return Ok(());
 }
 
 fn main() {
@@ -39,5 +72,14 @@ fn main() {
       Command::Help{ topic: None },
   };
 
-  println!("cmd: {:?}", command);
+  let result = match command {
+    Command::Help{topic} => usage(topic),
+    Command::Operation{op, args} => perform(op, &args),
+    _ => usage(None),
+  };
+
+  if let Err(e) = result {
+    writeln!(&mut std::io::stderr(), "ERROR: {}", e).expect("ERROR");
+    std::process::exit(1);
+  }
 }
