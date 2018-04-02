@@ -1,0 +1,6 @@
+[package]
+name = "fim"
+version = "0.1.0"
+authors = ["Paul Asmuth <paul@asmuth.com>"]
+
+[dependencies]
