@@ -20,11 +20,18 @@ pub enum IndexDiff {
   },
 }
 
+#[derive(Clone, Debug, Hash, PartialEq, Eq)]
+struct IndexDiffKey {
+  checksum: String,
+  size_bytes: u64,
+  modified_timestamp: Option<i64>,
+}
+
 pub fn diff(
     target: &::IndexSnapshot,
     actual: &::IndexSnapshot) -> IndexDiffList {
   let mut diffs = IndexDiffList::new();
-  let mut deleted = HashMap::<String, Vec<PathBuf>>::new();
+  let mut deleted = HashMap::<IndexDiffKey, Vec<PathBuf>>::new();
 
   /* check that all files in the target index exist */
   for (fpath, finfo_target) in &target.files {
@@ -35,11 +42,17 @@ pub fn diff(
         });
 
         if let Some(ref checksum) = finfo_target.checksum_sha256 {
-          if !deleted.contains_key(checksum) {
-            deleted.insert(checksum.to_owned(), Vec::<PathBuf>::new());
+          let diff_key = IndexDiffKey {
+            checksum: checksum.to_owned(),
+            size_bytes: finfo_target.size_bytes,
+            modified_timestamp: finfo_target.modified_timestamp.to_owned()
+          };
+
+          if !deleted.contains_key(&diff_key) {
+            deleted.insert(diff_key.to_owned(), Vec::<PathBuf>::new());
           }
 
-          deleted.get_mut(checksum).unwrap().push(fpath.into());
+          deleted.get_mut(&diff_key).unwrap().push(fpath.into());
         }
       }
       Some(finfo_actual) =>
@@ -54,14 +67,20 @@ pub fn diff(
   for (fpath, finfo) in &actual.files {
     if target.get(fpath).is_none() {
       if let Some(ref checksum) = finfo.checksum_sha256 {
-        if let Some(fpath_prev) = deleted.get(checksum).and_then(|v| v.get(0)).cloned() {
+        let diff_key = IndexDiffKey {
+          checksum: checksum.to_owned(),
+          size_bytes: finfo.size_bytes,
+          modified_timestamp: finfo.modified_timestamp.to_owned(),
+        };
+
+        if let Some(fpath_prev) = deleted.get(&diff_key).and_then(|v| v.get(0)).cloned() {
           diffs.push(IndexDiff::Renamed {
             from: fpath_prev.to_owned(),
             to: fpath.into(),
           });
 
           renamed.insert(fpath_prev.to_owned());
-          deleted.get_mut(checksum).unwrap().remove(0);
+          deleted.get_mut(&diff_key).unwrap().remove(0);
           continue;
         }
       }
