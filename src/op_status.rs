@@ -59,9 +59,11 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   println!("Repository: {:?}", data_path);
   println!("Last Snapshot: {:?}", snapshot_target_ref.unwrap().timestamp);
   println!("Status: {}", if diff.len() == 0 { "CLEAN".green() } else { "DIRTY".red() });
-  println!("");
-  ::prompt::print_diff(&diff);
-  println!("");
+  if diff.len() > 0 {
+    println!("");
+    ::prompt::print_diff(&diff);
+    println!("");
+  }
 
   return Ok(diff.len() == 0);
 }
