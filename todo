@@ -4,11 +4,11 @@
 - [x] diff calculation
 - [x] ignore index files
 - [x] diff printing/prompting
-- [ ] check index checksum on read
+- [x] check index checksum on read
 - [x] verbose logging
-- [ ] tests
+- [x] better index formt?
 - [ ] license
-- [ ] better index formt?
+- [ ] tests
 --
 - [ ] allow setting checksum function in init
 - [ ] env vars

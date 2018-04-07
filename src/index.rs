@@ -122,6 +122,11 @@ impl IndexDirectory {
         File::open(&snapshot_path)
         .and_then(|mut f| f.read_to_end(&mut snapshot_data));
 
+    let snapshot_checksum = ::checksum::sha256(&snapshot_data);
+    if snapshot_checksum != reference.checksum {
+      return Err(format!("Checksum mismatch for index file: {:?}", snapshot_path));
+    }
+
     if let Err(e) = read_result {
       return Err(e.to_string());
     }
