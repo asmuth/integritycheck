@@ -24,7 +24,7 @@ pub fn diff(
     target: &::IndexSnapshot,
     actual: &::IndexSnapshot) -> IndexDiffList {
   let mut diffs = IndexDiffList::new();
-  let mut deleted = HashMap::<String, PathBuf>::new();
+  let mut deleted = HashMap::<String, Vec<PathBuf>>::new();
 
   /* check that all files in the target index exist */
   for (fpath, finfo_target) in &target.files {
@@ -35,8 +35,11 @@ pub fn diff(
         });
 
         if let Some(ref checksum) = finfo_target.checksum_sha256 {
-          // use random file if multiple files with same checksum were deleted
-          deleted.insert(checksum.to_owned(), fpath.into());
+          if !deleted.contains_key(checksum) {
+            deleted.insert(checksum.to_owned(), Vec::<PathBuf>::new());
+          }
+
+          deleted.get_mut(checksum).unwrap().push(fpath.into());
         }
       }
       Some(finfo_actual) =>
@@ -51,14 +54,14 @@ pub fn diff(
   for (fpath, finfo) in &actual.files {
     if target.get(fpath).is_none() {
       if let Some(ref checksum) = finfo.checksum_sha256 {
-        if let Some(fpath_prev) = deleted.get(checksum).cloned() {
+        if let Some(fpath_prev) = deleted.get(checksum).and_then(|v| v.get(0)).cloned() {
           diffs.push(IndexDiff::Renamed {
             from: fpath_prev.to_owned(),
             to: fpath.into(),
           });
 
           renamed.insert(fpath_prev.to_owned());
-          deleted.remove(checksum);
+          deleted.get_mut(checksum).unwrap().remove(0);
           continue;
         }
       }
