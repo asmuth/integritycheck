@@ -2,12 +2,15 @@ use std::path::Path;
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
-usage: fhistory history [options]
+usage: fhistory log [options]
 Display a historical log of snapshots and changes to the repository
 
 options:
   -d,--data_dir=PATH     Set the path of the repository/data directory
-  -x,--index_dir=PATH    Set the path of the history/index directory
+                         default: '.'
+  -x,--index_dir=PATH    Set the path of the index directory. Note that this
+                         path is relative to the data directory. Absolute
+                         paths are allowed. default: '.fh'
   --help                 Print this help message and exit
 ";
 

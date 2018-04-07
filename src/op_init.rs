@@ -6,7 +6,11 @@ usage: fhistory init [options]
 Create a new index file.
 
 options:
-  -x,--index_dir=PATH    Set the path of the history/index directory
+  -d,--data_dir=PATH     Set the path of the repository/data directory
+                         default: '.'
+  -x,--index_dir=PATH    Set the path of the index directory. Note that this
+                         path is relative to the data directory. Absolute
+                         paths are allowed. default: '.fh'
   --help                 Print this help message and exit
 ";
 

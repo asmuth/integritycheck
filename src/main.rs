@@ -34,8 +34,15 @@ Another file integrity monitoring tool.
 
 global options:
   -d,--data_dir=PATH     Set the path of the repository/data directory
-  -x,--index_dir=PATH    Set the path of the history/index directory
-  --help=PATH            Print the help message for one of the commands and exit
+                         default: '.'
+  -x,--index_dir=PATH    Set the path of the index directory. Note that this
+                         path is relative to the data directory. Absolute
+                         paths are allowed. default: '.fh'
+  --help                 Print the help message for one of the commands and exit
+
+environment variables:
+  FHISTORY_DATA_DIR     Set the path of the repository/data directory (--data_dir)
+  FHISTORY_INDEX_DIR    Set the path of the index directory (--index_dir)
 
 commands:
   init      Create a new index file.

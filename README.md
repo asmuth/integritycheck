@@ -6,9 +6,9 @@ data. The binary is called `fhistory`, but I have it aliased to `fh` and will re
 to it as such in the readme.
 
 The user interface of `fh` is somewhat similar to version control systems
-like `git` or `svn`. Like most version control systems, `fh` works on a "repository".
+like `git` or `svn`. Like most version control systems, fh works on a "repository".
 In fh's case, the repository is just any directory on your disk that contains the data
-you want to monitor. Note that `fh` will never touch any of the files in the
+you want to monitor. Note that fh will never touch any of the files in the
 repository - it is a read-only tool with regards to your data directory.
 
 The command line interface should also be intuitive to use if you have used a
@@ -25,9 +25,9 @@ of your data and tell you if any of the files are corrupted or missing. Now, in
 case there *are* corrupted or missing files, fh is *not* able to restore them on
 its own; you have to retrieve them from your backup manually.
 
-The upside of this approach is that it allows you to easily use fh in addition
-to your existing backup or version control system. It also allows fh to handle
-very large repositories, such as a photo collection or a library of gamedev assets.
+The upside of this approach is that it allows you to use fh in addition to your
+existing backup or version control system. It also allows fh to handle very large
+repositories, such as a photo collection or a library of gamedev assets.
 
 
 Build & Installation
@@ -57,14 +57,22 @@ Usage
 
     global options:
       -d,--data_dir=PATH     Set the path of the repository/data directory
-      -x,--index_dir=PATH    Set the path of the history/index directory
-      --help=PATH            Print the help message for one of the commands and exit
+                             default: '.'
+      -x,--index_dir=PATH    Set the path of the index directory. Note that this
+                             path is relative to the data directory. Absolute
+                             paths are allowed. default: '.fh'
+      --help                 Print the help message for one of the commands and exit
+
+    environment variables:
+      FHISTORY_DATA_DIR     Set the path of the repository/data directory (--data_dir)
+      FHISTORY_INDEX_DIR    Set the path of the index directory (--index_dir)
 
     commands:
-      diff      Compare the current state of the repository to a snapshot (quick)
+      init      Create a new index file.
+      status    Compare the current state of the repository to the latest snapshot
       ack       Acknowledge changes to files in the repository and create a new snapshot
       log       Display a historical log of snapshots and changes to the repository
-      fsck      Perform a full check of the repository's integrity
+      verify    Perform a full check of the repository's integrity
       version   Print the version of this program and exit
       help      Print the help message for one of the commands and exit
 
