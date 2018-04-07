@@ -1,16 +1,18 @@
 - [x] cmd: init
-- [x] cmd: fsck -> verify; 
-- [ ] cmd: diff -> status
-- [ ] cmd: query --match/nomatch <files>
+- [x] cmd: fsck -> verify;
+- [x] cmd: diff -> status
 - [ ] diff calculation
 - [ ] diff printing/prompting
 - [ ] dont ack if no chnages
 - [ ] check index checksum on read
+- [ ] verbose logging
 - [ ] ack comments
 - [ ] ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
+- [ ] allow setting checksum function in init
 - [ ] log with diffs
-- [ ] verbose logging
 - [ ] nice progress bars
+- [ ] cmd: query --match/nomatch <files>
+- [ ] detect renames in status without --verify option
 ---
 - [ ] parallel scanning / locking
 - [ ] alternative checksums?

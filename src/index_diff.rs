@@ -36,6 +36,17 @@ pub fn diff(
     }
   }
 
+  /* check for untracked files in the actual index */
+  for (fpath, _) in &actual.files {
+    match target.get(fpath) {
+      None => diffs.push(IndexDiff::Created{file: fpath.into()}),
+      Some(_) => (),
+    }
+  }
+
+  /* detect renames */
+  diffs = detect_renames(&diffs);
+
   return diffs;
 }
 
@@ -53,3 +64,8 @@ fn compare_finfo(target: &::IndexFileInfo, actual: &::IndexFileInfo) -> bool {
 
   return true;
 }
+
+fn detect_renames(diffs: &IndexDiffList) -> IndexDiffList {
+  return diffs.to_owned();
+}
+

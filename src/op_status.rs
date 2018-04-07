@@ -15,12 +15,14 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let mut flag_cfg = Options::new();
   flag_cfg.optopt("d", "data_dir", "data_dir", "PATH");
   flag_cfg.optopt("x", "index_dir", "index_dir", "PATH");
+  flag_cfg.optflag("", "verify", "verify");
 
   let flags = match flag_cfg.parse(args) {
     Ok(f) => f,
     Err(e) => return Err(e.to_string()),
   };
 
+  let verify = flags.opt_present("verify");
   let data_path = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
   let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
   let index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
@@ -30,13 +32,18 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
     None => return Err(format!("no snapshots"))
   };
 
-  let snapshot_actual = ::index_scan::scan_metadata(
+  let mut snapshot_actual = ::index_scan::scan_metadata(
       &Path::new(&data_path),
       ".")?;
+
+  if verify {
+    snapshot_actual = ::index_scan::scan_checksums(
+        &Path::new(&data_path),
+        snapshot_actual)?;
+  }
 
   let diff = ::index_diff::diff(&snapshot_target, &snapshot_actual);
 
   println!("diff: {:?}", diff);
-
   return Ok(diff.len() == 0);
 }
