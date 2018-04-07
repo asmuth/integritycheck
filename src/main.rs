@@ -24,6 +24,7 @@ use std::env;
 use std::io::Write;
 use op::*;
 use index::*;
+use colored::*;
 
 type Error = String;
 
@@ -136,7 +137,7 @@ fn main() {
     Ok(true) => return,
     Ok(false) => std::process::exit(1),
     Err(e) => {
-      writeln!(&mut std::io::stderr(), "ERROR: {}", e).expect("ERROR");
+      writeln!(&mut std::io::stderr(), "{}", format!("ERROR: {}", e).red()).expect("ERROR");
       std::process::exit(1);
     }
   }

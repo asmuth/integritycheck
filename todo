@@ -11,6 +11,7 @@
 - [ ] license
 - [ ] better index formt?
 --
+- [ ] env vars
 - [ ] nice progress bars
 - [ ] dont ack if no chnages
 - [ ] ack comments

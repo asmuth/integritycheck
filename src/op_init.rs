@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path,PathBuf};
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
@@ -26,7 +26,31 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
 
   let data_path = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
   let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
-  let index = ::IndexDirectory::create(&Path::new(&data_path), &Path::new(&index_path))?;
+
+  println!("[1/4] Creating index...");
+  let mut index = ::IndexDirectory::create(
+      &Path::new(&data_path),
+      &Path::new(&index_path))?;
+
+  println!("[2/4] Scanning file metadata...");
+  let scan_opts = ::index_scan::ScanOptions {
+    exclude_paths: vec!(PathBuf::from(&index_path)),
+    exclusive_paths: None,
+  };
+
+  let mut snapshot = ::index_scan::scan_metadata(
+      &Path::new(&data_path),
+      ".",
+      &scan_opts)?;
+
+  println!("[3/4] Computing file checksums...");
+  snapshot = ::index_scan::scan_checksums(
+      &Path::new(&data_path),
+      snapshot,
+      &scan_opts)?;
+
+  println!("[4/4] Committing new snapshot...");
+  index.append(&snapshot)?;
 
   return Ok(true);
 }

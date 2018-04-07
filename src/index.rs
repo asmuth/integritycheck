@@ -88,18 +88,21 @@ impl IndexDirectory {
     });
   }
 
-  pub fn create(data_dir: &Path, index_path: &Path) -> Result<(), ::Error> {
+  pub fn create(data_dir: &Path, index_path: &Path) -> Result<IndexDirectory, ::Error> {
     let index_path : PathBuf = if index_path.has_root() {
       index_path.to_path_buf()
     } else {
       data_dir.join(index_path)
     };
 
-    if let Err(e) = fs::create_dir(index_path) {
+    if let Err(e) = fs::create_dir(&index_path) {
       return Err(format!("error while creating index directory: {}", e));
     }
 
-    return Ok(());
+    return Ok(IndexDirectory {
+      index_path: index_path,
+      index_files: Vec::<IndexReference>::new(),
+    });
   }
 
   pub fn latest(self: &Self) -> Option<IndexReference> {
