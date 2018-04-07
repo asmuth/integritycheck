@@ -2,7 +2,7 @@
 pub enum Operation {
   Acknowledge,
   Diff,
-  Fsck,
+  Verify,
   History,
   Initialize
 }
@@ -17,7 +17,7 @@ impl Operation {
     return match str {
       "ack" => Some(Operation::Acknowledge),
       "diff" => Some(Operation::Diff),
-      "fsck" => Some(Operation::Fsck),
+      "verify" => Some(Operation::Verify),
       "init" => Some(Operation::Initialize),
       "log" => Some(Operation::History),
       _ => None,

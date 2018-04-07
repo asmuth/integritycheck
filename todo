@@ -1,5 +1,5 @@
 - [x] cmd: init
-- [ ] cmd: fsck -> verify; 
+- [x] cmd: fsck -> verify; 
 - [ ] cmd: diff -> status
 - [ ] cmd: query --match/nomatch <files>
 - [ ] diff calculation

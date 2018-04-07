@@ -2,7 +2,7 @@ use std::path::Path;
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
-usage: fhistory fsck [options]
+usage: fhistory verify [options]
 Perform a full check of the repository's integrity
 
 options:
