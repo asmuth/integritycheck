@@ -4,17 +4,20 @@
 - [x] diff calculation
 - [ ] ignore index files
 - [ ] diff printing/prompting
-- [ ] dont ack if no chnages
 - [ ] check index checksum on read
 - [ ] verbose logging
+- [ ] tests
+- [ ] detect renames in status without --verify option
+- [ ] license
+- [ ] better index formt?
+--
+- [ ] nice progress bars
+- [ ] dont ack if no chnages
 - [ ] ack comments
 - [ ] ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
 - [ ] allow setting checksum function in init
-- [ ] log with diffs
-- [ ] nice progress bars
-- [ ] cmd: query --match/nomatch <files>
-- [ ] detect renames in status without --verify option
+- [ ] faster sha256
 ---
+- [ ] cmd: query --match/nomatch <files>
 - [ ] parallel scanning / locking
-- [ ] alternative checksums?
-- [ ] better index formt?
+- [ ] log with diffs
