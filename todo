@@ -1,8 +1,15 @@
-- diff calculation
-- diff printing/prompting
-- ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
-- log with diffs
-- verbose logging
-- nice progress bars
-- parallel scanning / locking
-- alternative checksums?
+- [ ] cmd: fsck -> verify; init; diff -> status
+- [ ] cmd: query --match/nomatch <files>
+- [ ] diff calculation
+- [ ] diff printing/prompting
+- [ ] dont ack if no chnages
+- [ ] check index checksum on read
+- [ ] ack comments
+- [ ] ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
+- [ ] log with diffs
+- [ ] verbose logging
+- [ ] nice progress bars
+---
+- [ ] parallel scanning / locking
+- [ ] alternative checksums?
+- [ ] better index formt?

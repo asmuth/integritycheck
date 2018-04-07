@@ -43,6 +43,13 @@ impl IndexDirectory {
       data_dir.join(index_path)
     };
 
+    if !index_path.exists() {
+      return Err(
+          format!(
+              "index not found at '{}'; maybe you need to run 'fhistory init' first?",
+              index_path.to_str().unwrap_or("")));
+    }
+
     let directory_listing = match fs::read_dir(&index_path) {
       Ok(d) => d,
       Err(e) => return Err(e.to_string()),
@@ -92,7 +99,6 @@ impl IndexDirectory {
   pub fn load(self: &Self, reference: &IndexReference) -> Result<IndexSnapshot, ::Error> {
     let snapshot_path = self.index_path.join(&reference.filename());
     let mut snapshot_data = Vec::<u8>::new();
-
     let read_result =
         File::open(&snapshot_path)
         .and_then(|mut f| f.read_to_end(&mut snapshot_data));
