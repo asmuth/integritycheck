@@ -1,7 +1,8 @@
 - [x] cmd: init
 - [x] cmd: fsck -> verify;
 - [x] cmd: diff -> status
-- [ ] diff calculation
+- [x] diff calculation
+- [ ] ignore index files
 - [ ] diff printing/prompting
 - [ ] dont ack if no chnages
 - [ ] check index checksum on read
