@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 use std::collections::{HashMap,HashSet};
 
-type IndexDiffList = Vec<IndexDiff>;
+pub type IndexDiffList = Vec<IndexDiff>;
 
 #[derive(Clone, Debug)]
 pub enum IndexDiff {

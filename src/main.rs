@@ -17,6 +17,7 @@ mod op_init;
 mod index;
 mod index_diff;
 mod index_scan;
+mod prompt;
 
 use std::env;
 use std::io::Write;

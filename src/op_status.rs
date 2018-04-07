@@ -30,9 +30,10 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
   let index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
 
-  let snapshot_target = match index.latest() {
-    Some(idx) => index.load(&idx)?,
-    None => return Err(format!("no snapshots"))
+  let snapshot_target_ref = index.latest();
+  let snapshot_target = match &snapshot_target_ref {
+    &Some(ref idx) => index.load(&idx)?,
+    &None => return Err(format!("no snapshots"))
   };
 
   let mut snapshot_actual = ::index_scan::scan_metadata(
@@ -54,7 +55,12 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   }
 
   let diff = ::index_diff::diff(&snapshot_target, &snapshot_actual);
+  println!("Repository: {:?}", data_path);
+  println!("Last Snapshot: {:?}", snapshot_target_ref.unwrap().timestamp);
+  println!("Status: {}", if diff.len() == 0 { "CLEAN" } else { "DIRTY" });
+  println!("");
+  ::prompt::print_diff(&diff);
+  println!("");
 
-  println!("diff: {:?}", diff);
   return Ok(diff.len() == 0);
 }

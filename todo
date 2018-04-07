@@ -3,7 +3,7 @@
 - [x] cmd: diff -> status
 - [x] diff calculation
 - [x] ignore index files
-- [ ] diff printing/prompting
+- [x] diff printing/prompting
 - [ ] check index checksum on read
 - [ ] verbose logging
 - [ ] tests
