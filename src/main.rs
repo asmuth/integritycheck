@@ -1,12 +1,8 @@
+extern crate colored;
 extern crate crypto;
 extern crate getopts;
 extern crate regex;
 extern crate walkdir;
-extern crate serde;
-extern crate serde_json;
-#[macro_use]
-extern crate serde_derive;
-extern crate colored;
 
 mod checksum;
 mod op;

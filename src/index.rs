@@ -5,7 +5,6 @@ use std::path::{Path,PathBuf};
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
 use regex::Regex;
-use serde_json as json;
 
 const INDEX_FILENAME_PATTERN : &'static str =
     r"^(?P<timestamp>\d+)-(?P<checksum>[a-z0-9]+)\.idx$";
@@ -22,14 +21,14 @@ pub struct IndexDirectory {
   index_files: Vec<IndexReference>,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct IndexFileInfo {
   pub size_bytes: u64,
   pub modified_timestamp: Option<i64>,
   pub checksum_sha256: Option<String>
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug)]
+#[derive(Clone, Debug)]
 pub struct IndexSnapshot {
   pub files: HashMap<String, IndexFileInfo>
 }
@@ -127,10 +126,10 @@ impl IndexDirectory {
       return Err(e.to_string());
     }
 
-    return match json::from_str(&String::from_utf8_lossy(&snapshot_data)) {
-      Ok(snap) => Ok(snap),
-      Err(e) => Err(e.to_string()),
-    };
+    let mut snap = ::IndexSnapshot::new();
+    snap.decode(&snapshot_data)?;
+
+    return Ok(snap);
   }
 
   pub fn append(self: &mut Self, snapshot: &IndexSnapshot) -> Result<IndexReference, ::Error> {
@@ -146,8 +145,8 @@ impl IndexDirectory {
       }
     }
 
-    let snapshot_encoded = json::to_string(&snapshot).unwrap();
-    let snapshot_checksum = ::checksum::sha256(snapshot_encoded.as_bytes());
+    let snapshot_encoded = snapshot.encode();
+    let snapshot_checksum = ::checksum::sha256(&snapshot_encoded);
 
     let snapshot_ref = IndexReference {
       timestamp: snapshot_timestamp,
@@ -157,7 +156,7 @@ impl IndexDirectory {
     ::prompt::print_debug(&format!("Writing new index snapshot {:?}", snapshot_ref.filename()));
     let result =
         fs::File::create(self.index_path.join(snapshot_ref.filename()))
-        .and_then(|mut f| f.write_all(snapshot_encoded.as_bytes()));
+        .and_then(|mut f| f.write_all(&snapshot_encoded));
 
     return match result {
       Ok(_) => Ok(snapshot_ref),
@@ -205,6 +204,48 @@ impl IndexSnapshot {
     }
   }
 
+  pub fn encode(self: &Self) -> Vec<u8> {
+    let mut data = String::new();
+
+    for (fpath, finfo) in self.files.iter() {
+      data += &format!(
+          "{} {} {} {}\n",
+          finfo.checksum_sha256.as_ref().unwrap_or(&"".to_owned()),
+          finfo.size_bytes,
+          finfo.modified_timestamp.unwrap_or(0),
+          encode_path(fpath));
+    }
+
+    return data.as_bytes().to_owned();
+  }
+
+  pub fn decode(self: &mut Self, data: &[u8]) -> Result<(), ::Error> {
+    let mut data = String::from_utf8_lossy(data);
+
+    for line in data.lines() {
+      let fields = line.splitn(4, " ").collect::<Vec<&str>>();
+      if fields.len() != 4 {
+        return Err(format!("invalid index file"));
+      }
+
+      let field_checksum = fields[0];
+      let field_mtime = fields[2];
+      let field_path = decode_path(fields[3])?;
+      let field_size = match fields[1].parse::<u64>() {
+        Ok(s) => s,
+        Err(_) => return Err(format!("invalid index file")),
+      };
+
+      self.files.insert(field_path, ::IndexFileInfo {
+        checksum_sha256: Some(field_checksum.to_owned()),
+        size_bytes: field_size,
+        modified_timestamp: field_mtime.parse::<i64>().ok(),
+      });
+    }
+
+    return Ok(());
+  }
+
 }
 
 impl IndexReference {
@@ -214,3 +255,41 @@ impl IndexReference {
   }
 
 }
+
+fn encode_path(src: &str) -> String {
+  let mut dst = String::new();
+
+  for c in src.chars() {
+    match c {
+      '\n' => dst += "\\n",
+      '\\' => dst += "\\\\",
+      _ => dst.push(c),
+    }
+  }
+
+  return dst.to_owned();
+}
+
+fn decode_path(src: &str) -> Result<String, ::Error> {
+  let mut dst = String::new();
+  let mut escape = false;
+  for c in src.chars() {
+    if escape {
+      match c {
+        '\\' => dst.push('\\'),
+        'n' => dst.push('\n'),
+        _ => return Err(format!("invalid escape sequence")),
+      };
+
+      escape = false;
+    } else {
+      match c {
+        '\\' => escape = true,
+        _ => dst.push(c),
+      };
+    }
+  }
+
+  return Ok(dst.to_owned());
+}
+
