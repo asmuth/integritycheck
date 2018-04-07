@@ -1,4 +1,6 @@
-- [ ] cmd: fsck -> verify; init; diff -> status
+- [x] cmd: init
+- [ ] cmd: fsck -> verify; 
+- [ ] cmd: diff -> status
 - [ ] cmd: query --match/nomatch <files>
 - [ ] diff calculation
 - [ ] diff printing/prompting

@@ -88,6 +88,14 @@ impl IndexDirectory {
     });
   }
 
+  pub fn create(index_path: &Path) -> Result<(), ::Error> {
+    if let Err(e) = fs::create_dir(index_path) {
+      return Err(format!("error while creating index directory: {}", e));
+    }
+
+    return Ok(());
+  }
+
   pub fn latest(self: &Self) -> Option<IndexReference> {
     return self.index_files.get(0).cloned();
   }

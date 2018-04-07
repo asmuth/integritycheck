@@ -13,6 +13,7 @@ mod op_acknowledge;
 mod op_diff;
 mod op_fsck;
 mod op_history;
+mod op_init;
 mod index;
 mod index_diff;
 mod index_scan;
@@ -58,6 +59,7 @@ fn perform_op(op: Operation, args: &Vec<String>) -> Result<bool, Error> {
     Operation::Diff => op_diff::perform(args),
     Operation::Fsck => op_fsck::perform(args),
     Operation::History => op_history::perform(args),
+    Operation::Initialize => op_init::perform(args),
   };
 }
 
@@ -67,7 +69,8 @@ fn print_usage(op: Option<Operation>) -> Result<bool, Error> {
     Some(Operation::Diff) => op_diff::USAGE,
     Some(Operation::Fsck) => op_fsck::USAGE,
     Some(Operation::History) => op_history::USAGE,
-    _ => USAGE,
+    Some(Operation::Initialize) => op_init::USAGE,
+    None => USAGE,
   };
 
   match std::io::stdout().write(usage_msg.as_bytes()) {

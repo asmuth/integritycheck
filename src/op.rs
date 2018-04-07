@@ -4,6 +4,7 @@ pub enum Operation {
   Diff,
   Fsck,
   History,
+  Initialize
 }
 
 pub trait OperationHelp {
@@ -17,6 +18,7 @@ impl Operation {
       "ack" => Some(Operation::Acknowledge),
       "diff" => Some(Operation::Diff),
       "fsck" => Some(Operation::Fsck),
+      "init" => Some(Operation::Initialize),
       "log" => Some(Operation::History),
       _ => None,
     };
