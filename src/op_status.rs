@@ -12,31 +12,39 @@ options:
   -x,--index_dir=PATH    Set the path of the index directory. Note that this
                          path is relative to the data directory. Absolute
                          paths are allowed. default: '.fh'
-  --help                 Print this help message and exit
+  --progress=[on/off]    Turn progress reporting on stderr on or off
+                         default: off
+  -v,--verbose           Enable verbose output,
+  -h,--help              Print this help message and exit
 ";
 
 pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let mut flag_cfg = Options::new();
   flag_cfg.optopt("d", "data_dir", "data_dir", "PATH");
   flag_cfg.optopt("x", "index_dir", "index_dir", "PATH");
-  flag_cfg.optflag("", "verify", "verify");
+  flag_cfg.optopt("", "progress", "progress", "ONOFF");
+  flag_cfg.optflag("v", "verbose", "verbose");
 
   let flags = match flag_cfg.parse(args) {
     Ok(f) => f,
     Err(e) => return Err(e.to_string()),
   };
 
-  let verify = flags.opt_present("verify");
+  ::prompt::set_debug(flags.opt_present("verbose"));
+  ::prompt::set_progress(flags.opt_str("progress") == Some("on".to_owned()));
+
   let data_path = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
   let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
-  let index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
 
+  ::prompt::print_progress_step(1, 4, "Loading index");
+  let index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
   let snapshot_target_ref = index.latest();
   let snapshot_target = match &snapshot_target_ref {
     &Some(ref idx) => index.load(&idx)?,
     &None => return Err(format!("no snapshots"))
   };
 
+  ::prompt::print_progress_step(2, 4, "Scanning file metadata");
   let mut snapshot_actual = ::index_scan::scan_metadata(
       &Path::new(&data_path),
       ".",
@@ -45,25 +53,23 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
         exclusive_paths: None,
       })?;
 
-  if verify {
-    snapshot_actual = ::index_scan::scan_checksums(
-        &Path::new(&data_path),
-        snapshot_actual,
-        &::index_scan::ScanOptions {
-          exclude_paths: vec!(PathBuf::from(&index_path)),
-          exclusive_paths: None,
-        })?;
-  }
+  ::prompt::print_progress_step(3, 4, "Computing file checksums for changed files");
+  snapshot_actual = ::index_scan::scan_checksums(
+      &Path::new(&data_path),
+      snapshot_actual,
+      &::index_scan::ScanOptions {
+        exclude_paths: vec!(PathBuf::from(&index_path)),
+        exclusive_paths: None,
+      })?;
 
+  ::prompt::print_progress_step(4, 4, "Computing diff");
   let diff = ::index_diff::diff(&snapshot_target, &snapshot_actual);
-  println!("Repository: {:?}", data_path);
-  println!("Last Snapshot: {:?}", snapshot_target_ref.unwrap().timestamp);
-  println!("Status: {}", if diff.len() == 0 { "CLEAN".green() } else { "DIRTY".red() });
-  if diff.len() > 0 {
-    println!("");
-    ::prompt::print_diff(&diff);
-    println!("");
-  }
+
+  ::prompt::print_progress_complete();
+  ::prompt::print_repository_path(&data_path);
+  ::prompt::print_snapshot_time(snapshot_target_ref.unwrap().timestamp);
+  ::prompt::print_repository_status(diff.len() == 0);
+  ::prompt::print_diff(&diff);
 
   return Ok(diff.len() == 0);
 }

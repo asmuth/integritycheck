@@ -56,10 +56,11 @@ pub fn scan_metadata(
     };
 
     if !check_excludes(&Path::new(&entry_path), opts) {
+      ::prompt::print_debug(&format!("Skipping file: {:?}", entry_path));
       continue;
     }
 
-    // println!("Read metadata for {:?}", entry_path);
+    ::prompt::print_debug(&format!("Reading file metadata: {:?}", entry_path));
     index.update(entry_path, &::IndexFileInfo {
       size_bytes: entry_meta.len(),
       modified_timestamp: entry_mtime,
@@ -78,15 +79,16 @@ pub fn scan_checksums(
 
   for file_path in index.list() {
     if !check_excludes(&Path::new(&file_path), opts) {
+      ::prompt::print_debug(&format!("Skipping checksum calculation for {:?}", file_path));
       continue;
     }
 
+    ::prompt::print_debug(&format!("Computing checksum for {:?}", file_path));
     let mut file_info = match &index.get(&file_path) {
       &Some(v) => v.to_owned(),
       &None => return Err(format!("invalid path")),
     };
 
-    //println!("Calculating SHA256 checksum for {:?}", file_path);
     let file_path_abs = data_path.join(&file_path).to_str().unwrap_or("").to_owned();
     let mut file_data = Vec::<u8>::new();
     if let Err(e) = File::open(&file_path_abs).and_then(|mut f| f.read_to_end(&mut file_data)) {
@@ -95,6 +97,11 @@ pub fn scan_checksums(
 
     file_info.checksum_sha256 = Some(::checksum::sha256(&file_data));
     index.update(&file_path, &file_info);
+
+    ::prompt::print_debug(&format!(
+        "Checksum for {:?} => {:?}",
+        file_path,
+        file_info.checksum_sha256));
   }
 
   return Ok(index)

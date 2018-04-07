@@ -5,13 +5,16 @@
 - [x] ignore index files
 - [x] diff printing/prompting
 - [ ] check index checksum on read
-- [ ] verbose logging
+- [x] verbose logging
+- [ ] format timestamp
+- [ ] print repo size
 - [ ] tests
 - [ ] detect renames in status without --verify option
 - [ ] license
 - [ ] better index formt?
 --
 - [ ] env vars
+- [ ] log table formatting
 - [ ] nice progress bars
 - [ ] dont ack if no chnages
 - [ ] ack comments

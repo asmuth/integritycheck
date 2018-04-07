@@ -43,6 +43,7 @@ impl IndexDirectory {
       data_dir.join(index_path)
     };
 
+    ::prompt::print_debug(&format!("Opening index directory at {:?}", index_path));
     if !index_path.exists() {
       return Err(
           format!(
@@ -95,6 +96,7 @@ impl IndexDirectory {
       data_dir.join(index_path)
     };
 
+    ::prompt::print_debug(&format!("Creating index directory at {:?}", index_path));
     if let Err(e) = fs::create_dir(&index_path) {
       return Err(format!("error while creating index directory: {}", e));
     }
@@ -114,6 +116,7 @@ impl IndexDirectory {
   }
 
   pub fn load(self: &Self, reference: &IndexReference) -> Result<IndexSnapshot, ::Error> {
+    ::prompt::print_debug(&format!("Loading index snapshot {:?}", reference.filename()));
     let snapshot_path = self.index_path.join(&reference.filename());
     let mut snapshot_data = Vec::<u8>::new();
     let read_result =
@@ -151,8 +154,7 @@ impl IndexDirectory {
       checksum: snapshot_checksum.to_owned()
     };
 
-    //println!("Write new index file {:?}", snapshot_ref.filename());
-
+    ::prompt::print_debug(&format!("Writing new index snapshot {:?}", snapshot_ref.filename()));
     let result =
         fs::File::create(self.index_path.join(snapshot_ref.filename()))
         .and_then(|mut f| f.write_all(snapshot_encoded.as_bytes()));
