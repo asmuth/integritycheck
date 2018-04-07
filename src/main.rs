@@ -41,7 +41,10 @@ global options:
   -x,--index_dir=PATH    Set the path of the index directory. Note that this
                          path is relative to the data directory. Absolute
                          paths are allowed. default: '.fh'
-  --help                 Print the help message for one of the commands and exit
+  --progress=[on/off]    Turn progress reporting on stderr on or off
+  --colours=[on/off]     Turn coloured terminal output on or off. default: on
+  -v,--verbose           Enable verbose output,
+  -h,--help              Print this help message and exit
 
 environment variables:
   FHISTORY_DATA_DIR     Set the path of the repository/data directory (--data_dir)

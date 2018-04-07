@@ -1,5 +1,6 @@
 use std;
 use std::io::Write;
+use colored;
 use colored::*;
 
 static mut enable_progress : bool = false;
@@ -15,6 +16,10 @@ pub fn set_debug(opt: bool) {
   unsafe {
     enable_debug = opt;
   }
+}
+
+pub fn set_colours(opt: bool) {
+  colored::control::set_override(opt);
 }
 
 pub fn print_progress_step(step: u32, steps_total: u32, msg: &str) {
