@@ -1,5 +1,6 @@
 use std::path::{Path,PathBuf};
 use getopts::Options;
+use colored::*;
 
 pub const USAGE : &'static str = "\
 usage: fhistory status [options]
@@ -57,7 +58,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let diff = ::index_diff::diff(&snapshot_target, &snapshot_actual);
   println!("Repository: {:?}", data_path);
   println!("Last Snapshot: {:?}", snapshot_target_ref.unwrap().timestamp);
-  println!("Status: {}", if diff.len() == 0 { "CLEAN" } else { "DIRTY" });
+  println!("Status: {}", if diff.len() == 0 { "CLEAN".green() } else { "DIRTY".red() });
   println!("");
   ::prompt::print_diff(&diff);
   println!("");
