@@ -1,11 +1,55 @@
+use std::path::PathBuf;
+
+type IndexDiffList = Vec<IndexDiff>;
+
 #[derive(Clone, Debug)]
-pub struct IndexDiff {}
+pub enum IndexDiff {
+  Created {
+    file: PathBuf
+  },
+  Modified {
+    file: PathBuf
+  },
+  Deleted {
+    file: PathBuf
+  },
+  Moved {
+    src: PathBuf,
+    dst: PathBuf
+  },
+}
 
 pub fn diff(
     target: &::IndexSnapshot,
-    actual: &::IndexSnapshot) -> Vec<IndexDiff> {
-  //println!("target index: {:?}", target);
-  //println!("actual index: {:?}", actual);
-  return Vec::<IndexDiff>::new();
+    actual: &::IndexSnapshot) -> IndexDiffList {
+  let mut diffs = IndexDiffList::new();
+
+  /* check that all files in the target index exist */
+  for (fpath, finfo_target) in &target.files {
+    match actual.get(fpath) {
+      None =>
+        diffs.push(IndexDiff::Deleted{file: fpath.into()}),
+      Some(finfo_actual) =>
+        if !compare_finfo(finfo_target, finfo_actual) {
+          diffs.push(IndexDiff::Modified{file: fpath.into()});
+        }
+    }
+  }
+
+  return diffs;
 }
 
+// returns true if the files match and false if they dont match
+fn compare_finfo(target: &::IndexFileInfo, actual: &::IndexFileInfo) -> bool {
+  if target.size_bytes != actual.size_bytes ||
+     target.modified_timestamp != actual.modified_timestamp {
+    return false; // metadata mismatch
+  }
+
+  if actual.checksum_sha256.is_some() &&
+     target.checksum_sha256 != actual.checksum_sha256 {
+    return false; // checksum mismatch
+  }
+
+  return true;
+}

@@ -1,7 +1,7 @@
 #[derive(Debug)]
 pub enum Operation {
   Acknowledge,
-  Diff,
+  Status,
   Verify,
   History,
   Initialize
@@ -16,7 +16,7 @@ impl Operation {
   pub fn from_str(str: &str) -> Option<Operation> {
     return match str {
       "ack" => Some(Operation::Acknowledge),
-      "diff" => Some(Operation::Diff),
+      "status" => Some(Operation::Status),
       "verify" => Some(Operation::Verify),
       "init" => Some(Operation::Initialize),
       "log" => Some(Operation::History),

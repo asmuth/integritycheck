@@ -31,7 +31,7 @@ pub struct IndexFileInfo {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct IndexSnapshot {
-  files: HashMap<String, IndexFileInfo>
+  pub files: HashMap<String, IndexFileInfo>
 }
 
 impl IndexDirectory {
@@ -88,7 +88,13 @@ impl IndexDirectory {
     });
   }
 
-  pub fn create(index_path: &Path) -> Result<(), ::Error> {
+  pub fn create(data_dir: &Path, index_path: &Path) -> Result<(), ::Error> {
+    let index_path : PathBuf = if index_path.has_root() {
+      index_path.to_path_buf()
+    } else {
+      data_dir.join(index_path)
+    };
+
     if let Err(e) = fs::create_dir(index_path) {
       return Err(format!("error while creating index directory: {}", e));
     }
@@ -168,7 +174,7 @@ impl IndexSnapshot {
     return self.files.iter().map(|(path, _)| path.clone()).collect();
   }
 
-  pub fn get(self: &mut Self, path: &str) -> Option<&IndexFileInfo> {
+  pub fn get(self: &Self, path: &str) -> Option<&IndexFileInfo> {
     return self.files.get(path);
   }
 

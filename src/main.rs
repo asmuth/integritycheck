@@ -10,7 +10,7 @@ extern crate serde_derive;
 mod checksum;
 mod op;
 mod op_acknowledge;
-mod op_diff;
+mod op_status;
 mod op_verify;
 mod op_history;
 mod op_init;
@@ -38,10 +38,11 @@ global options:
   --help=PATH            Print the help message for one of the commands and exit
 
 commands:
-  diff      Compare the current state of the repository to a snapshot (quick)
+  init      Create a new index file.
+  status    Compare the current state of the repository to the latest snapshot
   ack       Acknowledge changes to files in the repository and create a new snapshot
   log       Display a historical log of snapshots and changes to the repository
-  verify      Perform a full check of the repository's integrity
+  verify    Perform a full check of the repository's integrity
   version   Print the version of this program and exit
   help      Print the help message for one of the commands and exit
 ";
@@ -56,7 +57,7 @@ enum Command {
 fn perform_op(op: Operation, args: &Vec<String>) -> Result<bool, Error> {
   return match op {
     Operation::Acknowledge => op_acknowledge::perform(args),
-    Operation::Diff => op_diff::perform(args),
+    Operation::Status => op_status::perform(args),
     Operation::History => op_history::perform(args),
     Operation::Initialize => op_init::perform(args),
     Operation::Verify => op_verify::perform(args),
@@ -66,7 +67,7 @@ fn perform_op(op: Operation, args: &Vec<String>) -> Result<bool, Error> {
 fn print_usage(op: Option<Operation>) -> Result<bool, Error> {
   let usage_msg = match op {
     Some(Operation::Acknowledge) => op_acknowledge::USAGE,
-    Some(Operation::Diff) => op_diff::USAGE,
+    Some(Operation::Status) => op_status::USAGE,
     Some(Operation::History) => op_history::USAGE,
     Some(Operation::Initialize) => op_init::USAGE,
     Some(Operation::Verify) => op_verify::USAGE,
