@@ -69,7 +69,11 @@ pub fn print_success(msg: &str) {
 }
 
 pub fn print_repository_path(path: &str) {
-  println!("Repository: {}", path);
+  if let Ok(path) = std::fs::canonicalize(std::path::Path::new(&path)) {
+    println!("Repository: {}", path.to_str().unwrap_or("ERROR"));
+  } else {
+    println!("Repository: {}", path);
+  }
 }
 
 pub fn print_repository_status(status: bool) {
