@@ -1,21 +1,22 @@
 use std::path::PathBuf;
+use std::collections::{HashMap,HashSet};
 
 type IndexDiffList = Vec<IndexDiff>;
 
 #[derive(Clone, Debug)]
 pub enum IndexDiff {
   Created {
-    file: PathBuf
+    file: PathBuf,
   },
   Modified {
     file: PathBuf
   },
   Deleted {
-    file: PathBuf
+    file: PathBuf,
   },
-  Moved {
-    src: PathBuf,
-    dst: PathBuf
+  Renamed {
+    from: PathBuf,
+    to: PathBuf
   },
 }
 
@@ -23,12 +24,21 @@ pub fn diff(
     target: &::IndexSnapshot,
     actual: &::IndexSnapshot) -> IndexDiffList {
   let mut diffs = IndexDiffList::new();
+  let mut deleted = HashMap::<String, PathBuf>::new();
 
   /* check that all files in the target index exist */
   for (fpath, finfo_target) in &target.files {
     match actual.get(fpath) {
-      None =>
-        diffs.push(IndexDiff::Deleted{file: fpath.into()}),
+      None => {
+        diffs.push(IndexDiff::Deleted{
+          file: fpath.into(),
+        });
+
+        if let Some(ref checksum) = finfo_target.checksum_sha256 {
+          // use random file if multiple files with same checksum were deleted
+          deleted.insert(checksum.to_owned(), fpath.into());
+        }
+      }
       Some(finfo_actual) =>
         if !compare_finfo(finfo_target, finfo_actual) {
           diffs.push(IndexDiff::Modified{file: fpath.into()});
@@ -37,15 +47,37 @@ pub fn diff(
   }
 
   /* check for untracked files in the actual index */
-  for (fpath, _) in &actual.files {
-    match target.get(fpath) {
-      None => diffs.push(IndexDiff::Created{file: fpath.into()}),
-      Some(_) => (),
+  let mut renamed = HashSet::<PathBuf>::new();
+  for (fpath, finfo) in &actual.files {
+    if target.get(fpath).is_none() {
+      if let Some(ref checksum) = finfo.checksum_sha256 {
+        if let Some(fpath_prev) = deleted.get(checksum).cloned() {
+          diffs.push(IndexDiff::Renamed {
+            from: fpath_prev.to_owned(),
+            to: fpath.into(),
+          });
+
+          renamed.insert(fpath_prev.to_owned());
+          deleted.remove(checksum);
+          continue;
+        }
+      }
+
+      diffs.push(IndexDiff::Created{
+        file: fpath.into(),
+      });
     }
   }
 
-  /* detect renames */
-  diffs = detect_renames(&diffs);
+  /* collapse renames */
+  diffs = diffs
+      .iter()
+      .cloned()
+      .filter(|d| match d {
+        &IndexDiff::Deleted{ref file} => !renamed.contains(file),
+        _ => true,
+      })
+      .collect();
 
   return diffs;
 }
@@ -65,7 +97,4 @@ fn compare_finfo(target: &::IndexFileInfo, actual: &::IndexFileInfo) -> bool {
   return true;
 }
 
-fn detect_renames(diffs: &IndexDiffList) -> IndexDiffList {
-  return diffs.to_owned();
-}
 
