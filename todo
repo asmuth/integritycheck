@@ -6,20 +6,21 @@
 - [x] diff printing/prompting
 - [ ] check index checksum on read
 - [x] verbose logging
-- [ ] format timestamp
-- [ ] print repo size
 - [ ] tests
-- [ ] detect renames in status without --verify option
 - [ ] license
 - [ ] better index formt?
 --
+- [ ] allow setting checksum function in init
 - [ ] env vars
 - [ ] log table formatting
 - [ ] nice progress bars
 - [ ] dont ack if no chnages
 - [ ] ack comments
 - [ ] ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
-- [ ] allow setting checksum function in init
+- [ ] ack multiple pathspecs
+- [ ] format timestamp
+- [ ] print repo size
+- [ ] faster (filtered) checksum scan in ack and status
 - [ ] faster sha256
 ---
 - [ ] cmd: query --match/nomatch <files>
