@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path,PathBuf};
 use getopts::Options;
 
 pub const USAGE : &'static str = "\

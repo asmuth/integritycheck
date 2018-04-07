@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path,PathBuf};
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
@@ -40,10 +40,21 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   };
 
   println!("[2/4] Scanning file metadata...");
-  let mut updates =::index_scan::scan_metadata(&Path::new(&data_path), &pathspec)?;
+  let scan_opts = ::index_scan::ScanOptions {
+    exclude_paths: vec!(PathBuf::from(&index_path)),
+    exclusive_paths: None,
+  };
+
+  let mut updates = ::index_scan::scan_metadata(
+      &Path::new(&data_path),
+      &pathspec,
+      &scan_opts)?;
 
   println!("[3/4] Computing file checksums...");
-  updates = ::index_scan::scan_checksums(&Path::new(&data_path), updates)?;
+  updates = ::index_scan::scan_checksums(
+      &Path::new(&data_path),
+      updates,
+      &scan_opts)?;
 
   println!("[4/4] Committing new snapshot...");
   snapshot.clear(&pathspec);

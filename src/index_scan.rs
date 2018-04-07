@@ -1,11 +1,19 @@
 use std::fs;
 use std::fs::File;
 use std::io::Read;
-use std::path::Path;
+use std::path::{Path,PathBuf};
 use std::time::UNIX_EPOCH;
 use walkdir::WalkDir;
 
-pub fn scan_metadata(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, ::Error> {
+pub struct ScanOptions {
+  pub exclude_paths: Vec<PathBuf>,
+  pub exclusive_paths: Option<Vec<PathBuf>>
+}
+
+pub fn scan_metadata(
+    data_path: &Path,
+    prefix: &str,
+    opts: &ScanOptions) -> Result<::IndexSnapshot, ::Error> {
   let data_path = match fs::canonicalize(data_path) {
     Ok(e) => e,
     Err(e) => return Err(e.to_string()),
@@ -47,7 +55,11 @@ pub fn scan_metadata(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, 
       None => return Err(format!("invalid path")),
     };
 
-    //println!("Read metadata for {:?}", entry_path);
+    if !check_excludes(&Path::new(&entry_path), opts) {
+      continue;
+    }
+
+    // println!("Read metadata for {:?}", entry_path);
     index.update(entry_path, &::IndexFileInfo {
       size_bytes: entry_meta.len(),
       modified_timestamp: entry_mtime,
@@ -58,10 +70,17 @@ pub fn scan_metadata(data_path: &Path, prefix: &str) -> Result<::IndexSnapshot, 
   return Ok(index);
 }
 
-pub fn scan_checksums(data_path: &Path, index: ::IndexSnapshot) -> Result<::IndexSnapshot, ::Error> {
+pub fn scan_checksums(
+    data_path: &Path,
+    index: ::IndexSnapshot,
+    opts: &ScanOptions) -> Result<::IndexSnapshot, ::Error> {
   let mut index = index;
 
   for file_path in index.list() {
+    if !check_excludes(&Path::new(&file_path), opts) {
+      continue;
+    }
+
     let mut file_info = match &index.get(&file_path) {
       &Some(v) => v.to_owned(),
       &None => return Err(format!("invalid path")),
@@ -79,5 +98,30 @@ pub fn scan_checksums(data_path: &Path, index: ::IndexSnapshot) -> Result<::Inde
   }
 
   return Ok(index)
+}
+
+fn check_excludes(path: &Path, opts: &ScanOptions) -> bool {
+  {
+    let skip = opts
+        .exclude_paths
+        .iter()
+        .any(|p| path.starts_with(p));
+
+    if skip {
+      return false;
+    }
+  }
+
+  if let Some(ref exclusive_paths) = opts.exclusive_paths {
+    let skip = !exclusive_paths
+        .iter()
+        .any(|p| path.starts_with(p));
+
+    if skip {
+      return false;
+    }
+  }
+
+  return true;
 }
 

@@ -2,7 +2,7 @@
 - [x] cmd: fsck -> verify;
 - [x] cmd: diff -> status
 - [x] diff calculation
-- [ ] ignore index files
+- [x] ignore index files
 - [ ] diff printing/prompting
 - [ ] check index checksum on read
 - [ ] verbose logging

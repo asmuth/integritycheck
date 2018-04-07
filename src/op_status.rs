@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path,PathBuf};
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
@@ -37,12 +37,20 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
 
   let mut snapshot_actual = ::index_scan::scan_metadata(
       &Path::new(&data_path),
-      ".")?;
+      ".",
+      &::index_scan::ScanOptions {
+        exclude_paths: vec!(PathBuf::from(&index_path)),
+        exclusive_paths: None,
+      })?;
 
   if verify {
     snapshot_actual = ::index_scan::scan_checksums(
         &Path::new(&data_path),
-        snapshot_actual)?;
+        snapshot_actual,
+        &::index_scan::ScanOptions {
+          exclude_paths: vec!(PathBuf::from(&index_path)),
+          exclusive_paths: None,
+        })?;
   }
 
   let diff = ::index_diff::diff(&snapshot_target, &snapshot_actual);
