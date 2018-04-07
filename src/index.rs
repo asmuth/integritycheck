@@ -25,7 +25,7 @@ pub struct IndexDirectory {
 pub struct IndexFileInfo {
   pub size_bytes: u64,
   pub modified_timestamp: Option<i64>,
-  pub checksum_sha256: Option<String>
+  pub checksum: Option<String>
 }
 
 #[derive(Clone, Debug)]
@@ -215,7 +215,7 @@ impl IndexSnapshot {
     for (fpath, finfo) in self.files.iter() {
       data += &format!(
           "{} {} {} {}\n",
-          finfo.checksum_sha256.as_ref().unwrap_or(&"".to_owned()),
+          finfo.checksum.as_ref().unwrap_or(&"".to_owned()),
           finfo.size_bytes,
           finfo.modified_timestamp.unwrap_or(0),
           encode_path(fpath));
@@ -242,7 +242,7 @@ impl IndexSnapshot {
       };
 
       self.files.insert(field_path, ::IndexFileInfo {
-        checksum_sha256: Some(field_checksum.to_owned()),
+        checksum: Some(field_checksum.to_owned()),
         size_bytes: field_size,
         modified_timestamp: field_mtime.parse::<i64>().ok(),
       });

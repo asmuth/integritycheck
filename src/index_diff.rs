@@ -41,7 +41,7 @@ pub fn diff(
           file: fpath.into(),
         });
 
-        if let Some(ref checksum) = finfo_target.checksum_sha256 {
+        if let Some(ref checksum) = finfo_target.checksum {
           let diff_key = IndexDiffKey {
             checksum: checksum.to_owned(),
             size_bytes: finfo_target.size_bytes,
@@ -66,7 +66,7 @@ pub fn diff(
   let mut renamed = HashSet::<PathBuf>::new();
   for (fpath, finfo) in &actual.files {
     if target.get(fpath).is_none() {
-      if let Some(ref checksum) = finfo.checksum_sha256 {
+      if let Some(ref checksum) = finfo.checksum {
         let diff_key = IndexDiffKey {
           checksum: checksum.to_owned(),
           size_bytes: finfo.size_bytes,
@@ -111,8 +111,8 @@ fn compare_finfo(target: &::IndexFileInfo, actual: &::IndexFileInfo) -> bool {
     return false; // metadata mismatch
   }
 
-  if actual.checksum_sha256.is_some() &&
-     target.checksum_sha256 != actual.checksum_sha256 {
+  if actual.checksum.is_some() &&
+     target.checksum != actual.checksum {
     return false; // checksum mismatch
   }
 

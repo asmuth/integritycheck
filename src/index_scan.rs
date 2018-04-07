@@ -64,7 +64,7 @@ pub fn scan_metadata(
     index.update(entry_path, &::IndexFileInfo {
       size_bytes: entry_meta.len(),
       modified_timestamp: entry_mtime,
-      checksum_sha256: None
+      checksum: None
     });
   }
 
@@ -95,13 +95,13 @@ pub fn scan_checksums(
       return Err(e.to_string());
     }
 
-    file_info.checksum_sha256 = Some(::checksum::sha256(&file_data));
+    file_info.checksum = Some(::checksum::sha256(&file_data));
     index.update(&file_path, &file_info);
 
     ::prompt::print_debug(&format!(
         "Checksum for {:?} => {:?}",
         file_path,
-        file_info.checksum_sha256));
+        file_info.checksum));
   }
 
   return Ok(index)
