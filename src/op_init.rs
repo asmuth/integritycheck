@@ -14,14 +14,14 @@ usage: fhistory init [options]
 Create a new index file.
 
 options:
+  --checksum=TYPE        Set the checksum/digest function. Possible values:
+                         'sha256' (default), 'md5'
+  --empty                Create the index, but do not add the existing files
   -d,--data_dir=PATH     Set the path of the repository/data directory
                          default: '.'
   -x,--index_dir=PATH    Set the path of the index directory. Note that this
                          path is relative to the data directory. Absolute
                          paths are allowed. default: '.fh'
-  --checksum=TYPE        Set the checksum/digest function. Possible values:
-                         'sha256' (default), 'md5'
-  --empty                Create the index, but do not add the existing files
   --progress=[on/off]    Turn progress reporting on stderr on or off
                          default: on
   --colours=[on/off]     Turn coloured terminal output on or off
@@ -32,10 +32,10 @@ options:
 
 pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let mut flag_cfg = Options::new();
-  flag_cfg.optopt("d", "data_dir", "data_dir", "PATH");
-  flag_cfg.optopt("x", "index_dir", "index_dir", "PATH");
   flag_cfg.optopt("", "checksum", "checksum", "FUNCTION");
   flag_cfg.optflag("", "empty", "empty");
+  flag_cfg.optopt("d", "data_dir", "data_dir", "PATH");
+  flag_cfg.optopt("x", "index_dir", "index_dir", "PATH");
   flag_cfg.optopt("", "progress", "progress", "ONOFF");
   flag_cfg.optopt("", "colours", "progress", "ONOFF");
   flag_cfg.optflag("v", "verbose", "verbose");

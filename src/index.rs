@@ -39,7 +39,8 @@ pub struct IndexFileInfo {
 #[derive(Clone, Debug)]
 pub struct IndexSnapshot {
   pub checksum_function: ::checksum::ChecksumFunction,
-  pub files: BTreeMap<String, IndexFileInfo>
+  pub files: BTreeMap<String, IndexFileInfo>,
+  pub message: Option<String>,
 }
 
 impl IndexDirectory {
@@ -187,7 +188,8 @@ impl IndexSnapshot {
   pub fn new(checksum_function: ::checksum::ChecksumFunction) -> IndexSnapshot {
     return IndexSnapshot {
       files: BTreeMap::<String, IndexFileInfo>::new(),
-      checksum_function: checksum_function
+      checksum_function: checksum_function,
+      message: None,
     }
   }
 
@@ -237,6 +239,10 @@ impl IndexSnapshot {
         "#checksum {}\n",
         ::checksum::checksum_function_to_str(&self.checksum_function));
 
+    if let &Some(ref message) = &self.message {
+      data += &format!("#message {}\n", encode_string(message));
+    }
+
     for (fpath, finfo) in self.files.iter() {
       if finfo.checksum.is_none() {
         panic!("missing checksum");
@@ -256,6 +262,7 @@ impl IndexSnapshot {
   pub fn decode(data: &[u8]) -> Result<IndexSnapshot, ::Error> {
     let mut files = BTreeMap::<String, IndexFileInfo>::new();
     let mut checksum_function = String::new();
+    let mut message : Option<String> = None;
 
     let mut data = String::from_utf8_lossy(data);
     for line in data.lines() {
@@ -263,6 +270,11 @@ impl IndexSnapshot {
 
       if fields.len() == 2 && fields[0] == "#checksum" {
         checksum_function = fields[1].into();
+        continue;
+      }
+
+      if fields.len() == 2 && fields[0] == "#message" {
+        message = Some(decode_string(fields[1])?);
         continue;
       }
 
@@ -292,6 +304,7 @@ impl IndexSnapshot {
     return Ok(IndexSnapshot {
       files: files,
       checksum_function: checksum_function,
+      message: message
     });
   }
 

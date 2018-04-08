@@ -15,6 +15,7 @@ usage: fhistory ack [options] <path>
 Acknowledge changes to files in the repository and create a new snapshot
 
 options:
+  -m,--message=MSG       Set a message to be stored along with the snapshot
   -d,--data_dir=PATH     Set the path of the repository/data directory
                          default: '.'
   -x,--index_dir=PATH    Set the path of the index directory. Note that this
@@ -30,6 +31,7 @@ options:
 
 pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let mut flag_cfg = Options::new();
+  flag_cfg.optopt("m", "message", "message", "MSG");
   flag_cfg.optopt("d", "data_dir", "data_dir", "PATH");
   flag_cfg.optopt("x", "index_dir", "index_dir", "PATH");
   flag_cfg.optopt("", "progress", "progress", "ONOFF");
@@ -113,6 +115,8 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
       })?;
 
   ::prompt::print_progress_step(4, 4, "Committing new snapshot");
+  snapshot.message = flags.opt_str("message");
+
   for diff in diffs {
     let file = match &diff {
       &::index_diff::IndexDiff::Deleted{ref file} => {
