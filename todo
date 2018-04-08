@@ -14,7 +14,7 @@
 - [x] ack multiple pathspecs
 - [x] millisecond timestamps
 - [x] faster (filtered) checksum scan in ack and status
-- [ ] dont ack if no chnages
+- [x] dont ack if no chnages
 - [ ] ack comments
 - [ ] ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
 - [ ] format timestamp

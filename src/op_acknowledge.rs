@@ -87,14 +87,18 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
       })?;
 
   ::prompt::print_progress_step(3, 4, "Computing file checksums for changed files");
+  let diffs = ::index_diff::diff(&snapshot, &updates);
+  if diffs.len() == 0 {
+    ::prompt::print_success(&format!("Nothing to commit"));
+    return Ok(true);
+  }
+
   updates = ::index_scan::scan_checksums(
       &Path::new(&data_path),
       updates.to_owned(),
       &::index_scan::ScanOptions {
         exclude_paths: vec!(PathBuf::from(&index_path)),
-        exclusive_paths: Some(
-            ::index_diff::list_files(
-                &::index_diff::diff(&snapshot, &updates))),
+        exclusive_paths: Some(::index_diff::list_files(&diffs)),
       })?;
 
   ::prompt::print_progress_step(4, 4, "Committing new snapshot");
