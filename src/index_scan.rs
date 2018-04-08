@@ -29,7 +29,6 @@ pub fn scan_metadata(
     Err(e) => return Err(e.to_string()),
   };
 
-  // FIXME: only walk exclusive paths
   for entry in WalkDir::new(Path::new(&data_path)) {
     let entry = match entry {
       Ok(v) => v,
