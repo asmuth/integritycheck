@@ -12,14 +12,16 @@ pub struct ScanOptions {
 
 pub fn scan_metadata(
     data_path: &Path,
+    index: ::IndexSnapshot,
     prefix: &str,
     opts: &ScanOptions) -> Result<::IndexSnapshot, ::Error> {
+  let mut index = index;
+
   let data_path = match fs::canonicalize(data_path) {
     Ok(e) => e,
     Err(e) => return Err(e.to_string()),
   };
 
-  let mut index = ::IndexSnapshot::new();
   for entry in WalkDir::new(Path::new(&data_path).join(&prefix)) {
     let entry = match entry {
       Ok(v) => v,
@@ -95,7 +97,10 @@ pub fn scan_checksums(
       return Err(e.to_string());
     }
 
-    file_info.checksum = Some(::checksum::sha256(&file_data));
+    file_info.checksum = Some(::checksum::compute(
+        index.checksum_function.clone(),
+        &file_data));
+
     index.update(&file_path, &file_info);
 
     ::prompt::print_debug(&format!(

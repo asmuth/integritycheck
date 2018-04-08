@@ -56,6 +56,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
 
   let mut snapshot_actual = ::index_scan::scan_metadata(
       &Path::new(&data_path),
+      ::IndexSnapshot::new(snapshot_target.checksum_function.to_owned()),
       ".",
       &scan_opts)?;
 

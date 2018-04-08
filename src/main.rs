@@ -27,6 +27,7 @@ type Error = String;
 const VERSION : &'static str = env!("CARGO_PKG_VERSION");
 const DEFAULT_DATA_DIR : &'static str = ".";
 const DEFAULT_INDEX_DIR : &'static str = ".fhistory";
+const DEFAULT_CHECKSUM_FUNCTION : &'static str = "sha256";
 const USAGE : &'static str = "\
 usage: fhistory <command> [options]
 Another file integrity monitoring tool.

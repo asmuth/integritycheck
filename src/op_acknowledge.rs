@@ -48,7 +48,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let mut index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
   let mut snapshot = match index.latest() {
     Some(idx) => index.load(&idx)?,
-    None => ::IndexSnapshot::new()
+    None => return Err(format!("no index snapshot found")),
   };
 
   ::prompt::print_progress_step(2, 4, "Scanning file metadata");
@@ -59,6 +59,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
 
   let mut updates = ::index_scan::scan_metadata(
       &Path::new(&data_path),
+      ::IndexSnapshot::new(snapshot.checksum_function.to_owned()),
       &pathspec,
       &scan_opts)?;
 

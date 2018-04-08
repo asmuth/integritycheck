@@ -30,6 +30,7 @@ pub struct IndexFileInfo {
 
 #[derive(Clone, Debug)]
 pub struct IndexSnapshot {
+  pub checksum_function: ::checksum::ChecksumFunction,
   pub files: HashMap<String, IndexFileInfo>
 }
 
@@ -121,20 +122,20 @@ impl IndexDirectory {
     let read_result =
         File::open(&snapshot_path)
         .and_then(|mut f| f.read_to_end(&mut snapshot_data));
-
-    let snapshot_checksum = ::checksum::sha256(&snapshot_data);
-    if snapshot_checksum != reference.checksum {
-      return Err(format!("Checksum mismatch for index file: {:?}", snapshot_path));
-    }
-
     if let Err(e) = read_result {
       return Err(e.to_string());
     }
 
-    let mut snap = ::IndexSnapshot::new();
-    snap.decode(&snapshot_data)?;
+    let mut snapshot = ::IndexSnapshot::decode(&snapshot_data)?;
+    let snapshot_checksum = ::checksum::compute(
+        snapshot.checksum_function.clone(),
+        &snapshot_data);
 
-    return Ok(snap);
+    if snapshot_checksum != reference.checksum {
+      return Err(format!("Checksum mismatch for index file: {:?}", snapshot_path));
+    }
+
+    return Ok(snapshot);
   }
 
   pub fn append(self: &mut Self, snapshot: &IndexSnapshot) -> Result<IndexReference, ::Error> {
@@ -151,7 +152,9 @@ impl IndexDirectory {
     }
 
     let snapshot_encoded = snapshot.encode();
-    let snapshot_checksum = ::checksum::sha256(&snapshot_encoded);
+    let snapshot_checksum = ::checksum::compute(
+        snapshot.checksum_function.clone(),
+        &snapshot_encoded);
 
     let snapshot_ref = IndexReference {
       timestamp: snapshot_timestamp,
@@ -173,9 +176,10 @@ impl IndexDirectory {
 
 impl IndexSnapshot {
 
-  pub fn new() -> IndexSnapshot {
+  pub fn new(checksum_function: ::checksum::ChecksumFunction) -> IndexSnapshot {
     return IndexSnapshot {
-      files: HashMap::<String, IndexFileInfo>::new()
+      files: HashMap::<String, IndexFileInfo>::new(),
+      checksum_function: checksum_function
     }
   }
 
@@ -212,6 +216,10 @@ impl IndexSnapshot {
   pub fn encode(self: &Self) -> Vec<u8> {
     let mut data = String::new();
 
+    data += &format!(
+        "#checksum {}\n",
+        ::checksum::checksum_function_to_str(&self.checksum_function));
+
     for (fpath, finfo) in self.files.iter() {
       data += &format!(
           "{} {} {} {}\n",
@@ -224,31 +232,46 @@ impl IndexSnapshot {
     return data.as_bytes().to_owned();
   }
 
-  pub fn decode(self: &mut Self, data: &[u8]) -> Result<(), ::Error> {
-    let mut data = String::from_utf8_lossy(data);
+  pub fn decode(data: &[u8]) -> Result<IndexSnapshot, ::Error> {
+    let mut files = HashMap::<String, IndexFileInfo>::new();
+    let mut checksum_function = String::new();
 
+    let mut data = String::from_utf8_lossy(data);
     for line in data.lines() {
-      let fields = line.splitn(4, " ").collect::<Vec<&str>>();
-      if fields.len() != 4 {
-        return Err(format!("invalid index file"));
+      let fields = line.split(" ").collect::<Vec<&str>>();
+
+      if fields.len() == 2 && fields[0] == "#checksum" {
+        checksum_function = fields[1].into();
+        continue;
       }
 
-      let field_checksum = fields[0];
-      let field_mtime = fields[2];
-      let field_path = decode_path(fields[3])?;
-      let field_size = match fields[1].parse::<u64>() {
-        Ok(s) => s,
-        Err(_) => return Err(format!("invalid index file")),
-      };
+      if fields.len() == 4 {
+        let field_checksum = fields[0];
+        let field_mtime = fields[2];
+        let field_path = decode_path(fields[3])?;
+        let field_size = match fields[1].parse::<u64>() {
+          Ok(s) => s,
+          Err(_) => return Err(format!("invalid index file")),
+        };
 
-      self.files.insert(field_path, ::IndexFileInfo {
-        checksum: Some(field_checksum.to_owned()),
-        size_bytes: field_size,
-        modified_timestamp: field_mtime.parse::<i64>().ok(),
-      });
+        files.insert(field_path, ::IndexFileInfo {
+          checksum: Some(field_checksum.to_owned()),
+          size_bytes: field_size,
+          modified_timestamp: field_mtime.parse::<i64>().ok(),
+        });
+
+        continue;
+      }
+
+      return Err(format!("invalid index file"));
     }
 
-    return Ok(());
+    let checksum_function = ::checksum::checksum_function_from_str(&checksum_function)?;
+
+    return Ok(IndexSnapshot {
+      files: files,
+      checksum_function: checksum_function,
+    });
   }
 
 }

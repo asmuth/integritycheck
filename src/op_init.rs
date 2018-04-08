@@ -11,6 +11,8 @@ options:
   -x,--index_dir=PATH    Set the path of the index directory. Note that this
                          path is relative to the data directory. Absolute
                          paths are allowed. default: '.fh'
+  --checksum=TYPE        Set the checksum/digest function. Possible values:
+                         'sha256' (default)
   --progress=[on/off]    Turn progress reporting on stderr on or off
                          default: on
   --colours=[on/off]     Turn coloured terminal output on or off
@@ -23,6 +25,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let mut flag_cfg = Options::new();
   flag_cfg.optopt("d", "data_dir", "data_dir", "PATH");
   flag_cfg.optopt("x", "index_dir", "index_dir", "PATH");
+  flag_cfg.optopt("", "checksum", "checksum", "FUNCTION");
   flag_cfg.optopt("", "progress", "progress", "ONOFF");
   flag_cfg.optopt("", "colours", "progress", "ONOFF");
   flag_cfg.optflag("v", "verbose", "verbose");
@@ -38,6 +41,9 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
 
   let data_path = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
   let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
+  let checksum_fn = ::checksum::checksum_function_from_str(
+      &flags.opt_str("checksum").unwrap_or(::DEFAULT_CHECKSUM_FUNCTION.into()))?;
+
 
   ::prompt::print_progress_step(1, 4, "Creating index");
   let mut index = ::IndexDirectory::create(
@@ -52,6 +58,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
 
   let mut snapshot = ::index_scan::scan_metadata(
       &Path::new(&data_path),
+      ::IndexSnapshot::new(checksum_fn),
       ".",
       &scan_opts)?;
 

@@ -10,7 +10,7 @@
 - [ ] license
 - [ ] tests
 --
-- [ ] allow setting checksum function in init
+- [x] allow setting checksum function in init
 - [ ] env vars
 - [ ] log table formatting
 - [ ] nice progress bars

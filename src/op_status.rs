@@ -51,6 +51,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   ::prompt::print_progress_step(2, 4, "Scanning file metadata");
   let mut snapshot_actual = ::index_scan::scan_metadata(
       &Path::new(&data_path),
+      ::IndexSnapshot::new(snapshot_target.checksum_function.to_owned()),
       ".",
       &::index_scan::ScanOptions {
         exclude_paths: vec!(PathBuf::from(&index_path)),
