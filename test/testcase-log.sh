@@ -30,10 +30,18 @@ fhistory status
 fhistory log --colours=off > "../output"
 
 (cat > "../output.expected") <<EOF
-Repository: ${TEST_TMPDIR}/repo
+snapshot b2e61b7fd1934df374fd722181da93c380a72c0eeb28dd73c2a4a15f86e0710f
+Timestamp: Fri, 01 Jan 2016 06:00:02 +0100
+Size: 6B (4 files)
 
-IndexReference { timestamp_us: 1451624402000000, checksum: "b2e61b7fd1934df374fd722181da93c380a72c0eeb28dd73c2a4a15f86e0710f" } Some("Hello World")
-IndexReference { timestamp_us: 1451624401000000, checksum: "514530670e5d6a33e36d9a4a1c99cebc72a6977414b298bed27e6a63a31999a8" } None
+    Hello World
+
+snapshot 514530670e5d6a33e36d9a4a1c99cebc72a6977414b298bed27e6a63a31999a8
+Timestamp: Fri, 01 Jan 2016 06:00:01 +0100
+Size: 6B (3 files)
+
+    <no message>
+
 EOF
 
 diff "../output" "../output.expected"
