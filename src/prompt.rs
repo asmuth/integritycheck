@@ -12,6 +12,7 @@ use std::io::Read;
 use colored;
 use colored::*;
 use libc;
+use time;
 
 static mut enable_progress : bool = false;
 static mut enable_debug : bool = false;
@@ -95,7 +96,8 @@ pub fn print_repository_status(status: bool) {
 }
 
 pub fn print_snapshot_time(timestamp_us: i64) {
-  println!("Last Snapshot: {}", timestamp_us);
+  let time = time::at(time::Timespec::new(timestamp_us / 1_000_000, 0));
+  println!("Last Snapshot: {}", time.rfc822z());
 }
 
 pub fn print_diff(diff: &::index_diff::IndexDiffList) {

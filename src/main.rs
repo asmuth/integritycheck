@@ -13,6 +13,7 @@ extern crate inflate;
 extern crate getopts;
 extern crate libc;
 extern crate regex;
+extern crate time;
 extern crate walkdir;
 
 mod checksum;
