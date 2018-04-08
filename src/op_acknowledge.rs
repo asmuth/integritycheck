@@ -77,21 +77,25 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   };
 
   ::prompt::print_progress_step(2, 4, "Scanning file metadata");
-  let scan_opts = ::index_scan::ScanOptions {
-    exclude_paths: vec!(PathBuf::from(&index_path)),
-    exclusive_paths: Some(pathspecs.to_owned()),
-  };
 
   let mut updates = ::index_scan::scan_metadata(
       &Path::new(&data_path),
       ::IndexSnapshot::new(snapshot.checksum_function.to_owned()),
-      &scan_opts)?;
+      &::index_scan::ScanOptions {
+        exclude_paths: vec!(PathBuf::from(&index_path)),
+        exclusive_paths: Some(pathspecs.to_owned()),
+      })?;
 
   ::prompt::print_progress_step(3, 4, "Computing file checksums for changed files");
   updates = ::index_scan::scan_checksums(
       &Path::new(&data_path),
-      updates,
-      &scan_opts)?;
+      updates.to_owned(),
+      &::index_scan::ScanOptions {
+        exclude_paths: vec!(PathBuf::from(&index_path)),
+        exclusive_paths: Some(
+            ::index_diff::list_files(
+                &::index_diff::diff(&snapshot, &updates))),
+      })?;
 
   ::prompt::print_progress_step(4, 4, "Committing new snapshot");
   for path in &pathspecs {

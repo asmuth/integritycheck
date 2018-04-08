@@ -104,6 +104,22 @@ pub fn diff(
   return diffs;
 }
 
+pub fn list_files(diffs: &IndexDiffList) -> Vec<PathBuf> {
+  let mut files = Vec::<PathBuf>::new();
+  for d in diffs {
+    let file = match d {
+      &::index_diff::IndexDiff::Deleted{ref file} => file.to_owned(),
+      &::index_diff::IndexDiff::Modified{ref file} => file.to_owned(),
+      &::index_diff::IndexDiff::Renamed{ref from, ref to} => from.to_owned(),
+      &::index_diff::IndexDiff::Created{ref file} => file.to_owned(),
+    };
+
+    files.push(file);
+  }
+
+  return files;
+}
+
 // returns true if the files match and false if they dont match
 fn compare_finfo(target: &::IndexFileInfo, actual: &::IndexFileInfo) -> bool {
   if target.size_bytes != actual.size_bytes ||

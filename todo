@@ -13,7 +13,7 @@
 - [x] allow setting checksum function in init
 - [x] ack multiple pathspecs
 - [x] millisecond timestamps
-- [ ] faster (filtered) checksum scan in ack and status
+- [x] faster (filtered) checksum scan in ack and status
 - [ ] dont ack if no chnages
 - [ ] ack comments
 - [ ] ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)

@@ -60,10 +60,12 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   ::prompt::print_progress_step(3, 4, "Computing file checksums for changed files");
   snapshot_actual = ::index_scan::scan_checksums(
       &Path::new(&data_path),
-      snapshot_actual,
+      snapshot_actual.to_owned(),
       &::index_scan::ScanOptions {
         exclude_paths: vec!(PathBuf::from(&index_path)),
-        exclusive_paths: None,
+        exclusive_paths: Some(
+            ::index_diff::list_files(
+                &::index_diff::diff(&snapshot_target, &snapshot_actual))),
       })?;
 
   ::prompt::print_progress_step(4, 4, "Computing diff");
