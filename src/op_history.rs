@@ -6,7 +6,7 @@
  * licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.
  */
-use std::path::{Path,PathBuf};
+use std::path::Path;
 use getopts::Options;
 
 pub const USAGE : &'static str = "\

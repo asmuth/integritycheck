@@ -8,7 +8,6 @@
  */
 use std::path::{Path,PathBuf};
 use getopts::Options;
-use colored::*;
 
 pub const USAGE : &'static str = "\
 usage: fhistory status [options]

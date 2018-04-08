@@ -118,7 +118,7 @@ pub fn list_files(diffs: &IndexDiffList) -> Vec<PathBuf> {
     let file = match d {
       &::index_diff::IndexDiff::Deleted{ref file} => file.to_owned(),
       &::index_diff::IndexDiff::Modified{ref file} => file.to_owned(),
-      &::index_diff::IndexDiff::Renamed{ref from, ref to} => from.to_owned(),
+      &::index_diff::IndexDiff::Renamed{ref from, ..} => from.to_owned(),
       &::index_diff::IndexDiff::Created{ref file} => file.to_owned(),
     };
 
@@ -135,7 +135,7 @@ pub fn filter_diffs(src: &IndexDiffList, allowed_paths: &Vec<PathBuf>) -> IndexD
     let file = match d {
       &::index_diff::IndexDiff::Deleted{ref file} => file.to_owned(),
       &::index_diff::IndexDiff::Modified{ref file} => file.to_owned(),
-      &::index_diff::IndexDiff::Renamed{ref from, ref to} => from.to_owned(),
+      &::index_diff::IndexDiff::Renamed{ref from, ..} => from.to_owned(),
       &::index_diff::IndexDiff::Created{ref file} => file.to_owned(),
     };
 

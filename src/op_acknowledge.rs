@@ -83,7 +83,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
       return Err(format!("path is outside of repository: {:?}", pathspec));
     }
 
-    let pathspec = match pathspec.strip_prefix(&data_path_abs) {
+    match pathspec.strip_prefix(&data_path_abs) {
       Ok(v) => pathspecs.push(PathBuf::from(v)),
       Err(e) => return Err(e.to_string()),
     };
@@ -144,7 +144,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   snapshot.message = flags.opt_str("message");
 
   for diff in diffs {
-    let file = match &diff {
+    match &diff {
       &::index_diff::IndexDiff::Deleted{ref file} => {
         snapshot.delete_path(&file);
       },

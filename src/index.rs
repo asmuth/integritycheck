@@ -9,9 +9,8 @@
 use std::fs;
 use std::fs::File;
 use std::io::{Read,Write};
-use std::io::prelude::*;
 use std::path::{Path,PathBuf};
-use std::collections::{HashMap,BTreeMap};
+use std::collections::BTreeMap;
 use regex::Regex;
 use inflate;
 use deflate;
@@ -142,7 +141,7 @@ impl IndexDirectory {
       Err(e) => return Err(e.to_string()),
     };
 
-    let mut snapshot = ::IndexSnapshot::decode(&snapshot_data, reference.timestamp_us)?;
+    let snapshot = ::IndexSnapshot::decode(&snapshot_data, reference.timestamp_us)?;
     let snapshot_checksum = ::checksum::compute(
         snapshot.checksum_function.clone(),
         &snapshot_data_compressed);
@@ -207,7 +206,7 @@ impl IndexSnapshot {
   }
 
   pub fn get_path(self: &Self, path: &Path) -> Option<&IndexFileInfo> {
-    return self.files.get(path.to_str().unwrap());
+    return self.get(path.to_str().unwrap());
   }
 
   pub fn update(self: &mut Self, path: &str, info: &IndexFileInfo) {
@@ -215,7 +214,7 @@ impl IndexSnapshot {
   }
 
   pub fn update_path(self: &mut Self, path: &Path, info: &IndexFileInfo) {
-    self.files.insert(path.to_str().unwrap().to_owned(), info.to_owned());
+    self.update(path.to_str().unwrap(), info);
   }
 
   pub fn delete(self: &mut Self, path: &str) {
@@ -223,7 +222,7 @@ impl IndexSnapshot {
   }
 
   pub fn delete_path(self: &mut Self, path: &Path) {
-    self.files.remove(path.to_str().unwrap());
+    self.delete(path.to_str().unwrap());
   }
 
   pub fn total_size_bytes(self: &Self) -> u64 {
@@ -272,7 +271,7 @@ impl IndexSnapshot {
     let mut message : Option<String> = None;
     let mut timestamp_us : i64 = 0;
 
-    let mut data = String::from_utf8_lossy(data);
+    let data = String::from_utf8_lossy(data);
     for line in data.lines() {
       let fields = line.split(" ").collect::<Vec<&str>>();
 

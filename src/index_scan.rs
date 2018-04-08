@@ -7,8 +7,6 @@
  * use this file except in compliance with the License.
  */
 use std::fs;
-use std::fs::File;
-use std::io::Read;
 use std::path::{Path,PathBuf};
 use std::time::UNIX_EPOCH;
 use walkdir::WalkDir;

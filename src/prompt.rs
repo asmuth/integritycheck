@@ -8,13 +8,15 @@
  */
 use std;
 use std::io::Write;
-use std::io::Read;
 use colored;
 use colored::*;
 use libc;
 use time;
 
+#[allow(non_upper_case_globals)]
 static mut enable_progress : bool = false;
+
+#[allow(non_upper_case_globals)]
 static mut enable_debug : bool = false;
 
 pub fn set_progress(opt: bool) {
@@ -109,17 +111,17 @@ pub fn print_diff(diff: &::index_diff::IndexDiffList) {
   let sort_name = |d: &::index_diff::IndexDiff| match d {
     &::index_diff::IndexDiff::Deleted{ref file} => file.to_owned(),
     &::index_diff::IndexDiff::Modified{ref file} => file.to_owned(),
-    &::index_diff::IndexDiff::Renamed{ref from, ref to} => from.to_owned(),
+    &::index_diff::IndexDiff::Renamed{ref from, ..} => from.to_owned(),
     &::index_diff::IndexDiff::Created{ref file} => file.to_owned(),
   };
 
   diff.sort_by(|a, b| sort_name(&a).cmp(&sort_name(&b)));
 
   let sort_rank = |d: &::index_diff::IndexDiff| match d {
-    &::index_diff::IndexDiff::Deleted{ref file} => 1,
-    &::index_diff::IndexDiff::Modified{ref file} => 2,
-    &::index_diff::IndexDiff::Renamed{ref from, ref to} => 3,
-    &::index_diff::IndexDiff::Created{ref file} => 4,
+    &::index_diff::IndexDiff::Deleted{..} => 1,
+    &::index_diff::IndexDiff::Modified{..} => 2,
+    &::index_diff::IndexDiff::Renamed{..} => 3,
+    &::index_diff::IndexDiff::Created{..} => 4,
   };
 
   diff.sort_by(|a, b| sort_rank(&a).cmp(&sort_rank(&b)));
@@ -150,7 +152,7 @@ pub fn confirm_diffs(diff: &::index_diff::IndexDiffList) -> bool {
   print!("Apply changes? (y/n): ");
   std::io::stdout().flush().ok().expect("Could not flush stdout");
 
-  let mut resp : i32 = 0;
+  let resp : i32;
   unsafe {
     resp = libc::getchar();
   };
