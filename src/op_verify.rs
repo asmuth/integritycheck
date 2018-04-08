@@ -79,7 +79,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   ::prompt::print_progress_complete();
   ::prompt::print_repository_path(&data_path);
   ::prompt::print_repository_size(&snapshot_target);
-  ::prompt::print_snapshot_time(snapshot_target_ref.unwrap().timestamp_ms);
+  ::prompt::print_snapshot_time(snapshot_target_ref.unwrap().timestamp_us);
   ::prompt::print_repository_status(diff.len() == 0);
   ::prompt::print_diff(&diff);
 

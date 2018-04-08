@@ -49,7 +49,7 @@ pub fn scan_metadata(
         .modified()
         .and_then(|x| Ok(x.duration_since(UNIX_EPOCH).unwrap()))
         .ok()
-        .map(|v| v.as_secs() as i64 + v.subsec_nanos() as i64 / 1_000_000);
+        .map(|v| v.as_secs() as i64 * 1_000_000 + v.subsec_nanos() as i64 / 1_000);
 
     let entry_path = match fs::canonicalize(entry.path()) {
       Ok(e) => e,
@@ -74,7 +74,7 @@ pub fn scan_metadata(
     ::prompt::print_debug(&format!("Reading file metadata: {:?}", entry_path));
     index.update(entry_path, &::IndexFileInfo {
       size_bytes: entry_meta.len(),
-      modified_timestamp_ms: entry_mtime_ms,
+      modified_timestamp_us: entry_mtime_ms,
       checksum: None
     });
   }
