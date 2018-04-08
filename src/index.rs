@@ -142,7 +142,7 @@ impl IndexDirectory {
       Err(e) => return Err(e.to_string()),
     };
 
-    let mut snapshot = ::IndexSnapshot::decode(&snapshot_data)?;
+    let mut snapshot = ::IndexSnapshot::decode(&snapshot_data, reference.timestamp_us)?;
     let snapshot_checksum = ::checksum::compute(
         snapshot.checksum_function.clone(),
         &snapshot_data_compressed);
@@ -164,7 +164,7 @@ impl IndexDirectory {
       }
     }
 
-    let snapshot_encoded = snapshot.encode();
+    let snapshot_encoded = snapshot.encode(snapshot_timestamp_us);
     let snapshot_encoded_compressed = deflate::deflate_bytes_zlib(&snapshot_encoded);
     let snapshot_checksum = ::checksum::compute(
         snapshot.checksum_function.clone(),
@@ -237,12 +237,14 @@ impl IndexSnapshot {
     return self.files.iter().count() as u64;
   }
 
-  pub fn encode(self: &Self) -> Vec<u8> {
+  pub fn encode(self: &Self, timestamp_us: i64) -> Vec<u8> {
     let mut data = String::new();
 
     data += &format!(
         "#checksum {}\n",
         ::checksum::checksum_function_to_str(&self.checksum_function));
+
+    data += &format!("#timestamp {}\n", timestamp_us);
 
     if let &Some(ref message) = &self.message {
       data += &format!("#message {}\n", encode_string(message));
@@ -264,10 +266,11 @@ impl IndexSnapshot {
     return data.as_bytes().to_owned();
   }
 
-  pub fn decode(data: &[u8]) -> Result<IndexSnapshot, ::Error> {
+  pub fn decode(data: &[u8], timestamp_expected_us: i64) -> Result<IndexSnapshot, ::Error> {
     let mut files = BTreeMap::<String, IndexFileInfo>::new();
     let mut checksum_function = String::new();
     let mut message : Option<String> = None;
+    let mut timestamp_us : i64 = 0;
 
     let mut data = String::from_utf8_lossy(data);
     for line in data.lines() {
@@ -275,6 +278,15 @@ impl IndexSnapshot {
 
       if fields.len() == 2 && fields[0] == "#checksum" {
         checksum_function = fields[1].into();
+        continue;
+      }
+
+      if fields.len() == 2 && fields[0] == "#timestamp" {
+        timestamp_us = match fields[1].parse::<i64>() {
+          Ok(v) => v,
+          Err(e) => return Err(e.to_string()),
+        };
+
         continue;
       }
 
@@ -305,6 +317,10 @@ impl IndexSnapshot {
     }
 
     let checksum_function = ::checksum::checksum_function_from_str(&checksum_function)?;
+
+    if timestamp_us != timestamp_expected_us {
+      return Err(format!("timestamp does not match"));
+    }
 
     return Ok(IndexSnapshot {
       files: files,
