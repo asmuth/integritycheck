@@ -1,3 +1,11 @@
+/**
+ * fhistory - https://github.com/asmuth/fhistory
+ * Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
+ *
+ * This file is part of the "fhistory" project. fhistory is free software
+ * licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License.
+ */
 extern crate colored;
 extern crate crypto;
 extern crate getopts;
@@ -89,7 +97,7 @@ fn print_usage(op: Option<Operation>) -> Result<bool, Error> {
 fn print_version() -> Result<bool, Error> {
   println!("fhistory v{}", VERSION);
   println!("Copyright (c) 2018 Paul Asmuth");
-  println!("Licensed under the 3-clause BSD license");
+  println!("Licensed under the Apache License, Version 2.0");
   println!("https://github.com/asmuth/fhistory");
   return Ok(true);
 }

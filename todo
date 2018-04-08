@@ -8,8 +8,7 @@
 - [x] verbose logging
 - [x] better index formt?
 - [x] tests
-- [ ] license
---
+- [x] license
 - [x] allow setting checksum function in init
 - [x] ack multiple pathspecs
 - [x] millisecond timestamps

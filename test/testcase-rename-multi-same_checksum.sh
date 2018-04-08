@@ -1,5 +1,12 @@
 #!/bin/bash
+# fhistory - https://github.com/asmuth/fhistory
+# Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
+#
+# This file is part of the "fhistory" project. fhistory is free software
+# licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License.
 set -uex
+
 source test/test-util.sh
 mkdir "${TEST_TMPDIR}/repo"
 cd "${TEST_TMPDIR}/repo"
