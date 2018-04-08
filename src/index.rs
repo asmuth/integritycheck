@@ -251,7 +251,7 @@ impl IndexSnapshot {
         let field_path = decode_path(fields[3])?;
         let field_size = match fields[1].parse::<u64>() {
           Ok(s) => s,
-          Err(_) => return Err(format!("invalid index file")),
+          Err(_) => return Err(format!("invalid index file (invalid size): {:?}", line)),
         };
 
         files.insert(field_path, ::IndexFileInfo {
@@ -263,7 +263,7 @@ impl IndexSnapshot {
         continue;
       }
 
-      return Err(format!("invalid index file"));
+      return Err(format!("invalid index file: {:?}", line));
     }
 
     let checksum_function = ::checksum::checksum_function_from_str(&checksum_function)?;
@@ -291,6 +291,7 @@ fn encode_path(src: &str) -> String {
     match c {
       '\n' => dst += "\\n",
       '\\' => dst += "\\\\",
+      ' ' => dst += "\\_",
       _ => dst.push(c),
     }
   }
@@ -306,6 +307,7 @@ fn decode_path(src: &str) -> Result<String, ::Error> {
       match c {
         '\\' => dst.push('\\'),
         'n' => dst.push('\n'),
+        '_' => dst.push(' '),
         _ => return Err(format!("invalid escape sequence")),
       };
 

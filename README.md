@@ -42,7 +42,7 @@ To build `fhistory`, check out this repo and run:
 
 To install the `fhistory` binary into your system, execute this command:
 
-    $ cargo install
+    $ cargo install --root /usr/local
 
 If you have modified the source code, run the test suite:
 
