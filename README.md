@@ -38,15 +38,15 @@ cargo package manager.
 
 To build `fhistory`, check out this repo and run:
 
-    $ cargo build
+    $ make
 
 To install the `fhistory` binary into your system, execute this command:
 
-    $ cargo install --root /usr/local
+    $ make install
 
 If you have modified the source code, run the test suite:
 
-    $ PATH=$PATH:./target/debug ./test/test-runner.sh
+    $ make test
 
 
 Usage
