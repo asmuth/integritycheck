@@ -28,7 +28,10 @@ echo
 print_yellow "Test Summary: "
 if [[ ${num_passed} -eq ${num_total} && ${num_total} -gt 0 ]]; then
   print_green "PASS (${num_passed}/${num_total})"
+  echo
+  exit 0
 else
   print_red "FAIL (${num_failed}/${num_total})"
+  echo
+  exit 1
 fi
-echo

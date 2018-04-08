@@ -25,6 +25,7 @@ cat "../status"
 echo "---"
 
 (cat > "../status.expected") <<EOF
+Total Size: 6B (3 files)
 Status: DIRTY
 
     renamed  "testB" -> "testX"
