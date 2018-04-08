@@ -12,7 +12,6 @@ use std::io::{Read,Write};
 use std::io::prelude::*;
 use std::path::{Path,PathBuf};
 use std::collections::{HashMap,BTreeMap};
-use std::time::{SystemTime, UNIX_EPOCH};
 use regex::Regex;
 use inflate;
 use deflate;
@@ -155,13 +154,10 @@ impl IndexDirectory {
     return Ok(snapshot);
   }
 
-  pub fn append(self: &mut Self, snapshot: &IndexSnapshot) -> Result<IndexReference, ::Error> {
-    let now = SystemTime::now();
-    let snapshot_timestamp_us = match now.duration_since(UNIX_EPOCH) {
-      Ok(v) => v.as_secs() as i64 * 1_000_000 + v.subsec_nanos() as i64 / 1_000,
-      Err(e) => return Err(format!("internal error: {}", e)),
-    };
-
+  pub fn append(
+      self: &mut Self,
+      snapshot: &IndexSnapshot,
+      snapshot_timestamp_us: i64) -> Result<IndexReference, ::Error> {
     if let Some(latest) = self.latest() {
       if snapshot_timestamp_us <= latest.timestamp_us {
         return Err(format!("a newer snapshot exists. did we go back into the future?"));

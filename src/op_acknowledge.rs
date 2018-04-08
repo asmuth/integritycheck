@@ -8,6 +8,7 @@
  */
 use std::fs;
 use std::path::{Path,PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
@@ -26,6 +27,8 @@ options:
                          default: off
   --colours=[on/off]     Turn coloured terminal output on or off
                          default: on
+  --set_time=TIMESTAMP   Use the specified current unix microsecond timestamp
+                         instead of the real system time
   -v,--verbose           Enable verbose output,
   -h,--help              Print this help message and exit
 ";
@@ -38,6 +41,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   flag_cfg.optopt("x", "index_dir", "index_dir", "PATH");
   flag_cfg.optopt("", "progress", "progress", "ONOFF");
   flag_cfg.optopt("", "colours", "progress", "ONOFF");
+  flag_cfg.optopt("", "set_time", "set_time", "TIMESTAMP");
   flag_cfg.optflag("v", "verbose", "verbose");
 
   let flags = match flag_cfg.parse(args) {
@@ -55,6 +59,17 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let data_path_abs = match fs::canonicalize(&data_path) {
     Ok(p) => p,
     Err(e) => return Err(e.to_string()),
+  };
+
+  let time = match flags.opt_str("set_time").and_then(|x| x.parse::<i64>().ok()) {
+    Some(time) => time,
+    None => {
+      let now = SystemTime::now();
+      match now.duration_since(UNIX_EPOCH) {
+        Ok(v) => v.as_secs() as i64 * 1_000_000 + v.subsec_nanos() as i64 / 1_000,
+        Err(e) => return Err(format!("internal error: {}", e)),
+      }
+    }
   };
 
   let mut pathspecs = Vec::<PathBuf>::new();
@@ -144,7 +159,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
     };
   }
 
-  let updated_ref = index.append(&snapshot)?;
+  let updated_ref = index.append(&snapshot, time)?;
   ::prompt::print_success(&format!("Created snapshot {:?}", updated_ref.checksum));
 
   return Ok(true);

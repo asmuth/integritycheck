@@ -7,6 +7,7 @@
  * use this file except in compliance with the License.
  */
 use std::path::{Path,PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
@@ -26,6 +27,8 @@ options:
                          default: on
   --colours=[on/off]     Turn coloured terminal output on or off
                          default: on
+  --set_time=TIMESTAMP   Use the specified current unix microsecond timestamp
+                         instead of the real system time
   -v,--verbose           Enable verbose output,
   -h,--help              Print this help message and exit
 ";
@@ -38,6 +41,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   flag_cfg.optopt("x", "index_dir", "index_dir", "PATH");
   flag_cfg.optopt("", "progress", "progress", "ONOFF");
   flag_cfg.optopt("", "colours", "progress", "ONOFF");
+  flag_cfg.optopt("", "set_time", "set_time", "TIMESTAMP");
   flag_cfg.optflag("v", "verbose", "verbose");
 
   let flags = match flag_cfg.parse(args) {
@@ -53,6 +57,17 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
   let checksum_fn = ::checksum::checksum_function_from_str(
       &flags.opt_str("checksum").unwrap_or(::DEFAULT_CHECKSUM_FUNCTION.into()))?;
+
+  let time = match flags.opt_str("set_time").and_then(|x| x.parse::<i64>().ok()) {
+    Some(time) => time,
+    None => {
+      let now = SystemTime::now();
+      match now.duration_since(UNIX_EPOCH) {
+        Ok(v) => v.as_secs() as i64 * 1_000_000 + v.subsec_nanos() as i64 / 1_000,
+        Err(e) => return Err(format!("internal error: {}", e)),
+      }
+    }
+  };
 
   ::prompt::print_progress_step(1, 4, "Creating index");
   let mut index = ::IndexDirectory::create(
@@ -82,7 +97,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   }
 
   ::prompt::print_progress_step(4, 4, "Committing new snapshot");
-  let snapshot_ref = index.append(&snapshot)?;
+  let snapshot_ref = index.append(&snapshot, time)?;
 
   ::prompt::print_progress_complete();
   ::prompt::print_repository_path(&data_path);
