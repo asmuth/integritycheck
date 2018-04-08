@@ -91,15 +91,9 @@ pub fn scan_checksums(
       &None => return Err(format!("invalid path")),
     };
 
-    let file_path_abs = data_path.join(&file_path).to_str().unwrap_or("").to_owned();
-    let mut file_data = Vec::<u8>::new();
-    if let Err(e) = File::open(&file_path_abs).and_then(|mut f| f.read_to_end(&mut file_data)) {
-      return Err(e.to_string());
-    }
-
-    file_info.checksum = Some(::checksum::compute(
+    file_info.checksum = Some(::checksum::compute_file(
         index.checksum_function.clone(),
-        &file_data));
+        &data_path.join(&file_path))?);
 
     index.update(&file_path, &file_info);
 

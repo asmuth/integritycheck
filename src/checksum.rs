@@ -1,3 +1,6 @@
+use std::fs::File;
+use std::path::Path;
+use std::io::Read;
 use crypto::digest::Digest;
 use crypto::sha2::Sha256;
 use crypto::md5::Md5;
@@ -29,15 +32,46 @@ pub fn compute(checksum_fn: ChecksumFunction, data: &[u8]) -> String {
   };
 }
 
+pub fn compute_file(checksum_fn: ChecksumFunction, path: &Path) -> Result<String, ::Error> {
+  match checksum_fn {
+    ChecksumFunction::SHA256 => return compute_file_sha256(path),
+    ChecksumFunction::MD5 => return compute_file_md5(path),
+  };
+}
+
 fn compute_sha256(data: &[u8]) -> String {
   let mut digest = Sha256::new();
   digest.input(&data);
   return digest.result_str();
 }
 
+fn compute_file_sha256(path: &Path) -> Result<String, ::Error> {
+  // FIXME
+  let mut data = Vec::<u8>::new();
+  if let Err(e) = File::open(&path).and_then(|mut f| f.read_to_end(&mut data)) {
+    return Err(e.to_string());
+  }
+
+  let mut digest = Sha256::new();
+  digest.input(&data);
+  return Ok(digest.result_str());
+}
+
 fn compute_md5(data: &[u8]) -> String {
   let mut digest = Md5::new();
   digest.input(&data);
   return digest.result_str();
+}
+
+fn compute_file_md5(path: &Path) -> Result<String, ::Error> {
+  // FIXME
+  let mut data = Vec::<u8>::new();
+  if let Err(e) = File::open(&path).and_then(|mut f| f.read_to_end(&mut data)) {
+    return Err(e.to_string());
+  }
+
+  let mut digest = Md5::new();
+  digest.input(&data);
+  return Ok(digest.result_str());
 }
 
