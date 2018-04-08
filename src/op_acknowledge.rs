@@ -52,6 +52,10 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
       Err(e) => return Err(e.to_string()),
     };
 
+    if !pathspec.starts_with(&data_path_abs) {
+      return Err(format!("path is outside of repository: {:?}", pathspec));
+    }
+
     let pathspec = match pathspec.strip_prefix(&data_path_abs) {
       Ok(v) => pathspecs.push(PathBuf::from(v)),
       Err(e) => return Err(e.to_string()),
