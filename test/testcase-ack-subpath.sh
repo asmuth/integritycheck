@@ -41,7 +41,7 @@ EOF
 cat ../status
 diff "../status" "../status.expected"
 
-sleep 1
+sleep 0.01
 
 fhistory ack testX testDir
 
@@ -62,7 +62,7 @@ EOF
 
 diff "../status" "../status.expected"
 
-sleep 1
+sleep 0.01
 
 fhistory ack testC
 

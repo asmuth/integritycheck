@@ -32,7 +32,7 @@ EOF
 
 diff "../status" "../status.expected"
 
-sleep 1
+sleep 0.01
 
 fhistory ack .
 fhistory status

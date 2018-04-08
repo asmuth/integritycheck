@@ -7,22 +7,21 @@
 - [x] check index checksum on read
 - [x] verbose logging
 - [x] better index formt?
+- [x] tests
 - [ ] license
-- [ ] tests
 --
 - [x] allow setting checksum function in init
-- [ ] env vars
-- [ ] log table formatting
-- [ ] nice progress bars
+- [x] ack multiple pathspecs
+- [x] millisecond timestamps
+- [ ] faster (filtered) checksum scan in ack and status
 - [ ] dont ack if no chnages
 - [ ] ack comments
 - [ ] ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
-- [x] ack multiple pathspecs
 - [ ] format timestamp
 - [ ] format repo size
-- [ ] faster (filtered) checksum scan in ack and status
-- [ ] ctime
-- [ ] microsecond timestamps
+- [ ] env vars
+- [ ] log table formatting
+- [ ] nice progress bars
 ---
 - [ ] search datadir in parent directories
 - [ ] faster/efficient file hashing

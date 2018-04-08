@@ -45,7 +45,7 @@ pub fn diff(
           let diff_key = IndexDiffKey {
             checksum: checksum.to_owned(),
             size_bytes: finfo_target.size_bytes,
-            modified_timestamp: finfo_target.modified_timestamp.to_owned()
+            modified_timestamp: finfo_target.modified_timestamp_ms.to_owned()
           };
 
           if !deleted.contains_key(&diff_key) {
@@ -70,7 +70,7 @@ pub fn diff(
         let diff_key = IndexDiffKey {
           checksum: checksum.to_owned(),
           size_bytes: finfo.size_bytes,
-          modified_timestamp: finfo.modified_timestamp.to_owned(),
+          modified_timestamp: finfo.modified_timestamp_ms.to_owned(),
         };
 
         if let Some(fpath_prev) = deleted.get(&diff_key).and_then(|v| v.get(0)).cloned() {
@@ -107,7 +107,7 @@ pub fn diff(
 // returns true if the files match and false if they dont match
 fn compare_finfo(target: &::IndexFileInfo, actual: &::IndexFileInfo) -> bool {
   if target.size_bytes != actual.size_bytes ||
-     target.modified_timestamp != actual.modified_timestamp {
+     target.modified_timestamp_ms != actual.modified_timestamp_ms {
     return false; // metadata mismatch
   }
 

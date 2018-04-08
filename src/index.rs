@@ -11,7 +11,7 @@ const INDEX_FILENAME_PATTERN : &'static str =
 
 #[derive(Clone, Debug)]
 pub struct IndexReference {
-  pub timestamp: i64,
+  pub timestamp_ms: i64,
   pub checksum: String,
 }
 
@@ -24,7 +24,7 @@ pub struct IndexDirectory {
 #[derive(Clone, Debug)]
 pub struct IndexFileInfo {
   pub size_bytes: u64,
-  pub modified_timestamp: Option<i64>,
+  pub modified_timestamp_ms: Option<i64>,
   pub checksum: Option<String>
 }
 
@@ -70,18 +70,18 @@ impl IndexDirectory {
         None => return Err(format!("invalid file in index directory: {:?}", entry_fname)),
       };
 
-      let timestamp = match pattern_match["timestamp"].parse::<i64>() {
+      let timestamp_ms = match pattern_match["timestamp"].parse::<i64>() {
         Ok(v) => v,
         Err(e) => return Err(format!("internal error: {}", e)),
       };
 
       index_files.push(IndexReference {
-        timestamp: timestamp,
+        timestamp_ms: timestamp_ms,
         checksum: pattern_match["checksum"].to_string()
       });
     }
 
-    index_files.sort_by(|a, b| b.timestamp.cmp(&a.timestamp));
+    index_files.sort_by(|a, b| b.timestamp_ms.cmp(&a.timestamp_ms));
 
     return Ok(IndexDirectory {
       index_path: index_path,
@@ -140,13 +140,13 @@ impl IndexDirectory {
 
   pub fn append(self: &mut Self, snapshot: &IndexSnapshot) -> Result<IndexReference, ::Error> {
     let now = SystemTime::now();
-    let snapshot_timestamp = match now.duration_since(UNIX_EPOCH) {
-      Ok(v) => v.as_secs() as i64,
+    let snapshot_timestamp_ms = match now.duration_since(UNIX_EPOCH) {
+      Ok(v) => v.as_secs() as i64 + v.subsec_nanos() as i64 / 1_000_000,
       Err(e) => return Err(format!("internal error: {}", e)),
     };
 
     if let Some(latest) = self.latest() {
-      if snapshot_timestamp <= latest.timestamp {
+      if snapshot_timestamp_ms <= latest.timestamp_ms {
         return Err(format!("a newer snapshot exists. did we go back into the future?"));
       }
     }
@@ -157,7 +157,7 @@ impl IndexDirectory {
         &snapshot_encoded);
 
     let snapshot_ref = IndexReference {
-      timestamp: snapshot_timestamp,
+      timestamp_ms: snapshot_timestamp_ms,
       checksum: snapshot_checksum.to_owned()
     };
 
@@ -236,7 +236,7 @@ impl IndexSnapshot {
           "{} {} {} {}\n",
           finfo.checksum.as_ref().unwrap_or(&"".to_owned()),
           finfo.size_bytes,
-          finfo.modified_timestamp.unwrap_or(0),
+          finfo.modified_timestamp_ms.unwrap_or(0),
           encode_path(fpath));
     }
 
@@ -268,7 +268,7 @@ impl IndexSnapshot {
         files.insert(field_path, ::IndexFileInfo {
           checksum: Some(field_checksum.to_owned()),
           size_bytes: field_size,
-          modified_timestamp: field_mtime.parse::<i64>().ok(),
+          modified_timestamp_ms: field_mtime.parse::<i64>().ok(),
         });
 
         continue;
@@ -290,7 +290,7 @@ impl IndexSnapshot {
 impl IndexReference {
 
   fn filename(self: &Self) -> String {
-    return format!("{}-{}.idx", self.timestamp, &self.checksum);
+    return format!("{}-{}.idx", self.timestamp_ms, &self.checksum);
   }
 
 }
