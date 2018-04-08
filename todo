@@ -19,7 +19,7 @@
 - [ ] ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
 - [ ] ack multiple pathspecs
 - [ ] format timestamp
-- [ ] print repo size
+- [ ] format repo size
 - [ ] faster (filtered) checksum scan in ack and status
 - [ ] faster sha256
 ---

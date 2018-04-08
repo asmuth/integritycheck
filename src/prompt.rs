@@ -76,6 +76,10 @@ pub fn print_repository_path(path: &str) {
   }
 }
 
+pub fn print_repository_size(snap: &::IndexSnapshot) {
+  println!("Total Size: {}B ({} files)", snap.total_size_bytes(), snap.total_file_count());
+}
+
 pub fn print_repository_status(status: bool) {
   println!("Status: {}", if status { "CLEAN".green() } else { "DIRTY".red() });
 }

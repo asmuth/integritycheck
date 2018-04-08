@@ -213,6 +213,17 @@ impl IndexSnapshot {
     }
   }
 
+  pub fn total_size_bytes(self: &Self) -> u64 {
+    return self
+        .files
+        .iter()
+        .fold(0, |acc, (_, finfo)| acc + finfo.size_bytes);
+  }
+
+  pub fn total_file_count(self: &Self) -> u64 {
+    return self.files.iter().count() as u64;
+  }
+
   pub fn encode(self: &Self) -> Vec<u8> {
     let mut data = String::new();
 
