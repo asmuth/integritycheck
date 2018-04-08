@@ -90,11 +90,16 @@ pub fn print_repository_path(path: &str) {
 }
 
 pub fn print_repository_size(snap: &::IndexSnapshot) {
-  println!("Total Size: {}B ({} files)", snap.total_size_bytes(), snap.total_file_count());
+  println!(
+      "Total Size: {} ({} files)",
+      format_bytecount(snap.total_size_bytes()),
+      snap.total_file_count());
 }
 
 pub fn print_repository_status(status: bool) {
-  println!("Status: {}", if status { "CLEAN".green() } else { "DIRTY".red() });
+  println!(
+      "Status: {}",
+      if status { "CLEAN".green() } else { "DIRTY".red() });
 }
 
 pub fn print_snapshot_time(timestamp_us: i64) {
@@ -171,13 +176,32 @@ pub fn print_confirmed_diffs(diff: &::index_diff::IndexDiffList) {
 pub fn print_snapshot_table(index: &::IndexDirectory) -> Result<(), ::Error> {
   for snap_ref in index.list() {
     println!("{}", format!("snapshot {}", snap_ref.checksum).yellow());
+
     let snap = index.load(snap_ref)?;
     let snap_time = time::at(time::Timespec::new(snap_ref.timestamp_us / 1_000_000, 0));
+
     println!("Timestamp: {}", snap_time.rfc822z());
-    println!("Size: {}B ({} files)", snap.total_size_bytes(), snap.total_file_count());
+    println!(
+        "Size: {} ({} files)",
+        format_bytecount(snap.total_size_bytes()),
+        snap.total_file_count());
+
     println!("\n    {}\n", snap.message.unwrap_or("<no message>".into()));
   }
 
   return Ok(());
 }
 
+fn format_bytecount(val: u64) -> String {
+  if val < u64::pow(2, 10) {
+    return format!("{}B", val);
+  } else if val < u64::pow(2, 20) {
+    return format!("{:.3}KiB", val as f64 / u64::pow(2, 10) as f64)
+  } else if val < u64::pow(2, 30) {
+    return format!("{:.3}MiB", val as f64 / u64::pow(2, 20) as f64)
+  } else if val < u64::pow(2, 40) {
+    return format!("{:.3}GiB", val as f64 / u64::pow(2, 30) as f64)
+  } else {
+    return format!("{:.3}TiB", val as f64 / u64::pow(2, 40) as f64)
+  }
+}
