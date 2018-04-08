@@ -122,7 +122,8 @@ pub fn print_diff(diff: &::index_diff::IndexDiffList) {
 
   diff.sort_by(|a, b| sort_rank(&a).cmp(&sort_rank(&b)));
 
-  println!("");
+  print!("\n");
+
   for d in diff {
     let msg = match d {
       ::index_diff::IndexDiff::Created{ref file} =>
@@ -138,7 +139,7 @@ pub fn print_diff(diff: &::index_diff::IndexDiffList) {
     println!("{}", msg);
   }
 
-  println!("");
+  print!("\n");
 }
 
 pub fn confirm_diffs(diff: &::index_diff::IndexDiffList) -> bool {
@@ -156,5 +157,16 @@ pub fn confirm_diffs(diff: &::index_diff::IndexDiffList) -> bool {
     121 => true,
     _ => false,
   };
+}
+
+pub fn print_snapshot_table(index: &::IndexDirectory) -> Result<(), ::Error> {
+  print!("\n");
+
+  for snap_ref in index.list() {
+    let snap = index.load(snap_ref)?;
+    println!("{:?} {:?}", snap_ref, snap.message);
+  }
+
+  return Ok(());
 }
 

@@ -51,10 +51,8 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
 
   ::prompt::print_progress_complete();
-
-  for entry in index.list() {
-    println!("{:?}", entry);
-  }
+  ::prompt::print_repository_path(&data_path);
+  ::prompt::print_snapshot_table(&index)?;
 
   return Ok(true);
 }
