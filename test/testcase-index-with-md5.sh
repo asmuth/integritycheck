@@ -30,4 +30,5 @@ bf072e9119077b4e76437a93986787ef 2 1451624401000000 testA
 b39bfc0e26a30024c76e4dcb8a1eae87 2 1451624403000000 testC
 EOF
 
-diff .fh/* "../index.expected"
+pigz -z -d < .fh/$(ls -t1 .fh/ | head -n 1) > "../index.actual"
+diff "../index.actual"  "../index.expected"

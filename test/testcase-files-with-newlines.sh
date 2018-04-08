@@ -54,4 +54,5 @@ c0cde77fa8fef97d476c10aad3d2d54fcc2f336140d073651c2dcccf1e379fd6 2 1451624402000
 12f37a8a84034d3e623d726fe10e5031f4df997ac13f4d5571b5a90c41fb84fe 2 1451624403000000 testC
 EOF
 
-diff .fh/$(ls -t1 .fh/ | head -n 1)  "../index.expected"
+pigz -z -d < .fh/$(ls -t1 .fh/ | head -n 1) > "../index.actual"
+diff "../index.actual"  "../index.expected"

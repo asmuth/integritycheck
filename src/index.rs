@@ -9,10 +9,13 @@
 use std::fs;
 use std::fs::File;
 use std::io::{Read,Write};
+use std::io::prelude::*;
 use std::path::{Path,PathBuf};
 use std::collections::{HashMap,BTreeMap};
 use std::time::{SystemTime, UNIX_EPOCH};
 use regex::Regex;
+use inflate;
+use deflate;
 
 const INDEX_FILENAME_PATTERN : &'static str =
     r"^(?P<timestamp>\d+)-(?P<checksum>[a-z0-9]+)\.idx$";
@@ -127,18 +130,23 @@ impl IndexDirectory {
   pub fn load(self: &Self, reference: &IndexReference) -> Result<IndexSnapshot, ::Error> {
     ::prompt::print_debug(&format!("Loading index snapshot {:?}", reference.filename()));
     let snapshot_path = self.index_path.join(&reference.filename());
-    let mut snapshot_data = Vec::<u8>::new();
+    let mut snapshot_data_compressed = Vec::<u8>::new();
     let read_result =
         File::open(&snapshot_path)
-        .and_then(|mut f| f.read_to_end(&mut snapshot_data));
+        .and_then(|mut f| f.read_to_end(&mut snapshot_data_compressed));
     if let Err(e) = read_result {
       return Err(e.to_string());
     }
 
+    let snapshot_data = match inflate::inflate_bytes_zlib(&snapshot_data_compressed) {
+      Ok(data) => data,
+      Err(e) => return Err(e.to_string()),
+    };
+
     let mut snapshot = ::IndexSnapshot::decode(&snapshot_data)?;
     let snapshot_checksum = ::checksum::compute(
         snapshot.checksum_function.clone(),
-        &snapshot_data);
+        &snapshot_data_compressed);
 
     if snapshot_checksum != reference.checksum {
       return Err(format!("Checksum mismatch for index file: {:?}", snapshot_path));
@@ -161,9 +169,10 @@ impl IndexDirectory {
     }
 
     let snapshot_encoded = snapshot.encode();
+    let snapshot_encoded_compressed = deflate::deflate_bytes_zlib(&snapshot_encoded);
     let snapshot_checksum = ::checksum::compute(
         snapshot.checksum_function.clone(),
-        &snapshot_encoded);
+        &snapshot_encoded_compressed);
 
     let snapshot_ref = IndexReference {
       timestamp_us: snapshot_timestamp_us,
@@ -173,7 +182,7 @@ impl IndexDirectory {
     ::prompt::print_debug(&format!("Writing new index snapshot {:?}", snapshot_ref.filename()));
     let result =
         fs::File::create(self.index_path.join(snapshot_ref.filename()))
-        .and_then(|mut f| f.write_all(&snapshot_encoded));
+        .and_then(|mut f| f.write_all(&snapshot_encoded_compressed));
 
     return match result {
       Ok(_) => Ok(snapshot_ref),

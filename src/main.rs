@@ -8,6 +8,8 @@
  */
 extern crate colored;
 extern crate crypto;
+extern crate deflate;
+extern crate inflate;
 extern crate getopts;
 extern crate libc;
 extern crate regex;

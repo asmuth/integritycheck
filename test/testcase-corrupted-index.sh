@@ -23,11 +23,11 @@ fhistory init --checksum md5
 fhistory status
 fhistory verify
 
-echo "boom" >> .fh/*
+echo "boom" >> .fh/$(ls -t1 .fh/ | head -n 1)
 
 if fhistory status --colours=off &> "../status.raw"; then
   echo "exit code must be one"
   exit 1
 fi
 
-grep -qE "^ERROR: invalid index file:" ../status.raw
+grep -qE "^ERROR: Checksum mismatch for index file:" ../status.raw
