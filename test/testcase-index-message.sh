@@ -37,5 +37,5 @@ c0cde77fa8fef97d476c10aad3d2d54fcc2f336140d073651c2dcccf1e379fd6 2 1451624402000
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 1451624403000000 testX
 EOF
 
-pigz -z -d < .fh/$(ls -t1 .fh/ | head -n 1) > "../index.actual"
+pigz -z -d < .fh/$(ls -t1 .fh/ | head -n 1) | grep -vE '^#timestamp' > "../index.actual"
 diff "../index.actual"  "../index.expected"

@@ -32,8 +32,8 @@ fhistory log --colours=off > "../output"
 (cat > "../output.expected") <<EOF
 Repository: ${TEST_TMPDIR}/repo
 
-IndexReference { timestamp_us: 1451624402000000, checksum: "815181b7643e97e926a1615e66126d1b935cbe2d82c2e59ec6f02bcba5c8e984" } Some("Hello World")
-IndexReference { timestamp_us: 1451624401000000, checksum: "4e0d097ba76cd14fafdb9aa902dff19bd360b33c577ff5deb3ef368ca7db7590" } None
+IndexReference { timestamp_us: 1451624402000000, checksum: "b2e61b7fd1934df374fd722181da93c380a72c0eeb28dd73c2a4a15f86e0710f" } Some("Hello World")
+IndexReference { timestamp_us: 1451624401000000, checksum: "514530670e5d6a33e36d9a4a1c99cebc72a6977414b298bed27e6a63a31999a8" } None
 EOF
 
 diff "../output" "../output.expected"
