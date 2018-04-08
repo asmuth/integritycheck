@@ -8,8 +8,10 @@
  */
 use std;
 use std::io::Write;
+use std::io::Read;
 use colored;
 use colored::*;
+use libc;
 
 static mut enable_progress : bool = false;
 static mut enable_debug : bool = false;
@@ -137,5 +139,22 @@ pub fn print_diff(diff: &::index_diff::IndexDiffList) {
   }
 
   println!("");
+}
+
+pub fn confirm_diffs(diff: &::index_diff::IndexDiffList) -> bool {
+  println!("Acknowledging {} changes:", diff.len());
+  print_diff(diff);
+  print!("Apply changes? (y/n): ");
+  std::io::stdout().flush().ok().expect("Could not flush stdout");
+
+  let mut resp : i32 = 0;
+  unsafe {
+    resp = libc::getchar();
+  };
+
+  return match resp {
+    121 => true,
+    _ => false,
+  };
 }
 

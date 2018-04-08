@@ -16,6 +16,7 @@ Acknowledge changes to files in the repository and create a new snapshot
 
 options:
   -m,--message=MSG       Set a message to be stored along with the snapshot
+  -y,--noconfirm         Don't prompt to confirm changes
   -d,--data_dir=PATH     Set the path of the repository/data directory
                          default: '.'
   -x,--index_dir=PATH    Set the path of the index directory. Note that this
@@ -32,6 +33,7 @@ options:
 pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let mut flag_cfg = Options::new();
   flag_cfg.optopt("m", "message", "message", "MSG");
+  flag_cfg.optflag("y", "noconfirm", "noconfirm");
   flag_cfg.optopt("d", "data_dir", "data_dir", "PATH");
   flag_cfg.optopt("x", "index_dir", "index_dir", "PATH");
   flag_cfg.optopt("", "progress", "progress", "ONOFF");
@@ -76,7 +78,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
     return Err("need a path (e.g. 'fhistory ack .')".into());
   }
 
-  ::prompt::print_progress_step(1, 4, "Loading index");
+  ::prompt::print_progress_step(1, 3, "Loading index");
   let mut index = ::IndexDirectory::open(
       &Path::new(&data_path),
       &Path::new(&index_path))?;
@@ -86,7 +88,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
     None => return Err(format!("no index snapshot found")),
   };
 
-  ::prompt::print_progress_step(2, 4, "Scanning file metadata");
+  ::prompt::print_progress_step(2, 3, "Scanning file metadata");
 
   let mut current = ::index_scan::scan_metadata(
       &Path::new(&data_path),
@@ -96,14 +98,22 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
         exclusive_paths: None,
       })?;
 
-  ::prompt::print_progress_step(3, 4, "Computing file checksums for changed files");
+  ::prompt::print_progress_step(3, 3, "Computing file checksums for changed files");
   let diffs = ::index_diff::filter_diffs(
       &::index_diff::diff(&snapshot, &current),
       &pathspecs);
 
+  ::prompt::print_progress_complete();
+
   if diffs.len() == 0 {
     ::prompt::print_success(&format!("Nothing to commit"));
     return Ok(true);
+  }
+
+  if !flags.opt_present("noconfirm") {
+    if !::prompt::confirm_diffs(&diffs) {
+      return Ok(false);
+    }
   }
 
   current = ::index_scan::scan_checksums(
@@ -114,7 +124,6 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
         exclusive_paths: Some(::index_diff::list_files(&diffs)),
       })?;
 
-  ::prompt::print_progress_step(4, 4, "Committing new snapshot");
   snapshot.message = flags.opt_str("message");
 
   for diff in diffs {
@@ -136,8 +145,6 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   }
 
   let updated_ref = index.append(&snapshot)?;
-
-  ::prompt::print_progress_complete();
   ::prompt::print_success(&format!("Created snapshot {:?}", updated_ref.checksum));
 
   return Ok(true);

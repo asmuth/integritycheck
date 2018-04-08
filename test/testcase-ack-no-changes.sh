@@ -21,6 +21,6 @@ touch -m --date='2016-01-01 06:00:03' testC
 
 fhistory init
 fhistory status
-fhistory ack . --colours=off &> "../output.raw"
+fhistory ack -y . --colours=off &> "../output.raw"
 grep -qE "^Nothing to commit" ../output.raw
 test $(ls -1 .fh/*.idx | wc -l) -eq 1

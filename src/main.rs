@@ -9,6 +9,7 @@
 extern crate colored;
 extern crate crypto;
 extern crate getopts;
+extern crate libc;
 extern crate regex;
 extern crate walkdir;
 

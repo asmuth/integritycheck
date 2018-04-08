@@ -50,7 +50,7 @@ diff "../status" "../status.expected"
 
 sleep 0.01
 
-fhistory ack testX testDir
+fhistory ack -y testX testDir
 
 if fhistory status --colours=off > "../status.raw"; then
   echo "exit code must be one"
@@ -71,6 +71,6 @@ diff "../status" "../status.expected"
 
 sleep 0.01
 
-fhistory ack testC
+fhistory ack -y testC
 
 fhistory status # must be clean

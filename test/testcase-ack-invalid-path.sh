@@ -24,7 +24,7 @@ fhistory status
 
 echo "X" > testB
 
-if fhistory ack /tmp --colours=off &> "../output.raw"; then
+if fhistory ack -y /tmp --colours=off &> "../output.raw"; then
   echo "exit code must be one"
   exit 1
 fi
@@ -50,5 +50,5 @@ diff "../status" "../status.expected"
 
 sleep 0.01
 
-fhistory ack .
+fhistory ack -y .
 fhistory status

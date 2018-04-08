@@ -43,5 +43,5 @@ diff "../status" "../status.expected"
 
 sleep 0.01
 
-fhistory ack .
+fhistory ack -y .
 fhistory status

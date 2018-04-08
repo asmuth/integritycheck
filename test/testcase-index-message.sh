@@ -25,7 +25,7 @@ fhistory status
 sleep 0.01
 
 touch -m --date='2016-01-01 06:00:03' testX
-fhistory ack . -m "hello w"$'\n'"or\\ld!"
+fhistory ack -y . -m "hello w"$'\n'"or\\ld!"
 fhistory status
 
 (cat > "../index.expected") <<EOF
