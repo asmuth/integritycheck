@@ -43,10 +43,6 @@ global options:
   -v,--verbose           Enable verbose output,
   -h,--help              Print this help message and exit
 
-environment variables:
-  FHISTORY_DATA_DIR     Set the path of the repository/data directory (--data_dir)
-  FHISTORY_INDEX_DIR    Set the path of the index directory (--index_dir)
-
 commands:
   init      Create a new index file.
   status    Compare the current state of the repository to the latest snapshot

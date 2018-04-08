@@ -19,7 +19,6 @@
 - [ ] ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
 - [ ] format timestamp
 - [ ] format repo size
-- [ ] env vars
 - [ ] log table formatting
 - [ ] nice progress bars
 ---
