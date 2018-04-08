@@ -129,6 +129,8 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
     if !::prompt::confirm_diffs(&diffs) {
       return Ok(false);
     }
+  } else {
+    ::prompt::print_confirmed_diffs(&diffs);
   }
 
   current = ::index_scan::scan_checksums(

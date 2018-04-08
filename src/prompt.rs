@@ -159,6 +159,11 @@ pub fn confirm_diffs(diff: &::index_diff::IndexDiffList) -> bool {
   };
 }
 
+pub fn print_confirmed_diffs(diff: &::index_diff::IndexDiffList) {
+  println!("Changes ({})", diff.len());
+  print_diff(diff);
+}
+
 pub fn print_snapshot_table(index: &::IndexDirectory) -> Result<(), ::Error> {
   print!("\n");
 
