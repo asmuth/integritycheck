@@ -167,11 +167,13 @@ pub fn print_confirmed_diffs(diff: &::index_diff::IndexDiffList) {
 }
 
 pub fn print_snapshot_table(index: &::IndexDirectory) -> Result<(), ::Error> {
-  print!("\n");
-
   for snap_ref in index.list() {
+    println!("{}", format!("snapshot {}", snap_ref.checksum).yellow());
     let snap = index.load(snap_ref)?;
-    println!("{:?} {:?}", snap_ref, snap.message);
+    let snap_time = time::at(time::Timespec::new(snap_ref.timestamp_us / 1_000_000, 0));
+    println!("Timestamp: {}", snap_time.rfc822z());
+    println!("Size: {}B ({} files)", snap.total_size_bytes(), snap.total_file_count());
+    println!("\n    {}\n", snap.message.unwrap_or("<no message>".into()));
   }
 
   return Ok(());
