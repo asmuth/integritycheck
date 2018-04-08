@@ -237,7 +237,7 @@ impl IndexSnapshot {
           finfo.checksum.as_ref().unwrap_or(&"".to_owned()),
           finfo.size_bytes,
           finfo.modified_timestamp_ms.unwrap_or(0),
-          encode_path(fpath));
+          encode_string(fpath));
     }
 
     return data.as_bytes().to_owned();
@@ -259,7 +259,7 @@ impl IndexSnapshot {
       if fields.len() == 4 {
         let field_checksum = fields[0];
         let field_mtime = fields[2];
-        let field_path = decode_path(fields[3])?;
+        let field_path = decode_string(fields[3])?;
         let field_size = match fields[1].parse::<u64>() {
           Ok(s) => s,
           Err(_) => return Err(format!("invalid index file (invalid size): {:?}", line)),
@@ -295,7 +295,7 @@ impl IndexReference {
 
 }
 
-fn encode_path(src: &str) -> String {
+fn encode_string(src: &str) -> String {
   let mut dst = String::new();
 
   for c in src.chars() {
@@ -310,7 +310,7 @@ fn encode_path(src: &str) -> String {
   return dst.to_owned();
 }
 
-fn decode_path(src: &str) -> Result<String, ::Error> {
+fn decode_string(src: &str) -> Result<String, ::Error> {
   let mut dst = String::new();
   let mut escape = false;
   for c in src.chars() {
