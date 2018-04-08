@@ -54,7 +54,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   };
 
   let mut pathspecs = Vec::<PathBuf>::new();
-  for pathspec in flags.free {
+  for pathspec in &flags.free {
     let pathspec = match fs::canonicalize(pathspec) {
       Ok(e) => e,
       Err(e) => return Err(e.to_string()),
@@ -86,35 +86,51 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
 
   ::prompt::print_progress_step(2, 4, "Scanning file metadata");
 
-  let mut updates = ::index_scan::scan_metadata(
+  let mut current = ::index_scan::scan_metadata(
       &Path::new(&data_path),
       ::IndexSnapshot::new(snapshot.checksum_function.to_owned()),
       &::index_scan::ScanOptions {
         exclude_paths: vec!(PathBuf::from(&index_path)),
-        exclusive_paths: Some(pathspecs.to_owned()),
+        exclusive_paths: None,
       })?;
 
   ::prompt::print_progress_step(3, 4, "Computing file checksums for changed files");
-  let diffs = ::index_diff::diff(&snapshot, &updates);
+  let diffs = ::index_diff::filter_diffs(
+      &::index_diff::diff(&snapshot, &current),
+      &pathspecs);
+
   if diffs.len() == 0 {
     ::prompt::print_success(&format!("Nothing to commit"));
     return Ok(true);
   }
 
-  updates = ::index_scan::scan_checksums(
+  current = ::index_scan::scan_checksums(
       &Path::new(&data_path),
-      updates.to_owned(),
+      current.to_owned(),
       &::index_scan::ScanOptions {
         exclude_paths: vec!(PathBuf::from(&index_path)),
         exclusive_paths: Some(::index_diff::list_files(&diffs)),
       })?;
 
   ::prompt::print_progress_step(4, 4, "Committing new snapshot");
-  for path in &pathspecs {
-    snapshot.clear(&path);
+  for diff in diffs {
+    let file = match &diff {
+      &::index_diff::IndexDiff::Deleted{ref file} => {
+        snapshot.delete_path(&file);
+      },
+      &::index_diff::IndexDiff::Modified{ref file} => {
+        snapshot.update_path(&file, current.get_path(&file).unwrap());
+      },
+      &::index_diff::IndexDiff::Renamed{ref from, ref to} => {
+        snapshot.delete_path(&from);
+        snapshot.update_path(&to, current.get_path(&to).unwrap());
+      },
+      &::index_diff::IndexDiff::Created{ref file} => {
+        snapshot.update_path(&file, current.get_path(&file).unwrap());
+      },
+    };
   }
 
-  snapshot.merge(&updates);
   let updated_ref = index.append(&snapshot)?;
 
   ::prompt::print_progress_complete();

@@ -199,26 +199,24 @@ impl IndexSnapshot {
     return self.files.get(path);
   }
 
+  pub fn get_path(self: &Self, path: &Path) -> Option<&IndexFileInfo> {
+    return self.files.get(path.to_str().unwrap());
+  }
+
   pub fn update(self: &mut Self, path: &str, info: &IndexFileInfo) {
     self.files.insert(path.to_owned(), info.to_owned());
   }
 
-  pub fn merge(self: &mut Self, other: &IndexSnapshot) {
-    for (k, v) in other.files.iter() {
-      self.files.insert(k.to_owned(), v.to_owned());
-    }
+  pub fn update_path(self: &mut Self, path: &Path, info: &IndexFileInfo) {
+    self.files.insert(path.to_str().unwrap().to_owned(), info.to_owned());
   }
 
-  pub fn clear(self: &mut Self, path_prefix: &Path) {
-    let delete_paths : Vec<String> = self.files
-        .iter()
-        .filter(|&(path, _)| Path::new(path).starts_with(path_prefix))
-        .map(|(path, _)| path.clone())
-        .collect();
+  pub fn delete(self: &mut Self, path: &str) {
+    self.files.remove(path);
+  }
 
-    for path in delete_paths {
-      self.files.remove(&path);
-    }
+  pub fn delete_path(self: &mut Self, path: &Path) {
+    self.files.remove(path.to_str().unwrap());
   }
 
   pub fn total_size_bytes(self: &Self) -> u64 {
@@ -240,6 +238,10 @@ impl IndexSnapshot {
         ::checksum::checksum_function_to_str(&self.checksum_function));
 
     for (fpath, finfo) in self.files.iter() {
+      if finfo.checksum.is_none() {
+        panic!("missing checksum");
+      }
+
       data += &format!(
           "{} {} {} {}\n",
           finfo.checksum.as_ref().unwrap_or(&"".to_owned()),
