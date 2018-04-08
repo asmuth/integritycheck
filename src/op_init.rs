@@ -12,7 +12,7 @@ options:
                          path is relative to the data directory. Absolute
                          paths are allowed. default: '.fh'
   --checksum=TYPE        Set the checksum/digest function. Possible values:
-                         'sha256' (default)
+                         'sha256' (default), 'md5'
   --progress=[on/off]    Turn progress reporting on stderr on or off
                          default: on
   --colours=[on/off]     Turn coloured terminal output on or off
