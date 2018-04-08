@@ -24,6 +24,7 @@
 - [ ] ctime
 - [ ] microsecond timestamps
 ---
+- [ ] search datadir in parent directories
 - [ ] faster/efficient file hashing
 - [ ] cmd: query --match/nomatch <files>
 - [ ] parallel scanning / locking

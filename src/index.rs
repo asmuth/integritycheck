@@ -2,7 +2,7 @@ use std::fs;
 use std::fs::File;
 use std::io::{Read,Write};
 use std::path::{Path,PathBuf};
-use std::collections::HashMap;
+use std::collections::{HashMap,BTreeMap};
 use std::time::{SystemTime, UNIX_EPOCH};
 use regex::Regex;
 
@@ -31,7 +31,7 @@ pub struct IndexFileInfo {
 #[derive(Clone, Debug)]
 pub struct IndexSnapshot {
   pub checksum_function: ::checksum::ChecksumFunction,
-  pub files: HashMap<String, IndexFileInfo>
+  pub files: BTreeMap<String, IndexFileInfo>
 }
 
 impl IndexDirectory {
@@ -178,7 +178,7 @@ impl IndexSnapshot {
 
   pub fn new(checksum_function: ::checksum::ChecksumFunction) -> IndexSnapshot {
     return IndexSnapshot {
-      files: HashMap::<String, IndexFileInfo>::new(),
+      files: BTreeMap::<String, IndexFileInfo>::new(),
       checksum_function: checksum_function
     }
   }
@@ -244,7 +244,7 @@ impl IndexSnapshot {
   }
 
   pub fn decode(data: &[u8]) -> Result<IndexSnapshot, ::Error> {
-    let mut files = HashMap::<String, IndexFileInfo>::new();
+    let mut files = BTreeMap::<String, IndexFileInfo>::new();
     let mut checksum_function = String::new();
 
     let mut data = String::from_utf8_lossy(data);
