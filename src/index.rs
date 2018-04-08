@@ -201,10 +201,10 @@ impl IndexSnapshot {
     }
   }
 
-  pub fn clear(self: &mut Self, path_prefix: &str) {
+  pub fn clear(self: &mut Self, path_prefix: &Path) {
     let delete_paths : Vec<String> = self.files
         .iter()
-        .filter(|&(path, _)| !path.starts_with(path_prefix))
+        .filter(|&(path, _)| Path::new(path).starts_with(path_prefix))
         .map(|(path, _)| path.clone())
         .collect();
 

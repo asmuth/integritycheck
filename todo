@@ -17,12 +17,14 @@
 - [ ] dont ack if no chnages
 - [ ] ack comments
 - [ ] ack non-interactive (-y/--yes) and dry-run (-n/--dry-run)
-- [ ] ack multiple pathspecs
+- [x] ack multiple pathspecs
 - [ ] format timestamp
 - [ ] format repo size
 - [ ] faster (filtered) checksum scan in ack and status
-- [ ] faster sha256
+- [ ] ctime
+- [ ] microsecond timestamps
 ---
+- [ ] faster/efficient file hashing
 - [ ] cmd: query --match/nomatch <files>
 - [ ] parallel scanning / locking
 - [ ] log with diffs

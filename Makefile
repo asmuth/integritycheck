@@ -5,6 +5,6 @@ install:
 	cargo install --root /usr/local
 
 test:
-	@PATH=./target/debug:$(PATH) ./test/test-runner.sh
+	@PATH=$(realpath ./target/debug):$(PATH) ./test/test-runner.sh
 
 .PHONY: build install test

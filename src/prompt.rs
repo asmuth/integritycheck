@@ -89,11 +89,19 @@ pub fn print_snapshot_time(time: i64) {
 }
 
 pub fn print_diff(diff: &::index_diff::IndexDiffList) {
+  let mut diff = diff.to_owned();
   if diff.len() == 0 {
     return;
   }
 
-  println!("");
+  let sort_name = |d: &::index_diff::IndexDiff| match d {
+    &::index_diff::IndexDiff::Deleted{ref file} => file.to_owned(),
+    &::index_diff::IndexDiff::Modified{ref file} => file.to_owned(),
+    &::index_diff::IndexDiff::Renamed{ref from, ref to} => from.to_owned(),
+    &::index_diff::IndexDiff::Created{ref file} => file.to_owned(),
+  };
+
+  diff.sort_by(|a, b| sort_name(&a).cmp(&sort_name(&b)));
 
   let sort_rank = |d: &::index_diff::IndexDiff| match d {
     &::index_diff::IndexDiff::Deleted{ref file} => 1,
@@ -102,9 +110,9 @@ pub fn print_diff(diff: &::index_diff::IndexDiffList) {
     &::index_diff::IndexDiff::Created{ref file} => 4,
   };
 
-  let mut diff = diff.to_owned();
   diff.sort_by(|a, b| sort_rank(&a).cmp(&sort_rank(&b)));
 
+  println!("");
   for d in diff {
     let msg = match d {
       ::index_diff::IndexDiff::Created{ref file} =>

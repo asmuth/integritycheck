@@ -62,7 +62,6 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
     snapshot = ::index_scan::scan_metadata(
         &Path::new(&data_path),
         snapshot,
-        ".",
         &scan_opts)?;
   }
 

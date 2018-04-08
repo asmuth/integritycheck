@@ -13,7 +13,6 @@ pub struct ScanOptions {
 pub fn scan_metadata(
     data_path: &Path,
     index: ::IndexSnapshot,
-    prefix: &str,
     opts: &ScanOptions) -> Result<::IndexSnapshot, ::Error> {
   let mut index = index;
 
@@ -22,7 +21,8 @@ pub fn scan_metadata(
     Err(e) => return Err(e.to_string()),
   };
 
-  for entry in WalkDir::new(Path::new(&data_path).join(&prefix)) {
+  // FIXME: only walk exclusive paths
+  for entry in WalkDir::new(Path::new(&data_path)) {
     let entry = match entry {
       Ok(v) => v,
       Err(e) => return Err(e.to_string()),

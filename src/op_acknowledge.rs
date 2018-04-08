@@ -1,3 +1,4 @@
+use std::fs;
 use std::path::{Path,PathBuf};
 use getopts::Options;
 
@@ -32,11 +33,6 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
     Err(e) => return Err(e.to_string()),
   };
 
-  let pathspec = match flags.free.get(0) {
-    Some(p) => p,
-    None => return Err("need a path (e.g. 'fhistory ack .')".into()),
-  };
-
   ::prompt::set_debug(flags.opt_present("verbose"));
   ::prompt::set_progress(flags.opt_str("progress") == Some("on".to_owned()));
   ::prompt::set_colours(flags.opt_str("colours") != Some("off".to_owned()));
@@ -44,8 +40,33 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   let data_path = flags.opt_str("data_dir").unwrap_or(::DEFAULT_DATA_DIR.into());
   let index_path = flags.opt_str("index_dir").unwrap_or(::DEFAULT_INDEX_DIR.into());
 
+  let data_path_abs = match fs::canonicalize(&data_path) {
+    Ok(p) => p,
+    Err(e) => return Err(e.to_string()),
+  };
+
+  let mut pathspecs = Vec::<PathBuf>::new();
+  for pathspec in flags.free {
+    let pathspec = match fs::canonicalize(pathspec) {
+      Ok(e) => e,
+      Err(e) => return Err(e.to_string()),
+    };
+
+    let pathspec = match pathspec.strip_prefix(&data_path_abs) {
+      Ok(v) => pathspecs.push(PathBuf::from(v)),
+      Err(e) => return Err(e.to_string()),
+    };
+  }
+
+  if pathspecs.len() == 0 {
+    return Err("need a path (e.g. 'fhistory ack .')".into());
+  }
+
   ::prompt::print_progress_step(1, 4, "Loading index");
-  let mut index = ::IndexDirectory::open(&Path::new(&data_path), &Path::new(&index_path))?;
+  let mut index = ::IndexDirectory::open(
+      &Path::new(&data_path),
+      &Path::new(&index_path))?;
+
   let mut snapshot = match index.latest() {
     Some(idx) => index.load(&idx)?,
     None => return Err(format!("no index snapshot found")),
@@ -54,13 +75,12 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   ::prompt::print_progress_step(2, 4, "Scanning file metadata");
   let scan_opts = ::index_scan::ScanOptions {
     exclude_paths: vec!(PathBuf::from(&index_path)),
-    exclusive_paths: None,
+    exclusive_paths: Some(pathspecs.to_owned()),
   };
 
   let mut updates = ::index_scan::scan_metadata(
       &Path::new(&data_path),
       ::IndexSnapshot::new(snapshot.checksum_function.to_owned()),
-      &pathspec,
       &scan_opts)?;
 
   ::prompt::print_progress_step(3, 4, "Computing file checksums for changed files");
@@ -70,7 +90,10 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
       &scan_opts)?;
 
   ::prompt::print_progress_step(4, 4, "Committing new snapshot");
-  snapshot.clear(&pathspec);
+  for path in &pathspecs {
+    snapshot.clear(&path);
+  }
+
   snapshot.merge(&updates);
   let updated_ref = index.append(&snapshot)?;
 

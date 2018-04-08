@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ue
+set -uex
 source test/test-util.sh
 mkdir "${TEST_TMPDIR}/repo"
 cd "${TEST_TMPDIR}/repo"
@@ -33,7 +33,7 @@ Status: DIRTY
 EOF
 
 diff "../status" "../status.expected"
- 
+
 sleep 1
 
 fhistory ack .

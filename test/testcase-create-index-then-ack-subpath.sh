@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ue
+set -uex
 source ./test/test-util.sh
 mkdir "${TEST_TMPDIR}/repo"
 cd "${TEST_TMPDIR}/repo"
@@ -12,14 +12,58 @@ fhistory init
 fhistory status
 
 echo "X" > testX
+echo "C2" > testC
 
-if fhistory status; then
+mkdir testDir
+touch testDir/1
+touch testDir/2
+touch testDir/3
+
+if fhistory status --colours=off > "../status.raw"; then
   echo "exit code must be one"
   exit 1
 fi
 
+cat "../status.raw" | grep -vE "^Repository" | grep -vE "^Last Snapshot" > "../status"
+
+(cat > "../status.expected") <<EOF
+Total Size: 6B (3 files)
+Status: DIRTY
+
+    modified "testC"
+    created  "testDir/1"
+    created  "testDir/2"
+    created  "testDir/3"
+    created  "testX"
+
+EOF
+
+cat ../status
+diff "../status" "../status.expected"
+
 sleep 1
 
-fhistory ack testX
+fhistory ack testX testDir
+
+if fhistory status --colours=off > "../status.raw"; then
+  echo "exit code must be one"
+  exit 1
+fi
+
+cat "../status.raw" | grep -vE "^Repository" | grep -vE "^Last Snapshot" > "../status"
+
+(cat > "../status.expected") <<EOF
+Total Size: 8B (7 files)
+Status: DIRTY
+
+    modified "testC"
+
+EOF
+
+diff "../status" "../status.expected"
+
+sleep 1
+
+fhistory ack testC
 
 fhistory status # must be clean
