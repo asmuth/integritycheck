@@ -23,7 +23,7 @@ fhistory init
 fhistory status -v
 
 mkdir "test folder"
-touch "test folder/testing whitespace (1)"
+touch -m --date='2016-01-01 06:00:00'  "test folder/testing whitespace (1)"
 
 if fhistory status --colours=off > "../status.raw"; then
   echo "exit code must be one"
@@ -46,3 +46,13 @@ sleep 0.01
 
 fhistory ack .
 fhistory status
+
+(cat > "../index.expected") <<EOF
+#checksum sha256
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 1451624400 test\\_folder/testing\\_whitespace\\_(1)
+06f961b802bc46ee168555f066d28f4f0e9afdf3f88174c1ee6f9de004fc30a0 2 1451624401 testA
+c0cde77fa8fef97d476c10aad3d2d54fcc2f336140d073651c2dcccf1e379fd6 2 1451624402 testB
+12f37a8a84034d3e623d726fe10e5031f4df997ac13f4d5571b5a90c41fb84fe 2 1451624403 testC
+EOF
+
+diff .fh/$(ls -t1 .fh/ | head -n 1)  "../index.expected"
