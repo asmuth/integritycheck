@@ -80,7 +80,11 @@ pub fn scan_metadata(
     stats_files_scanned += 1;
     stats_bytes_scanned += entry_meta.len();
 
-    ::prompt::print_scanprogress(stats_files_scanned, stats_bytes_scanned);
+    ::prompt::print_scanprogress(
+        stats_files_scanned,
+        stats_bytes_scanned,
+        0,
+        0);
   }
 
   ::prompt::print_scanprogress_complete();
@@ -95,6 +99,8 @@ pub fn scan_checksums(
   let mut index = index;
   let mut stats_files_scanned = 0;
   let mut stats_bytes_scanned = 0;
+  let stats_files_total = index.total_file_count();
+  let stats_bytes_total = index.total_size_bytes();
 
   for file_path in index.list() {
     if !check_excludes(&Path::new(&file_path), opts) {
@@ -122,7 +128,11 @@ pub fn scan_checksums(
     stats_files_scanned += 1;
     stats_bytes_scanned += file_info.size_bytes;
 
-    ::prompt::print_scanprogress(stats_files_scanned, stats_bytes_scanned);
+    ::prompt::print_scanprogress(
+        stats_files_scanned,
+        stats_bytes_scanned,
+        stats_files_total,
+        stats_bytes_total);
   }
 
   ::prompt::print_scanprogress_complete();

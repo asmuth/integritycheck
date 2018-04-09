@@ -206,21 +206,39 @@ fn format_bytecount(val: u64) -> String {
   }
 }
 
-pub fn print_scanprogress(files_scanned: u64, bytes_scanned: u64) {
+pub fn print_scanprogress(
+    files_scanned: u64,
+    bytes_scanned: u64,
+    files_total: u64,
+    bytes_total: u64) {
   unsafe {
     if !enable_progress || enable_debug {
       return;
     }
   }
 
-  let res = write!(
-      &mut std::io::stderr(),
-      "\x1B\r[2K{} files, {}",
-      files_scanned,
-      format_bytecount(bytes_scanned));
+  let statusline = if files_total == 0 || bytes_total == 0 {
+    format!(
+        "\x1B\r[2K> {} files, {}",
+        files_scanned,
+        format_bytecount(bytes_scanned))
+  } else {
+    format!(
+        "\x1B\r[2K> {:.1}%, {} / {} files, {} / {}",
+        (bytes_scanned as f64 / bytes_total as f64) * 100.0,
+        files_scanned,
+        files_total,
+        format_bytecount(bytes_scanned),
+        format_bytecount(bytes_total))
+  };
 
-  res.expect("Could not write to stderr");
-  std::io::stderr().flush().ok().expect("Could not flush stdout");
+  write!(&mut std::io::stderr(), "{}", statusline)
+      .expect("Could not write to stderr");
+
+  std::io::stderr()
+      .flush()
+      .ok()
+      .expect("Could not flush stdout");
 }
 
 pub fn print_scanprogress_complete() {
@@ -230,7 +248,12 @@ pub fn print_scanprogress_complete() {
     }
   }
 
-  write!(&mut std::io::stderr(), "\x1B\r[2K").expect("Could not write to stderr");
-  std::io::stderr().flush().ok().expect("Could not flush stdout");
+  write!(&mut std::io::stderr(), "\x1B\r[2K")
+      .expect("Could not write to stderr");
+
+  std::io::stderr()
+      .flush()
+      .ok()
+      .expect("Could not flush stdout");
 }
 
