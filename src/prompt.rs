@@ -205,3 +205,32 @@ fn format_bytecount(val: u64) -> String {
     return format!("{:.3}TiB", val as f64 / u64::pow(2, 40) as f64)
   }
 }
+
+pub fn print_scanprogress(files_scanned: u64, bytes_scanned: u64) {
+  unsafe {
+    if !enable_progress || enable_debug {
+      return;
+    }
+  }
+
+  let res = write!(
+      &mut std::io::stderr(),
+      "\x1B\r[2K{} files, {}",
+      files_scanned,
+      format_bytecount(bytes_scanned));
+
+  res.expect("Could not write to stderr");
+  std::io::stderr().flush().ok().expect("Could not flush stdout");
+}
+
+pub fn print_scanprogress_complete() {
+  unsafe {
+    if !enable_progress || enable_debug {
+      return;
+    }
+  }
+
+  write!(&mut std::io::stderr(), "\x1B\r[2K").expect("Could not write to stderr");
+  std::io::stderr().flush().ok().expect("Could not flush stdout");
+}
+

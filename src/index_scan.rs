@@ -21,6 +21,8 @@ pub fn scan_metadata(
     index: ::IndexSnapshot,
     opts: &ScanOptions) -> Result<::IndexSnapshot, ::Error> {
   let mut index = index;
+  let mut stats_files_scanned = 0;
+  let mut stats_bytes_scanned = 0;
 
   let data_path = match fs::canonicalize(data_path) {
     Ok(e) => e,
@@ -74,7 +76,14 @@ pub fn scan_metadata(
       modified_timestamp_us: entry_mtime_ms,
       checksum: None
     });
+
+    stats_files_scanned += 1;
+    stats_bytes_scanned += entry_meta.len();
+
+    ::prompt::print_scanprogress(stats_files_scanned, stats_bytes_scanned);
   }
+
+  ::prompt::print_scanprogress_complete();
 
   return Ok(index);
 }
@@ -84,6 +93,8 @@ pub fn scan_checksums(
     index: ::IndexSnapshot,
     opts: &ScanOptions) -> Result<::IndexSnapshot, ::Error> {
   let mut index = index;
+  let mut stats_files_scanned = 0;
+  let mut stats_bytes_scanned = 0;
 
   for file_path in index.list() {
     if !check_excludes(&Path::new(&file_path), opts) {
@@ -107,7 +118,14 @@ pub fn scan_checksums(
         "Checksum for {:?} => {:?}",
         file_path,
         file_info.checksum));
+
+    stats_files_scanned += 1;
+    stats_bytes_scanned += file_info.size_bytes;
+
+    ::prompt::print_scanprogress(stats_files_scanned, stats_bytes_scanned);
   }
+
+  ::prompt::print_scanprogress_complete();
 
   return Ok(index)
 }
