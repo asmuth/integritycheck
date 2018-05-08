@@ -116,6 +116,7 @@ pub fn print_diff(diff: &::index_diff::IndexDiffList) {
   let sort_name = |d: &::index_diff::IndexDiff| match d {
     &::index_diff::IndexDiff::Deleted{ref file} => file.to_owned(),
     &::index_diff::IndexDiff::Modified{ref file} => file.to_owned(),
+    &::index_diff::IndexDiff::MetadataModified{ref file} => file.to_owned(),
     &::index_diff::IndexDiff::Renamed{ref from, ..} => from.to_owned(),
     &::index_diff::IndexDiff::Created{ref file} => file.to_owned(),
   };
@@ -125,6 +126,7 @@ pub fn print_diff(diff: &::index_diff::IndexDiffList) {
   let sort_rank = |d: &::index_diff::IndexDiff| match d {
     &::index_diff::IndexDiff::Deleted{..} => 1,
     &::index_diff::IndexDiff::Modified{..} => 2,
+    &::index_diff::IndexDiff::MetadataModified{..} => 2,
     &::index_diff::IndexDiff::Renamed{..} => 3,
     &::index_diff::IndexDiff::Created{..} => 4,
   };
@@ -141,6 +143,8 @@ pub fn print_diff(diff: &::index_diff::IndexDiffList) {
        format!("    deleted  {:?}", file).red(),
       ::index_diff::IndexDiff::Modified{ref file} =>
        format!("    modified {:?}", file).yellow(),
+      ::index_diff::IndexDiff::MetadataModified{ref file} =>
+       format!("    modified {:?} (metadata modifications only)", file).yellow(),
       ::index_diff::IndexDiff::Renamed{ref from, ref to} =>
         format!("    renamed  {:?} -> {:?}", from, to).yellow()
     };

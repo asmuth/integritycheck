@@ -16,6 +16,9 @@ pub enum IndexDiff {
   Created {
     file: PathBuf,
   },
+  MetadataModified {
+    file: PathBuf
+  },
   Modified {
     file: PathBuf
   },
@@ -64,8 +67,8 @@ pub fn diff(
         }
       }
       Some(finfo_actual) =>
-        if !compare_finfo(finfo_target, finfo_actual) {
-          diffs.push(IndexDiff::Modified{file: fpath.into()});
+        if let Some(d) = compare_finfo(&fpath, finfo_target, finfo_actual) {
+          diffs.push(d);
         }
     }
   }
@@ -118,6 +121,7 @@ pub fn list_files(diffs: &IndexDiffList) -> Vec<PathBuf> {
     let file = match d {
       &::index_diff::IndexDiff::Deleted{ref file} => file.to_owned(),
       &::index_diff::IndexDiff::Modified{ref file} => file.to_owned(),
+      &::index_diff::IndexDiff::MetadataModified{ref file} => file.to_owned(),
       &::index_diff::IndexDiff::Renamed{ref from, ..} => from.to_owned(),
       &::index_diff::IndexDiff::Created{ref file} => file.to_owned(),
     };
@@ -135,6 +139,7 @@ pub fn filter_diffs(src: &IndexDiffList, allowed_paths: &Vec<PathBuf>) -> IndexD
     let file = match d {
       &::index_diff::IndexDiff::Deleted{ref file} => file.to_owned(),
       &::index_diff::IndexDiff::Modified{ref file} => file.to_owned(),
+      &::index_diff::IndexDiff::MetadataModified{ref file} => file.to_owned(),
       &::index_diff::IndexDiff::Renamed{ref from, ..} => from.to_owned(),
       &::index_diff::IndexDiff::Created{ref file} => file.to_owned(),
     };
@@ -148,18 +153,21 @@ pub fn filter_diffs(src: &IndexDiffList, allowed_paths: &Vec<PathBuf>) -> IndexD
 }
 
 // returns true if the files match and false if they dont match
-fn compare_finfo(target: &::IndexFileInfo, actual: &::IndexFileInfo) -> bool {
-  if target.size_bytes != actual.size_bytes ||
-     target.modified_timestamp_us != actual.modified_timestamp_us {
-    return false; // metadata mismatch
+fn compare_finfo(fpath: &String, target: &::IndexFileInfo, actual: &::IndexFileInfo) -> Option<IndexDiff> {
+  if target.modified_timestamp_us != actual.modified_timestamp_us {
+    return Some(IndexDiff::MetadataModified{file: fpath.into()});
+  }
+
+  if target.size_bytes != actual.size_bytes {
+    return Some(IndexDiff::Modified{file: fpath.into()});
   }
 
   if actual.checksum.is_some() &&
      target.checksum != actual.checksum {
-    return false; // checksum mismatch
+    return Some(IndexDiff::Modified{file: fpath.into()});
   }
 
-  return true;
+  return None;
 }
 
 

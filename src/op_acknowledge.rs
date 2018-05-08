@@ -151,6 +151,9 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
       &::index_diff::IndexDiff::Modified{ref file} => {
         snapshot.update_path(&file, current.get_path(&file).unwrap());
       },
+      &::index_diff::IndexDiff::MetadataModified{ref file} => {
+        snapshot.update_path(&file, current.get_path(&file).unwrap());
+      },
       &::index_diff::IndexDiff::Renamed{ref from, ref to} => {
         snapshot.delete_path(&from);
         snapshot.update_path(&to, current.get_path(&to).unwrap());
