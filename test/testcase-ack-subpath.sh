@@ -37,7 +37,7 @@ cat "../status.raw" | grep -vE "^Repository" | grep -vE "^Last Snapshot" > "../s
 Total Size: 6B (3 files)
 Status: DIRTY
 
-    modified "testC"
+    modified "testC" (metadata modifications only)
     created  "testDir/1"
     created  "testDir/2"
     created  "testDir/3"
@@ -63,7 +63,7 @@ cat "../status.raw" | grep -vE "^Repository" | grep -vE "^Last Snapshot" > "../s
 Total Size: 8B (7 files)
 Status: DIRTY
 
-    modified "testC"
+    modified "testC" (metadata modifications only)
 
 EOF
 

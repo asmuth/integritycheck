@@ -42,7 +42,7 @@ cat "../status.raw" | grep -vE "^Repository" | grep -vE "^Last Snapshot" > "../s
 Total Size: 6B (3 files)
 Status: DIRTY
 
-    modified "testB"
+    modified "testB" (metadata modifications only)
 
 EOF
 

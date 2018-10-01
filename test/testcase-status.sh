@@ -38,7 +38,7 @@ Total Size: 6B (3 files)
 Status: DIRTY
 
     deleted  "testA"
-    modified "testB"
+    modified "testB" (metadata modifications only)
     created  "testD"
 
 EOF
