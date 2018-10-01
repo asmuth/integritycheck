@@ -32,9 +32,8 @@ pub enum IndexDiff {
 }
 
 #[derive(Clone, Debug, Hash, PartialEq, Eq)]
-struct IndexDiffKey {
-  checksum: String,
-  size_bytes: u64,
+struct DeletedFile {
+  file: PathBuf,
   modified_timestamp: Option<i64>,
 }
 
@@ -42,7 +41,7 @@ pub fn diff(
     target: &::IndexSnapshot,
     actual: &::IndexSnapshot) -> IndexDiffList {
   let mut diffs = IndexDiffList::new();
-  let mut deleted = HashMap::<IndexDiffKey, Vec<PathBuf>>::new();
+  let mut deleted = HashMap::<String, Vec<DeletedFile>>::new();
 
   /* check that all files in the target index exist */
   for (fpath, finfo_target) in &target.files {
@@ -53,17 +52,14 @@ pub fn diff(
         });
 
         if let Some(ref checksum) = finfo_target.checksum {
-          let diff_key = IndexDiffKey {
-            checksum: checksum.to_owned(),
-            size_bytes: finfo_target.size_bytes,
-            modified_timestamp: finfo_target.modified_timestamp_us.to_owned()
-          };
-
-          if !deleted.contains_key(&diff_key) {
-            deleted.insert(diff_key.to_owned(), Vec::<PathBuf>::new());
+          if !deleted.contains_key(&checksum.to_owned()) {
+            deleted.insert(checksum.to_owned(), Vec::<DeletedFile>::new());
           }
 
-          deleted.get_mut(&diff_key).unwrap().push(fpath.into());
+          deleted.get_mut(&checksum.to_owned()).unwrap().push(DeletedFile {
+            file: fpath.into(),
+            modified_timestamp: finfo_target.modified_timestamp_us.to_owned(),
+          });
         }
       }
       Some(finfo_actual) =>
@@ -78,20 +74,18 @@ pub fn diff(
   for (fpath, finfo) in &actual.files {
     if target.get(fpath).is_none() {
       if let Some(ref checksum) = finfo.checksum {
-        let diff_key = IndexDiffKey {
-          checksum: checksum.to_owned(),
-          size_bytes: finfo.size_bytes,
-          modified_timestamp: finfo.modified_timestamp_us.to_owned(),
-        };
+        let deleted_file_candidates = deleted.get(checksum);
+        let deleted_file = deleted_file_candidates
+            .and_then(|l| l.iter().find(|f| f.modified_timestamp == finfo.modified_timestamp_us))
+            .or(deleted_file_candidates.and_then(|v| v.get(0)));
 
-        if let Some(fpath_prev) = deleted.get(&diff_key).and_then(|v| v.get(0)).cloned() {
+        if let Some(fpath_prev) = deleted_file {
           diffs.push(IndexDiff::Renamed {
-            from: fpath_prev.to_owned(),
+            from: fpath_prev.file.to_owned(),
             to: fpath.into(),
           });
 
-          renamed.insert(fpath_prev.to_owned());
-          deleted.get_mut(&diff_key).unwrap().remove(0);
+          renamed.insert(fpath_prev.file.to_owned());
           continue;
         }
       }

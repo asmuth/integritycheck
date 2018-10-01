@@ -140,6 +140,7 @@ pub fn scan_checksums(
   return Ok(index)
 }
 
+// FIXME: this should not be linear
 fn check_excludes(path: &Path, opts: &ScanOptions) -> bool {
   {
     let skip = opts

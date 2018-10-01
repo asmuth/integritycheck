@@ -11,15 +11,15 @@ source test/test-util.sh
 mkdir "${TEST_TMPDIR}/repo"
 cd "${TEST_TMPDIR}/repo"
 
-touch -m --date='2016-01-01 06:00:00' testA
-touch -m --date='2016-01-01 06:00:00' testB
-touch -m --date='2016-01-01 06:00:00' testC
+echo "A" > testA
+echo "B" > testB
+echo "C" > testC
 
 fhistory init
-fhistory status -v
+fhistory status
 
-mv testA testB1
-mv testB testA1
+rm testB
+echo "B" > testX
 
 if fhistory status --colours=off > "../status.raw"; then
   echo "exit code must be one"
@@ -28,13 +28,15 @@ fi
 
 cat "../status.raw" | grep -vE "^Repository" | grep -vE "^Last Snapshot" > "../status"
 
+echo "---"
+cat "../status"
+echo "---"
+
 (cat > "../status.expected") <<EOF
-Total Size: 0B (3 files)
+Total Size: 6B (3 files)
 Status: DIRTY
 
-    deleted  "testB"
-    renamed  "testA" -> "testA1"
-    renamed  "testA" -> "testB1"
+    renamed  "testB" -> "testX"
 
 EOF
 

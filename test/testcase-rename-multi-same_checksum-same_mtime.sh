@@ -36,8 +36,9 @@ cat "../status.raw" | grep -vE "^Repository" | grep -vE "^Last Snapshot" > "../s
 Total Size: 12B (3 files)
 Status: DIRTY
 
+    deleted  "testB"
     renamed  "testA" -> "testA1"
-    renamed  "testB" -> "testB1"
+    renamed  "testA" -> "testB1"
 
 EOF
 
