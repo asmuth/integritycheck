@@ -10,7 +10,7 @@ failed_logs=()
 print_yellow "Running tests..."
 echo
 
-for f in $(cd "${TEST_SRCDIR}" && find . -name "testcase-*" -type f); do
+for f in $(cd "${TEST_SRCDIR}" && find . -maxdepth 1 -name "testcase-*" -type f); do
   echo -n " + $(echo "$f" | sed -e 's/^\./test/') "
   num_total=$[ $num_total + 1 ]
 

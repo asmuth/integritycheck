@@ -205,24 +205,8 @@ impl IndexSnapshot {
     return self.files.get(path);
   }
 
-  pub fn get_path(self: &Self, path: &Path) -> Option<&IndexFileInfo> {
-    return self.get(path.to_str().unwrap());
-  }
-
   pub fn update(self: &mut Self, path: &str, info: &IndexFileInfo) {
     self.files.insert(path.to_owned(), info.to_owned());
-  }
-
-  pub fn update_path(self: &mut Self, path: &Path, info: &IndexFileInfo) {
-    self.update(path.to_str().unwrap(), info);
-  }
-
-  pub fn delete(self: &mut Self, path: &str) {
-    self.files.remove(path);
-  }
-
-  pub fn delete_path(self: &mut Self, path: &Path) {
-    self.delete(path.to_str().unwrap());
   }
 
   pub fn total_size_bytes(self: &Self) -> u64 {

@@ -126,26 +126,6 @@ pub fn list_files(diffs: &IndexDiffList) -> Vec<PathBuf> {
   return files;
 }
 
-pub fn filter_diffs(src: &IndexDiffList, allowed_paths: &Vec<PathBuf>) -> IndexDiffList {
-  let mut dst = IndexDiffList::new();
-
-  for d in src {
-    let file = match d {
-      &::index_diff::IndexDiff::Deleted{ref file} => file.to_owned(),
-      &::index_diff::IndexDiff::Modified{ref file} => file.to_owned(),
-      &::index_diff::IndexDiff::MetadataModified{ref file} => file.to_owned(),
-      &::index_diff::IndexDiff::Renamed{ref from, ..} => from.to_owned(),
-      &::index_diff::IndexDiff::Created{ref file} => file.to_owned(),
-    };
-
-    if allowed_paths.iter().any(|p| file.starts_with(p)) {
-      dst.push(d.to_owned());
-    }
-  }
-
-  return dst;
-}
-
 // returns true if the files match and false if they dont match
 fn compare_finfo(fpath: &String, target: &::IndexFileInfo, actual: &::IndexFileInfo) -> Option<IndexDiff> {
   if target.modified_timestamp_us != actual.modified_timestamp_us {

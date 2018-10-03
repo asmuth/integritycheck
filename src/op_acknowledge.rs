@@ -72,51 +72,61 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
     }
   };
 
-  let mut pathspecs = Vec::<PathBuf>::new();
-  for pathspec in &flags.free {
-    let pathspec = match fs::canonicalize(pathspec) {
-      Ok(e) => e,
-      Err(e) => return Err(e.to_string()),
-    };
+  //let mut pathspecs = Vec::<PathBuf>::new();
+  //for pathspec in &flags.free {
+  //  let pathspec = match fs::canonicalize(pathspec) {
+  //    Ok(e) => e,
+  //    Err(e) => return Err(e.to_string()),
+  //  };
 
-    if !pathspec.starts_with(&data_path_abs) {
-      return Err(format!("path is outside of repository: {:?}", pathspec));
-    }
+  //  if !pathspec.starts_with(&data_path_abs) {
+  //    return Err(format!("path is outside of repository: {:?}", pathspec));
+  //  }
 
-    match pathspec.strip_prefix(&data_path_abs) {
-      Ok(v) => pathspecs.push(PathBuf::from(v)),
-      Err(e) => return Err(e.to_string()),
-    };
-  }
+  //  match pathspec.strip_prefix(&data_path_abs) {
+  //    Ok(v) => pathspecs.push(PathBuf::from(v)),
+  //    Err(e) => return Err(e.to_string()),
+  //  };
+  //}
 
-  if pathspecs.len() == 0 {
-    return Err("need a path (e.g. 'fhistory ack .')".into());
-  }
+  //if pathspecs.len() == 0 {
+  //  return Err("need a path (e.g. 'fhistory ack .')".into());
+  //}
 
-  ::prompt::print_progress_step(1, 3, "Loading index");
+  ::prompt::print_progress_step(1, 4, "Loading index");
   let mut index = ::IndexDirectory::open(
       &Path::new(&data_path),
       &Path::new(&index_path))?;
 
-  let mut snapshot = match index.latest() {
+  let snapshot_old = match index.latest() {
     Some(idx) => index.load(&idx)?,
     None => return Err(format!("no index snapshot found")),
   };
 
-  ::prompt::print_progress_step(2, 3, "Scanning file metadata");
+  ::prompt::print_progress_step(2, 4, "Scanning file metadata");
 
-  let mut current = ::index_scan::scan_metadata(
+  let mut snapshot_new = ::index_scan::scan_metadata(
       &Path::new(&data_path),
-      ::IndexSnapshot::new(snapshot.checksum_function.to_owned()),
+      ::IndexSnapshot::new(snapshot_old.checksum_function.to_owned()),
       &::index_scan::ScanOptions {
         exclude_paths: vec!(PathBuf::from(&index_path)),
         exclusive_paths: None,
       })?;
 
-  ::prompt::print_progress_step(3, 3, "Computing file checksums for changed files");
-  let diffs = ::index_diff::filter_diffs(
-      &::index_diff::diff(&snapshot, &current),
-      &pathspecs);
+  ::prompt::print_progress_step(3, 4, "Computing file checksums for changed files");
+
+  // FIXME: reuse unchanged checksums from old snapshot
+
+  snapshot_new = ::index_scan::scan_checksums(
+      &Path::new(&data_path),
+      snapshot_new.to_owned(),
+      &::index_scan::ScanOptions {
+        exclude_paths: vec!(PathBuf::from(&index_path)),
+        exclusive_paths: None
+      })?;
+
+  ::prompt::print_progress_step(4, 4, "Computing diff");
+  let diffs = ::index_diff::diff(&snapshot_old, &snapshot_new);
 
   ::prompt::print_progress_complete();
 
@@ -133,38 +143,9 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
     ::prompt::print_confirmed_diffs(&diffs);
   }
 
-  current = ::index_scan::scan_checksums(
-      &Path::new(&data_path),
-      current.to_owned(),
-      &::index_scan::ScanOptions {
-        exclude_paths: vec!(PathBuf::from(&index_path)),
-        exclusive_paths: Some(::index_diff::list_files(&diffs)),
-      })?;
+  snapshot_new.message = flags.opt_str("message");
 
-  snapshot.message = flags.opt_str("message");
-
-  for diff in diffs {
-    match &diff {
-      &::index_diff::IndexDiff::Deleted{ref file} => {
-        snapshot.delete_path(&file);
-      },
-      &::index_diff::IndexDiff::Modified{ref file} => {
-        snapshot.update_path(&file, current.get_path(&file).unwrap());
-      },
-      &::index_diff::IndexDiff::MetadataModified{ref file} => {
-        snapshot.update_path(&file, current.get_path(&file).unwrap());
-      },
-      &::index_diff::IndexDiff::Renamed{ref from, ref to} => {
-        snapshot.delete_path(&from);
-        snapshot.update_path(&to, current.get_path(&to).unwrap());
-      },
-      &::index_diff::IndexDiff::Created{ref file} => {
-        snapshot.update_path(&file, current.get_path(&file).unwrap());
-      },
-    };
-  }
-
-  let updated_ref = index.append(&snapshot, time)?;
+  let updated_ref = index.append(&snapshot_new, time)?;
   ::prompt::print_success(&format!("Created snapshot {:?}", updated_ref.checksum));
 
   return Ok(true);

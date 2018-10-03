@@ -108,11 +108,16 @@ pub fn scan_checksums(
       continue;
     }
 
-    ::prompt::print_debug(&format!("Computing checksum for {:?}", file_path));
     let mut file_info = match &index.get(&file_path) {
       &Some(v) => v.to_owned(),
       &None => return Err(format!("invalid path")),
     };
+
+    if file_info.checksum.is_some() {
+      continue;
+    }
+
+    ::prompt::print_debug(&format!("Computing checksum for {:?}", file_path));
 
     file_info.checksum = Some(::checksum::compute_file(
         index.checksum_function.clone(),
