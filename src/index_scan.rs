@@ -114,6 +114,7 @@ pub fn scan_checksums(
     };
 
     if file_info.checksum.is_some() {
+      ::prompt::print_debug(&format!("Skipping checksum calculation for {:?}", file_path));
       continue;
     }
 
@@ -143,6 +144,38 @@ pub fn scan_checksums(
   ::prompt::print_scanprogress_complete();
 
   return Ok(index)
+}
+
+/**
+ * Copy all file checksums from another snapshot
+ */
+pub fn copy_checksums(
+    index: ::IndexSnapshot,
+    other_index: &::IndexSnapshot) -> Result<::IndexSnapshot, ::Error> {
+  let mut index = index;
+
+  for file_path in index.list() {
+    let mut file_info = match &index.get(&file_path) {
+      &Some(v) => v.to_owned(),
+      &None => return Err(format!("invalid path")),
+    };
+
+    let other_file_info = match &other_index.get(&file_path) {
+      &Some(v) => v,
+      &None => continue,
+    };
+
+    if other_file_info.checksum.is_none() ||
+       other_file_info.size_bytes != file_info.size_bytes ||
+       other_file_info.modified_timestamp_us != file_info.modified_timestamp_us {
+      continue;
+    }
+
+    file_info.checksum = other_file_info.checksum.clone();
+    index.update(&file_path, &file_info);
+  }
+
+  return Ok(index);
 }
 
 // FIXME: this should not be linear

@@ -115,7 +115,9 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
 
   ::prompt::print_progress_step(3, 4, "Computing file checksums for changed files");
 
-  // FIXME: reuse unchanged checksums from old snapshot
+  snapshot_new = ::index_scan::copy_checksums(
+      snapshot_new.to_owned(),
+      &snapshot_old)?;
 
   snapshot_new = ::index_scan::scan_checksums(
       &Path::new(&data_path),
