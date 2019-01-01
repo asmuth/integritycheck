@@ -23,6 +23,7 @@ mod op_status;
 mod op_verify;
 mod op_history;
 mod op_init;
+mod op_index;
 mod index;
 mod index_diff;
 mod index_scan;
@@ -76,6 +77,7 @@ fn perform_op(op: Operation, args: &Vec<String>) -> Result<bool, Error> {
   return match op {
     Operation::Acknowledge => op_acknowledge::perform(args),
     Operation::Status => op_status::perform(args),
+    Operation::Index => op_index::perform(args),
     Operation::History => op_history::perform(args),
     Operation::Initialize => op_init::perform(args),
     Operation::Verify => op_verify::perform(args),
@@ -86,6 +88,7 @@ fn print_usage(op: Option<Operation>) -> Result<bool, Error> {
   let usage_msg = match op {
     Some(Operation::Acknowledge) => op_acknowledge::USAGE,
     Some(Operation::Status) => op_status::USAGE,
+    Some(Operation::Index) => op_index::USAGE,
     Some(Operation::History) => op_history::USAGE,
     Some(Operation::Initialize) => op_init::USAGE,
     Some(Operation::Verify) => op_verify::USAGE,

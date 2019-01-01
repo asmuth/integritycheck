@@ -90,7 +90,8 @@ pub fn print_repository_path(path: &str) {
 }
 
 pub fn print_repository_size(snap: &::IndexSnapshot) {
-  println!(
+  writeln!(
+      &mut std::io::stderr(),
       "Total Size: {} ({} files)",
       format_bytecount(snap.total_size_bytes()),
       snap.total_file_count());

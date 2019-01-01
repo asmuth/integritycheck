@@ -220,6 +220,25 @@ impl IndexSnapshot {
     return self.files.iter().count() as u64;
   }
 
+  pub fn unparse(self: &Self) -> String {
+    let mut data = String::new();
+
+    for (fpath, finfo) in self.files.iter() {
+      if finfo.checksum.is_none() {
+        panic!("missing checksum");
+      }
+
+      data += &format!(
+          "{} [sha256] {} {} {}\n",
+          encode_string(fpath),
+          finfo.checksum.as_ref().unwrap_or(&"".to_owned()),
+          finfo.size_bytes,
+          finfo.modified_timestamp_us.unwrap_or(0));
+    }
+
+    return data;
+  }
+
   pub fn encode(self: &Self, timestamp_us: i64) -> Vec<u8> {
     let mut data = String::new();
 

@@ -11,6 +11,7 @@ pub enum Operation {
   Acknowledge,
   Status,
   Verify,
+  Index,
   History,
   Initialize
 }
@@ -26,6 +27,7 @@ impl Operation {
       "ack" => Some(Operation::Acknowledge),
       "status" => Some(Operation::Status),
       "verify" => Some(Operation::Verify),
+      "index" => Some(Operation::Index),
       "init" => Some(Operation::Initialize),
       "log" => Some(Operation::History),
       _ => None,
