@@ -40,7 +40,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   };
 
   ::prompt::set_debug(flags.opt_present("verbose"));
-  ::prompt::set_progress(flags.opt_str("progress") == Some("on".to_owned()));
+  ::prompt::set_progress(flags.opt_str("progress") != Some("off".to_owned()));
   ::prompt::set_colours(flags.opt_str("colours") != Some("off".to_owned()));
 
   let mut pathspecs = Vec::<PathBuf>::new();
@@ -52,7 +52,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
     return Err("need a path (e.g. 'integritycheck index .')".into());
   }
 
-  ::prompt::print_progress_step(1, 1, "Scanning file metadata");
+  ::prompt::print_progress_step(1, 2, "Scanning file metadata");
   let mut snapshot = ::index_scan::scan_metadata(
       &Path::new(&pathspecs.get(0).unwrap()), // FIXME
       ::IndexSnapshot::new(::checksum::ChecksumFunction::SHA256),
@@ -61,6 +61,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
         exclusive_paths: None,
       })?;
 
+  ::prompt::print_progress_step(2, 2, "Computing checksums");
   snapshot = ::index_scan::scan_checksums(
       &Path::new(&pathspecs.get(0).unwrap()), // FIXME
       snapshot.to_owned(),
