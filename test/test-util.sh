@@ -1,5 +1,5 @@
 TEST_SRCDIR="$(dirname "$(realpath "$0")")"
-TEST_TMPDIR="$(mktemp -d "/tmp/fhistory-test-XXXXXXX")"
+TEST_TMPDIR="$(mktemp -d "/tmp/ic-test-XXXXXXX")"
 trap "rm -rf ${TEST_TMPDIR};" EXIT
 
 print_yellow () {

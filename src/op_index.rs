@@ -1,8 +1,8 @@
 /**
- * fhistory - https://github.com/asmuth/fhistory
+ * integritycheck - https://github.com/asmuth/integritycheck
  * Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
  *
- * This file is part of the "fhistory" project. fhistory is free software
+ * This file is part of the "integritycheck" project. integritycheck is free software
  * licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.
  */
@@ -13,7 +13,7 @@ use std::io::Write;
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
-usage: fhistory index [options] <path>...
+usage: integritycheck index [options] <path>...
 Create an index file containing checksums of all files in a directory
 Compare the current state of the repository to the latest snapshot
 
@@ -49,7 +49,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   }
 
   if pathspecs.len() == 0 {
-    return Err("need a path (e.g. 'fhistory index .')".into());
+    return Err("need a path (e.g. 'integritycheck index .')".into());
   }
 
   ::prompt::print_progress_step(1, 1, "Scanning file metadata");

@@ -1,8 +1,8 @@
 /**
- * fhistory - https://github.com/asmuth/fhistory
+ * integritycheck - https://github.com/asmuth/integritycheck
  * Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
  *
- * This file is part of the "fhistory" project. fhistory is free software
+ * This file is part of the "integritycheck" project. integritycheck is free software
  * licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.
  */
@@ -57,7 +57,7 @@ impl IndexDirectory {
     if !index_path.exists() {
       return Err(
           format!(
-              "index not found at '{}'; maybe you need to run 'fhistory init' first?",
+              "index not found at '{}'; maybe you need to run 'integritycheck init' first?",
               index_path.to_str().unwrap_or("")));
     }
 

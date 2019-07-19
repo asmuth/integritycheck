@@ -1,6 +1,6 @@
-fhistory - Yet another file integrity monitoring tool.
+integritycheck - Yet another file integrity monitoring tool.
 Copyright (c) 2018 Paul Asmuth"
 Licensed under the Apache License, Version 2.0
 
-https://github.com/asmuth/fhistory
-https://asmuth.com/~paul/software/fhistory
+https://github.com/asmuth/integritycheck
+https://asmuth.com/~paul/software/integritycheck

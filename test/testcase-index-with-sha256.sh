@@ -1,8 +1,8 @@
 #!/bin/bash
-# fhistory - https://github.com/asmuth/fhistory
+# integritycheck - https://github.com/asmuth/integritycheck
 # Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
 #
-# This file is part of the "fhistory" project. fhistory is free software
+# This file is part of the "integritycheck" project. integritycheck is free software
 # licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
 set -uex
@@ -19,7 +19,7 @@ touch -m --date='2016-01-01 06:00:01' repo/testA
 touch -m --date='2016-01-01 06:00:02' repo/testB
 touch -m --date='2016-01-01 06:00:03' repo/testC
 
-(cd repo && fhistory index . > ../index.actual)
+(cd repo && ic index . > ../index.actual)
 
 (cat > "index.expected") <<EOF
 testA [sha256] 06f961b802bc46ee168555f066d28f4f0e9afdf3f88174c1ee6f9de004fc30a0 2 1451624401000000

@@ -1,8 +1,8 @@
 #!/bin/bash
-# fhistory - https://github.com/asmuth/fhistory
+# integritycheck - https://github.com/asmuth/integritycheck
 # Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
 #
-# This file is part of the "fhistory" project. fhistory is free software
+# This file is part of the "integritycheck" project. integritycheck is free software
 # licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
 set -uex
@@ -19,13 +19,13 @@ touch -m --date='2016-01-01 06:00:01' testA
 touch -m --date='2016-01-01 06:00:02' testB
 touch -m --date='2016-01-01 06:00:03' testC
 
-fhistory init
-fhistory status -v
+ic init
+ic status -v
 
 mkdir "test\\folder"
 touch -m --date='2016-01-01 06:00:00' "test\\folder/testing\\backslash"
 
-if fhistory status --colours=off > "../status.raw"; then
+if ic status --colours=off > "../status.raw"; then
   echo "exit code must be one"
   exit 1
 fi
@@ -44,8 +44,8 @@ diff "../status" "../status.expected"
 
 sleep 0.01
 
-fhistory ack -y .
-fhistory status
+ic ack -y .
+ic status
 
 (cat > "../index.expected") <<EOF
 #checksum sha256
@@ -55,5 +55,5 @@ c0cde77fa8fef97d476c10aad3d2d54fcc2f336140d073651c2dcccf1e379fd6 2 1451624402000
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 0 1451624400000000 test\\\\folder/testing\\\\backslash
 EOF
 
-pigz -z -d < .fh/$(ls -t1 .fh/ | head -n 1) | grep -vE '^#timestamp' > "../index.actual"
+pigz -z -d < .ic/$(ls -t1 .ic/ | head -n 1) | grep -vE '^#timestamp' > "../index.actual"
 diff "../index.actual"  "../index.expected"

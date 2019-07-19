@@ -1,8 +1,8 @@
 /**
- * fhistory - https://github.com/asmuth/fhistory
+ * integritycheck - https://github.com/asmuth/integritycheck
  * Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
  *
- * This file is part of the "fhistory" project. fhistory is free software
+ * This file is part of the "integritycheck" project. integritycheck is free software
  * licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.
  */
@@ -39,10 +39,10 @@ type Error = String;
 
 const VERSION : &'static str = env!("CARGO_PKG_VERSION");
 const DEFAULT_DATA_DIR : &'static str = ".";
-const DEFAULT_INDEX_DIR : &'static str = ".fh";
+const DEFAULT_INDEX_DIR : &'static str = ".ic";
 const DEFAULT_CHECKSUM_FUNCTION : &'static str = "sha256";
 const USAGE : &'static str = "\
-usage: fhistory <command> [options]
+usage: integritycheck <command> [options]
 Another file integrity monitoring tool.
 
 global options:
@@ -50,7 +50,7 @@ global options:
                          default: '.'
   -x,--index_dir=PATH    Set the path of the index directory. Note that this
                          path is relative to the data directory. Absolute
-                         paths are allowed. default: '.fh'
+                         paths are allowed. default: '.ic'
   --progress=[on/off]    Turn progress reporting on stderr on or off
   --colours=[on/off]     Turn coloured terminal output on or off. default: on
   -v,--verbose           Enable verbose output,
@@ -102,10 +102,10 @@ fn print_usage(op: Option<Operation>) -> Result<bool, Error> {
 }
 
 fn print_version() -> Result<bool, Error> {
-  println!("fhistory v{}", VERSION);
+  println!("integritycheck v{}", VERSION);
   println!("Copyright (c) 2018 Paul Asmuth");
   println!("Licensed under the Apache License, Version 2.0");
-  println!("https://github.com/asmuth/fhistory");
+  println!("https://github.com/asmuth/integritycheck");
   return Ok(true);
 }
 

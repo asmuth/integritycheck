@@ -1,8 +1,8 @@
 #!/bin/bash
-# fhistory - https://github.com/asmuth/fhistory
+# integritycheck - https://github.com/asmuth/integritycheck
 # Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
 #
-# This file is part of the "fhistory" project. fhistory is free software
+# This file is part of the "integritycheck" project. integritycheck is free software
 # licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
 set -uex
@@ -19,13 +19,13 @@ touch -m --date='2016-01-01 06:00:01' testA
 touch -m --date='2016-01-01 06:00:02' testB
 touch -m --date='2016-01-01 06:00:03' testC
 
-fhistory init --checksum md5
-fhistory status
-fhistory verify
+ic init --checksum md5
+ic status
+ic verify
 
-echo "boom" >> .fh/$(ls -t1 .fh/ | head -n 1)
+echo "boom" >> .ic/$(ls -t1 .ic/ | head -n 1)
 
-if fhistory status --colours=off &> "../status.raw"; then
+if ic status --colours=off &> "../status.raw"; then
   echo "exit code must be one"
   exit 1
 fi

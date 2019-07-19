@@ -1,8 +1,8 @@
 /**
- * fhistory - https://github.com/asmuth/fhistory
+ * integritycheck - https://github.com/asmuth/integritycheck
  * Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
  *
- * This file is part of the "fhistory" project. fhistory is free software
+ * This file is part of the "integritycheck" project. integritycheck is free software
  * licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.
  */
@@ -10,7 +10,7 @@ use std::path::Path;
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
-usage: fhistory log [options]
+usage: integritycheck log [options]
 Display a historical log of snapshots and changes to the repository
 
 options:
@@ -18,7 +18,7 @@ options:
                          default: '.'
   -x,--index_dir=PATH    Set the path of the index directory. Note that this
                          path is relative to the data directory. Absolute
-                         paths are allowed. default: '.fh'
+                         paths are allowed. default: '.ic'
   --progress=[on/off]    Turn progress reporting on stderr on or off
                          default: off
   --colours=[on/off]     Turn coloured terminal output on or off

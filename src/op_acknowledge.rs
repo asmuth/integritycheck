@@ -1,8 +1,8 @@
 /**
- * fhistory - https://github.com/asmuth/fhistory
+ * integritycheck - https://github.com/asmuth/integritycheck
  * Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
  *
- * This file is part of the "fhistory" project. fhistory is free software
+ * This file is part of the "integritycheck" project. integritycheck is free software
  * licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License.
  */
@@ -12,7 +12,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use getopts::Options;
 
 pub const USAGE : &'static str = "\
-usage: fhistory ack [options] <path>
+usage: integritycheck ack [options] <path>
 Acknowledge changes to files in the repository and create a new snapshot
 
 options:
@@ -22,7 +22,7 @@ options:
                          default: '.'
   -x,--index_dir=PATH    Set the path of the index directory. Note that this
                          path is relative to the data directory. Absolute
-                         paths are allowed. default: '.fh'
+                         paths are allowed. default: '.ic'
   --progress=[on/off]    Turn progress reporting on stderr on or off
                          default: off
   --colours=[on/off]     Turn coloured terminal output on or off
@@ -90,7 +90,7 @@ pub fn perform(args: &Vec<String>) -> Result<bool, ::Error> {
   //}
 
   //if pathspecs.len() == 0 {
-  //  return Err("need a path (e.g. 'fhistory ack .')".into());
+  //  return Err("need a path (e.g. 'integritycheck ack .')".into());
   //}
 
   ::prompt::print_progress_step(1, 4, "Loading index");

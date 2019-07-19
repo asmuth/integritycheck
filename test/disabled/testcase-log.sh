@@ -1,8 +1,8 @@
 #!/bin/bash
-# fhistory - https://github.com/asmuth/fhistory
+# integritycheck - https://github.com/asmuth/integritycheck
 # Copyright (c) 2018, Paul Asmuth <paul@asmuth.com>
 #
-# This file is part of the "fhistory" project. fhistory is free software
+# This file is part of the "integritycheck" project. integritycheck is free software
 # licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
 set -uex
@@ -19,15 +19,15 @@ touch -m --date='2016-01-01 06:00:01' testA
 touch -m --date='2016-01-01 06:00:02' testB
 touch -m --date='2016-01-01 06:00:03' testC
 
-fhistory init --set_time 1451624401000000
-fhistory status -v
+ic init --set_time 1451624401000000
+ic status -v
 
 touch -m --date='2016-01-01 10:01:02' testX
 
-fhistory ack -y . -m "Hello World" --set_time 1451624402000000
-fhistory status
+ic ack -y . -m "Hello World" --set_time 1451624402000000
+ic status
 
-fhistory log --colours=off > "../output"
+ic log --colours=off > "../output"
 
 (cat > "../output.expected") <<EOF
 snapshot b2e61b7fd1934df374fd722181da93c380a72c0eeb28dd73c2a4a15f86e0710f
