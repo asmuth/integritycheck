@@ -72,7 +72,7 @@ dependencies = [
 
 [[package]]
 name = "integritycheck"
-version = "0.8.0"
+version = "0.8.1"
 dependencies = [
  "colored 1.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "deflate 0.7.18 (registry+https://github.com/rust-lang/crates.io-index)",
