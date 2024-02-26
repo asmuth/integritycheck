@@ -3,8 +3,9 @@ cmake_minimum_required(VERSION 3.8)
 find_package(OpenSSL REQUIRED)
 
 add_executable(
-  index_search
+  flix
   cmd_search.cc
+  main.cc
 )
 
-target_link_libraries(index_search OpenSSL::SSL)
+target_link_libraries(flix OpenSSL::SSL)

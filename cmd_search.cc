@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iomanip>
 #include <openssl/sha.h>
+#include <getopt.h>
 
 uint8_t hex_decode(char c) {
   switch (c) {
@@ -181,12 +182,41 @@ std::string checksum_compute(const std::string& file_path) {
   return sha1_digest;
 }
 
-int main(int argc, char** argv) {
-  std::unordered_set<std::string> index;
+void cmd_search(char** args, size_t arg_count) {
+  std::string index_path;
 
-  for (int i = 1; i < argc; ++i) {
-    index_load(argv[i], &index);
+  auto opts_short = std::string("i:");
+  auto opts_long = std::array<struct option, 2>{{
+    {"index", required_argument, 0, 'i'},
+    {0, 0, 0, 0}
+  }};
+
+  for (;;) {
+    int opt_long = 0;
+    int opt = getopt_long(
+        arg_count,
+        args,
+        opts_short.c_str(),
+        opts_long.data(),
+        &opt_long);
+
+    if (opt == -1) {
+      break;
+    }
+
+    switch (opt) {
+      case 'i':
+        index_path = optarg;
+        break;
+    }
   }
+
+  if (index_path.empty()) {
+    throw std::runtime_error("need an index (--index)");
+  }
+
+  std::unordered_set<std::string> index;
+  index_load(index_path, &index);
 
   std::string file_path;
   for (;;) {
@@ -209,8 +239,6 @@ int main(int argc, char** argv) {
       std::cout << "miss " << file_path << std::endl;
     }
   }
-
-  return EXIT_SUCCESS;
 }
 
 // test: non existing index file
