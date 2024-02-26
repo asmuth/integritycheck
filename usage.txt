@@ -1,0 +1,26 @@
+Usage: $ flix search [OPTION...] [FILE...]
+   -i, --index <path>            Path of the index file to search
+   -o, --output <fmt>            Output format (see "Output Formats")
+   -S, --separator               Line separator for STDIN/STDOUT
+   -?, --help                    Display this help text and exit
+   -V, --version                 Display the version of this program and exit
+
+Examples:
+   $ flix search -i index.lst file1 file2
+   $ flix search -i index.lst - < file_list.txt
+
+--------------------------------------------------------------------------------
+
+Usage: $ flix verify [OPTION...]
+   -i, --index <path>            Path of the index file to verify
+   -d, --directory <path>        Base directory for relative file paths
+   -q, --quick                   Disable checksum verification, only verify file presence and size
+   -p, --progress                Enable progress output to STDERR
+   -P, --noprogress              Disable progress output to STDERR
+   -?, --help                    Display this help text and exit
+   -V, --version                 Display the version of this program and exit
+
+Examples:
+   $ flix verify -i index.lst
+   $ flix verify -i index.lst -q
+   $ flix verify -i index.lst -d path/to/files
