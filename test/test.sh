@@ -1,5 +1,10 @@
 #!/bin/bash
-source test/env.sh
+set -ue -o pipefail
+
+TEST_BINDIR="$1"
+TEST_SRCDIR="$(dirname "$(realpath "$0")")"
+TEST_TMPDIR="$(mktemp -d "/tmp/flix-test-XXXXXXX")"
+trap "rm -rf ${TEST_TMPDIR};" EXIT
 
 print_info () {
   printf "\033[1;34m%s\033[0m" "$1"
@@ -13,19 +18,32 @@ print_fail () {
   printf "\033[1;31m%s\033[0m" "$1"
 }
 
+run_test () {
+  mkdir "${TEST_TMPDIR}/$1"
+
+  (
+    cd "${test_path}";
+    TEST_SRCDIR="${TEST_SRCDIR}/$1" \
+    TEST_TMPDIR="${TEST_TMPDIR}/$1" \
+    "${TEST_BINDIR}/$1"
+  ) &> "${TEST_TMPDIR}/$1.log"
+}
+
 num_total=0
 num_passed=0
 num_failed=0
-failed_logs=()
+failed=()
 
 print_info "Running tests..."
 echo
 
-for f in $(cd "${TEST_SRCDIR}" && find . -maxdepth 1 -name "test-*.sh" -type f); do
-  echo -n " + $(echo "$f" | sed -e 's/^\./test/') "
+for test_path in $(find "${TEST_SRCDIR}" -maxdepth 1 -name "test-*" -type d); do
+  test_name="$(basename "${test_path}")"
+
+  echo -n " + $(echo "$test_name") "
   num_total=$[ $num_total + 1 ]
 
-  if "${TEST_SRCDIR}/$f" &> "${TEST_TMPDIR}/$f.log"; then
+  if run_test "${test_name}"; then
     print_success "PASS"
     echo
     num_passed=$[ $num_passed + 1 ]
@@ -33,15 +51,15 @@ for f in $(cd "${TEST_SRCDIR}" && find . -maxdepth 1 -name "test-*.sh" -type f);
     print_fail "FAIL"
     echo
     num_failed=$[ $num_failed + 1 ]
-    failed_logs+=($f.log)
+    failed+=("${test_name}")
   fi
 done
 echo
 
-for failed in ${failed_logs[@]}; do
+for failed in ${failed[@]}; do
   print_fail "FAIL: "
   echo "${failed}"
-  sed -e 's/^/  | /' < "${TEST_TMPDIR}/${failed}"
+  sed -e 's/^/  | /' < "${TEST_TMPDIR}/${failed}.log"
   echo
 done
 
