@@ -1,9 +1,9 @@
 #!/bin/bash
 set -ue -o pipefail
 
-TEST_BINDIR="$1"
 TEST_SRCDIR="$(dirname "$(realpath "$0")")"
-TEST_TMPDIR="$(mktemp -d "/tmp/flix-test-XXXXXXX")"
+TEST_RUNDIR="$(pwd)"
+TEST_TMPDIR="$(mktemp -d "flix-test-XXXXXXX")"
 trap "rm -rf ${TEST_TMPDIR};" EXIT
 
 print_info () {
@@ -25,7 +25,7 @@ run_test () {
     cd "${test_path}";
     TEST_SRCDIR="${TEST_SRCDIR}/$1" \
     TEST_TMPDIR="${TEST_TMPDIR}/$1" \
-    "${TEST_BINDIR}/$1"
+    "${TEST_RUNDIR}/$1"
   ) &> "${TEST_TMPDIR}/$1.log"
 }
 

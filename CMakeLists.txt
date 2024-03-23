@@ -26,6 +26,14 @@ set(
 add_executable(flix ${sources} main.cc)
 target_link_libraries(flix ${linklibs})
 
+# Add the test target
+add_custom_target(
+  test
+  COMMAND ${PROJECT_SOURCE_DIR}/test/test.sh
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMENT "Run all tests"
+)
+
 # Build unit tests
 file(GLOB test_paths "test/test-*")
 
@@ -46,4 +54,6 @@ foreach(test_path ${test_paths})
     ${test_name}
     ${linklibs}
   )
+
+  add_dependencies(test "${test_name}")
 endforeach()
