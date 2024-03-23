@@ -15,4 +15,8 @@ struct Checksum {
   ChecksumValue value;
 };
 
+ChecksumType checksum_read_type(const std::string& input);
+
+ChecksumValue checksum_read_value(const std::string& input);
+
 std::string checksum_compute_sha1(const std::string& file_path);

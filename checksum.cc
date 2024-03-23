@@ -6,6 +6,24 @@
 #include <cstring>
 #include <openssl/sha.h>
 
+ChecksumType checksum_read_type(const std::string& input) {
+  if (input == "md5") {
+    return ChecksumType::MD5;
+  }
+
+  if (input == "sha1") {
+    return ChecksumType::SHA1;
+  }
+
+  throw std::runtime_error("invalid checksum type: " + input);
+}
+
+ChecksumValue checksum_read_value(const std::string& input) {
+  return ChecksumValue {
+    .data = input
+  };
+}
+
 std::string checksum_compute_sha1(const std::string& file_path) {
   SHA_CTX sha1;
   if (!SHA1_Init(&sha1)) {
