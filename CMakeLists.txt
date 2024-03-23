@@ -12,6 +12,7 @@ set(
   checksum.cc
   index.h
   index.cc
+  index_read.cc
   cmd_search.cc
 )
 

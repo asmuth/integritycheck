@@ -27,3 +27,8 @@ struct Index {
 };
 
 void index_add(IndexRecord entry, Index* index);
+
+void index_read(
+  const std::string& file_path,
+  Index* index
+);
