@@ -4,6 +4,8 @@ find_package(OpenSSL REQUIRED)
 
 add_executable(
   flix
+  checksum.h
+  checksum.cc
   cmd_search.cc
   main.cc
 )
