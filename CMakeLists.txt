@@ -10,6 +10,8 @@ set(
   sources
   checksum.h
   checksum.cc
+  index.h
+  index.cc
   cmd_search.cc
 )
 
