@@ -35,6 +35,14 @@ void op_verify_result_add_corrupt_data(const std::string& path, VerifyResult* re
   });
 }
 
+void op_verify_result_add_omitted(const std::string& path, VerifyResult* result) {
+  result->count_omit++;
+  result->messages.push_back(VerifyMessage {
+    .type = VerifyMessageType::OMITTED,
+    .path = path
+  });
+}
+
 bool op_verify_record_checksums(const VerifyOp& op, const IndexRecord& record) {
   if (record.checksums.empty()) {
     return false;
@@ -77,14 +85,38 @@ void op_verify_record(
   op_verify_result_add_ok(result);
 }
 
+void op_verify_tree(
+  const VerifyOp& op,
+  const Index& index,
+  VerifyResult* result
+) {
+  auto index_path_set = index_build_path_set(index);
+
+  auto tree_iter = std::filesystem::recursive_directory_iterator(op.root_path);
+  for (const auto& tree_path_absolute : tree_iter) {
+    auto tree_path = std::filesystem::relative(tree_path_absolute, op.root_path);
+
+    if (std::filesystem::is_directory(tree_path_absolute)) {
+      continue;
+    }
+
+    if (!index_path_set.paths.contains(tree_path)) {
+      op_verify_result_add_omitted(tree_path, result);
+    }
+  }
+}
+
 VerifyResult op_verify(const VerifyOp& op) {
   VerifyResult result;
   result.count_ok = 0;
   result.count_missing = 0;
   result.count_corrupt = 0;
+  result.count_omit = 0;
 
   Index index;
   index_read(op.index_path, &index);
+
+  op_verify_tree(op, index, &result);
 
   for (const auto& record : index.entries) {
     op_verify_record(op, record, &result);
@@ -126,6 +158,10 @@ void op_verify(char** args, size_t arg_count) {
     throw std::runtime_error("need an index (--index)");
   }
 
+  if (op.root_path.empty()) {
+    op.root_path = std::filesystem::current_path();
+  }
+
   auto op_result = op_verify(op);
 
   for (const auto& msg : op_result.messages) {
@@ -139,10 +175,14 @@ void op_verify(char** args, size_t arg_count) {
       case VerifyMessageType::CORRUPT_DATA:
         std::cerr << "[WARN] corrupt file (invalid data): " << msg.path << std::endl;
         break;
+      case VerifyMessageType::OMITTED:
+        std::cerr << "[WARN] file not in index: " << msg.path << std::endl;
+        break;
     }
   }
 
   std::cerr << "OK: " << op_result.count_ok << std::endl;
   std::cerr << "Missing: " << op_result.count_missing << std::endl;
   std::cerr << "Corrupt: " << op_result.count_corrupt << std::endl;
+  std::cerr << "Omitted: " << op_result.count_omit << std::endl;
 }

@@ -20,6 +20,7 @@ int main(int argc, char** argv) {
   EXPECT(op_result.count_ok == 2);
   EXPECT(op_result.count_missing == 1);
   EXPECT(op_result.count_corrupt == 0);
+  EXPECT(op_result.count_omit == 0);
   EXPECT(op_result.messages.size() == 1);
   EXPECT(op_result.messages[0].type == VerifyMessageType::MISSING);
   EXPECT(op_result.messages[0].path == "two.txt");

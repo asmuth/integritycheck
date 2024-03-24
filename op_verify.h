@@ -12,7 +12,8 @@ struct VerifyOp {
 enum class VerifyMessageType {
   MISSING,
   CORRUPT_DATA,
-  CORRUPT_SIZE
+  CORRUPT_SIZE,
+  OMITTED
 };
 
 struct VerifyMessage {
@@ -24,6 +25,7 @@ struct VerifyResult {
   size_t count_ok;
   size_t count_missing;
   size_t count_corrupt;
+  size_t count_omit;
 
   std::vector<VerifyMessage> messages;
 };
