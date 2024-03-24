@@ -1,106 +1,36 @@
 #include "checksum.h"
 
-#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <string>
 #include <stdexcept>
 #include <iostream>
 #include <unordered_set>
-#include <vector>
-#include <sstream>
-#include <iomanip>
+#include <string_view>
 #include <getopt.h>
 
-uint8_t hex_decode(char c) {
-  switch (c) {
-    case '0': return 0;
-    case '1': return 1;
-    case '2': return 2;
-    case '3': return 3;
-    case '4': return 4;
-    case '5': return 5;
-    case '6': return 6;
-    case '7': return 7;
-    case '8': return 8;
-    case '9': return 9;
-    case 'A': return 10;
-    case 'a': return 10;
-    case 'B': return 11;
-    case 'b': return 11;
-    case 'C': return 12;
-    case 'c': return 12;
-    case 'D': return 13;
-    case 'd': return 13;
-    case 'E': return 14;
-    case 'e': return 14;
-    case 'F': return 15;
-    case 'f': return 15;
-    default:
-      throw std::runtime_error("invalid hex string");
+struct ChecksumHash {
+  std::hash<std::string_view> hash_fn;
+
+  std::size_t operator()(const Checksum& checksum) const {
+    return hash_fn(
+      std::string_view(
+        reinterpret_cast<const char*>(checksum.value.data),
+        checksum_get_value_size(checksum.type)
+      )
+    );
   }
-}
+};
 
-std::string hex_decode(const char* data, size_t data_len) {
-  if (data_len % 2 != 0) {
-    throw std::runtime_error("invalid hex string");
+struct ChecksumCompare {
+  bool operator()(const Checksum& a, const Checksum& b) const {
+    return checksum_compare(a, b);
   }
-
-  std::string result(data_len / 2, 0);
-  for (size_t i = 0; i < data_len / 2; i++) {
-    result[i] =
-      (hex_decode(data[i * 2 + 0]) << 4) |
-      (hex_decode(data[i * 2 + 1]));
-  }
-
-  return result;
-}
-
-std::string hex_decode(const std::string& data) {
-  return hex_decode(data.data(), data.size());
-}
-
-char hex_encode(uint8_t x) {
-  switch (x) {
-    case 0: return '0';
-    case 1: return '1';
-    case 2: return '2';
-    case 3: return '3';
-    case 4: return '4';
-    case 5: return '5';
-    case 6: return '6';
-    case 7: return '7';
-    case 8: return '8';
-    case 9: return '9';
-    case 10: return 'a';
-    case 11: return 'b';
-    case 12: return 'c';
-    case 13: return 'd';
-    case 14: return 'e';
-    case 15: return 'f';
-    default:
-      throw std::runtime_error("invalid input");
-  }
-}
-
-std::string hex_encode(const char* data, size_t data_len) {
-  std::string result(data_len * 2, 0);
-
-  for (size_t i = 0; i < data_len; ++i) {
-    result[i * 2 + 0] = hex_encode(uint8_t(data[i]) >> 4);
-    result[i * 2 + 1] = hex_encode(uint8_t(data[i]) & 0xf);
-  }
-
-  return result;
-}
-
-std::string hex_encode(const std::string& data) {
-  return hex_encode(data.data(), data.size());
-}
+};
 
 void index_load(
   const std::string& file_path,
-  std::unordered_set<std::string>* index
+  std::unordered_set<Checksum, ChecksumHash, ChecksumCompare>* index
 ) {
   std::ifstream file_reader(file_path);
   if (!file_reader) {
@@ -126,12 +56,9 @@ void index_load(
       throw std::runtime_error("invalid index file: " + file_path);
     }
 
-    std::string checksum;
-    try {
-      checksum = hex_decode(line.substr(0, 40));
-    } catch (...) {
-      throw std::runtime_error("invalid index line: " + line);
-    }
+    Checksum checksum;
+    checksum.type = ChecksumType::SHA1;
+    checksum.value = checksum_read_value(line.substr(0, 40), checksum.type);
 
     index->insert(checksum);
   }
@@ -170,7 +97,7 @@ void cmd_search(char** args, size_t arg_count) {
     throw std::runtime_error("need an index (--index)");
   }
 
-  std::unordered_set<std::string> index;
+  std::unordered_set<Checksum, ChecksumHash, ChecksumCompare> index;
   index_load(index_path, &index);
 
   std::string file_path;
