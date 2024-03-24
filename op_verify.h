@@ -30,6 +30,10 @@ struct VerifyResult {
   std::vector<VerifyMessage> messages;
 };
 
+enum class VerifyResultSummary {
+  PASS, WARN, FAIL
+};
+
 VerifyResult op_verify(const VerifyOp& op);
 
 void op_verify(char** args, size_t arg_count);

@@ -106,6 +106,22 @@ void op_verify_tree(
   }
 }
 
+VerifyResultSummary op_verify_result_summarize(const VerifyResult& result) {
+  if (result.count_missing || result.count_corrupt) {
+    return VerifyResultSummary::FAIL;
+  }
+
+  if (result.count_omit > 0) {
+    return VerifyResultSummary::WARN;
+  }
+
+  if (result.count_ok > 0) {
+    return VerifyResultSummary::PASS;
+  } else {
+    return VerifyResultSummary::WARN;
+  }
+}
+
 VerifyResult op_verify(const VerifyOp& op) {
   VerifyResult result;
   result.count_ok = 0;
