@@ -126,7 +126,7 @@ bool checksum_compare(const Checksum& a, const Checksum& b) {
   return result == 0;
 }
 
-std::string checksum_compute_sha1(const std::string& file_path) {
+Checksum checksum_compute_sha1(const std::string& file_path) {
   SHA_CTX sha1;
   if (!SHA1_Init(&sha1)) {
     throw std::runtime_error("SHA1 error");
@@ -164,10 +164,12 @@ std::string checksum_compute_sha1(const std::string& file_path) {
     }
   }
 
-  std::string sha1_digest(SHA_DIGEST_LENGTH, 0);
-  if (!SHA1_Final((unsigned char*) sha1_digest.data(), &sha1)) {
+  Checksum checksum;
+  checksum.type = ChecksumType::SHA1;
+
+  if (!SHA1_Final((unsigned char*) checksum.value.data, &sha1)) {
     throw std::runtime_error("SHA1 error");
   }
 
-  return sha1_digest;
+  return checksum;
 }
