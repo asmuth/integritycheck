@@ -16,7 +16,7 @@ struct ChecksumHash {
     return hash_fn(
       std::string_view(
         reinterpret_cast<const char*>(checksum.value.data),
-        checksum_get_value_size(checksum.type)
+        checksum_size(checksum.type)
       )
     );
   }

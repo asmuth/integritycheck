@@ -6,7 +6,7 @@
 #include <cstring>
 #include <openssl/sha.h>
 
-size_t checksum_get_value_size(ChecksumType type) {
+size_t checksum_size(ChecksumType type) {
   switch (type) {
     case ChecksumType::MD5:
       return 16;
@@ -59,7 +59,7 @@ uint8_t checksum_read_value_byte(char c) {
 }
 
 ChecksumValue checksum_read_value(const std::string& input, ChecksumType type) {
-  if (input.size() != checksum_get_value_size(type) * 2) {
+  if (input.size() != checksum_size(type) * 2) {
     throw std::runtime_error("invalid checksum value");
   }
 
@@ -97,7 +97,7 @@ char checksum_write_value_byte(uint8_t x) {
 }
 
 std::string checksum_write_value(const ChecksumValue& value, ChecksumType type) {
-  auto value_size = checksum_get_value_size(type);
+  auto value_size = checksum_size(type);
 
   std::string output(value_size * 2, 0);
   for (size_t i = 0; i < value_size; ++i) {
@@ -120,7 +120,7 @@ bool checksum_compare(const Checksum& a, const Checksum& b) {
   auto result = std::memcmp(
     a.value.data,
     b.value.data,
-    checksum_get_value_size(a.type)
+    checksum_size(a.type)
   );
 
   return result == 0;

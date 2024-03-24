@@ -15,7 +15,7 @@ struct Checksum {
   ChecksumValue value;
 };
 
-size_t checksum_get_value_size(ChecksumType type);
+size_t checksum_size(ChecksumType type);
 
 ChecksumType checksum_read_type(const std::string& input);
 
