@@ -16,6 +16,15 @@ set(
   cmd_search.cc
 )
 
+set(
+  test_sources
+  test/assert.h
+  test/environment.h
+  test/environment.cc
+  test/generate.h
+  test/generate.cc
+)
+
 # Linker Flags
 set(
   linklibs
@@ -47,6 +56,7 @@ foreach(test_path ${test_paths})
   add_executable(
     ${test_name}
     ${test_path}/test.cc
+    ${test_sources}
     ${sources}
   )
 
