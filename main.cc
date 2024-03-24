@@ -2,6 +2,7 @@
 #include <string>
 
 #include "cmd_search.h"
+#include "op_verify.h"
 
 int main(int argc, char** argv) {
   if (argc < 2) {
@@ -13,6 +14,11 @@ int main(int argc, char** argv) {
 
   if (cmd == "search") {
     cmd_search(argv + 1, argc - 1);
+    return EXIT_SUCCESS;
+  }
+
+  if (cmd == "verify") {
+    op_verify(argv + 1, argc - 1);
     return EXIT_SUCCESS;
   }
 

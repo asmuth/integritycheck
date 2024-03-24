@@ -13,6 +13,7 @@ set(
   index.h
   index.cc
   index_read.cc
+  op_verify.cc
   cmd_search.cc
 )
 
