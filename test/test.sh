@@ -3,7 +3,7 @@ set -ue -o pipefail
 
 TEST_SRCDIR="$(dirname "$(realpath "$0")")"
 TEST_RUNDIR="$(pwd)"
-TEST_TMPDIR="$(mktemp -d "flix-test-XXXXXXX")"
+TEST_TMPDIR="$(readlink -f "$(mktemp -d "flix-test-XXXXXXX")")"
 trap "rm -rf ${TEST_TMPDIR};" EXIT
 
 print_info () {
