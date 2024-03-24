@@ -1,11 +1,13 @@
 #include "op_verify.h"
 #include "index.h"
+#include "output_tty.h"
 
 #include <array>
 #include <filesystem>
 #include <getopt.h>
 #include <iostream>
 #include <stdexcept>
+#include <fmt/core.h>
 
 void op_verify_result_add_ok(VerifyResult* result) {
   result->count_ok++;
@@ -141,6 +143,49 @@ VerifyResult op_verify(const VerifyOp& op) {
   return result;
 }
 
+void op_verify_output(const VerifyResult& result) {
+  auto summary = fmt::format(
+    "valid={} missing={} corrupt={} omitted={}",
+    result.count_ok,
+    result.count_missing,
+    result.count_corrupt,
+    result.count_omit
+  );
+
+  switch (op_verify_result_summarize(result)) {
+    case VerifyResultSummary::PASS:
+      std::cout << fmt::format("{} {}", tty_print_success("PASS"), summary) << std::endl;
+      break;
+    case VerifyResultSummary::WARN:
+      std::cout << fmt::format("{} {}", tty_print_warning("WARN"), summary) << std::endl;
+      break;
+    case VerifyResultSummary::FAIL:
+      std::cout << fmt::format("{} {}", tty_print_error("FAIL"), summary) << std::endl;
+      break;
+  }
+
+  if (result.messages.size() > 0) {
+    std::cout << std::endl;
+  }
+
+  for (const auto& msg : result.messages) {
+    switch (msg.type) {
+      case VerifyMessageType::OMITTED:
+        std::cout << fmt::format("- {} (omitted)", msg.path) << std::endl;
+        break;
+      case VerifyMessageType::MISSING:
+        std::cout << fmt::format("- {} (not found)", msg.path) << std::endl;
+        break;
+      case VerifyMessageType::CORRUPT_SIZE:
+        std::cout << fmt::format("- {} (invalid size)", msg.path) << std::endl;
+        break;
+      case VerifyMessageType::CORRUPT_DATA:
+        std::cout << fmt::format("- {} (corrupt data)", msg.path) << std::endl;
+        break;
+    }
+  }
+}
+
 int op_verify(char** args, size_t arg_count) {
   VerifyOp op;
 
@@ -178,31 +223,11 @@ int op_verify(char** args, size_t arg_count) {
     op.root_path = std::filesystem::current_path();
   }
 
-  auto op_result = op_verify(op);
+  auto result = op_verify(op);
 
-  for (const auto& msg : op_result.messages) {
-    switch (msg.type) {
-      case VerifyMessageType::MISSING:
-        std::cerr << "[WARN] missing file: " << msg.path << std::endl;
-        break;
-      case VerifyMessageType::CORRUPT_SIZE:
-        std::cerr << "[WARN] corrupt file (invalid size): " << msg.path << std::endl;
-        break;
-      case VerifyMessageType::CORRUPT_DATA:
-        std::cerr << "[WARN] corrupt file (invalid data): " << msg.path << std::endl;
-        break;
-      case VerifyMessageType::OMITTED:
-        std::cerr << "[WARN] file not in index: " << msg.path << std::endl;
-        break;
-    }
-  }
+  op_verify_output(result);
 
-  std::cerr << "OK: " << op_result.count_ok << std::endl;
-  std::cerr << "Missing: " << op_result.count_missing << std::endl;
-  std::cerr << "Corrupt: " << op_result.count_corrupt << std::endl;
-  std::cerr << "Omitted: " << op_result.count_omit << std::endl;
-
-  if (op_verify_result_summarize(op_result) == VerifyResultSummary::PASS) {
+  if (op_verify_result_summarize(result) == VerifyResultSummary::PASS) {
     return EXIT_SUCCESS;
   } else {
     return EXIT_FAILURE;
