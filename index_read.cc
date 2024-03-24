@@ -4,27 +4,46 @@
 #include <sstream>
 #include <cstring>
 
-// FIXME: handle backslash escape sequences
 std::string index_read_record_field(
   const std::string& input,
   size_t* input_cursor
 ) {
+  std::string output;
+
   if (*input_cursor >= input.size()) {
     throw std::runtime_error("invalid index record");
   }
 
-  std::string record_field;
+  bool input_escape = false;
   while (*input_cursor < input.size()) {
     auto input_char = input.at((*input_cursor)++);
 
-    if (input_char == ' ') {
+    if (input_escape) {
+      switch (input_char) {
+        case ' ':
+          output += ' ';
+          break;
+        case '\\':
+          output += '\\';
+          break;
+        case 'n':
+          output += '\n';
+          break;
+        default:
+          throw std::runtime_error("invalid escape sequence");
+      }
+
+      input_escape = false;
+    } else if (input_char == ' ') {
       break;
+    } else if (input_char == '\\') {
+      input_escape = true;
     } else {
-      record_field += input_char;
+      output += input_char;
     }
   }
 
-  return record_field;
+  return output;
 }
 
 void index_read_record_path(
