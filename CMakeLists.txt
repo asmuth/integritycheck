@@ -38,6 +38,9 @@ set(
 add_executable(flix ${sources} main.cc)
 target_link_libraries(flix ${linklibs})
 
+# Install the main executable
+install(TARGETS flix)
+
 # Add the test target
 add_custom_target(
   test
