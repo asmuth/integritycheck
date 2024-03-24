@@ -5,9 +5,11 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Dependencies
 find_package(OpenSSL REQUIRED)
+find_package(fmt REQUIRED)
 
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${OPENSSL_INCLUDE_DIR})
+include_directories(${fmt_INCLUDE_DIRS})
 
 # Source Files
 set(
@@ -34,6 +36,7 @@ set(
 set(
   linklibs
   OpenSSL::SSL
+  fmt::fmt
 )
 
 # Build main executable
