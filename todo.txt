@@ -1,0 +1,9 @@
+- [ ] add tests for corrupt index (invalid line, missing size, invalid checksum sizes md5/sha1)
+- [ ] add prompt/cli tests
+- [ ] add tests for relative paths starting with . and absolute paths
+
+- [ ] improved exception/error output on stderr
+
+- [ ] add support for ignoring omitted files
+- [ ] add recursive index files (includes)
+- [ ] add "quick" verify mode (size only)
