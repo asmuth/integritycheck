@@ -4,6 +4,7 @@
 #include <vector>
 #include <fstream>
 #include <cstring>
+#include <openssl/md5.h>
 #include <openssl/sha.h>
 
 size_t checksum_size(ChecksumType type) {
@@ -126,6 +127,54 @@ bool checksum_compare(const Checksum& a, const Checksum& b) {
   return result == 0;
 }
 
+Checksum checksum_compute_md5(const std::string& file_path) {
+  MD5_CTX md5;
+  if (!MD5_Init(&md5)) {
+    throw std::runtime_error("MD5 error");
+  }
+
+  std::ifstream file_reader(file_path);
+  if (!file_reader) {
+    throw std::runtime_error("unable to open file: " + file_path);
+  }
+
+  std::vector<char> file_buffer(1024);
+  while (!file_reader.eof()) {
+    file_reader.read(file_buffer.data(), file_buffer.size());
+    if (file_reader.bad()) {
+      throw std::runtime_error(
+        "error while reading from file: " +
+        file_path +
+        ": " +
+        std::strerror(errno)
+      );
+    }
+
+    if (file_reader.gcount() > file_buffer.size()) {
+      throw std::runtime_error("invalid buffer");
+    }
+
+    if (
+      !MD5_Update(
+        &md5,
+        file_buffer.data(),
+        file_reader.gcount()
+      )
+    ) {
+      throw std::runtime_error("MD5 error");
+    }
+  }
+
+  Checksum checksum;
+  checksum.type = ChecksumType::MD5;
+
+  if (!MD5_Final((unsigned char*) checksum.value.data, &md5)) {
+    throw std::runtime_error("MD5 error");
+  }
+
+  return checksum;
+}
+
 Checksum checksum_compute_sha1(const std::string& file_path) {
   SHA_CTX sha1;
   if (!SHA1_Init(&sha1)) {
@@ -172,4 +221,15 @@ Checksum checksum_compute_sha1(const std::string& file_path) {
   }
 
   return checksum;
+}
+
+Checksum checksum_compute(const std::string& file_path, ChecksumType type) {
+  switch (type) {
+    case ChecksumType::MD5:
+      return checksum_compute_md5(file_path);
+    case ChecksumType::SHA1:
+      return checksum_compute_sha1(file_path);
+  }
+
+  throw std::runtime_error("invalid checksum type");
 }

@@ -41,7 +41,11 @@ bool op_verify_record_checksums(const VerifyOp& op, const IndexRecord& record) {
   }
 
   for (const auto& checksum_expected : record.checksums) {
-    auto checksum_actual = checksum_compute_sha1(op.root_path / record.path);
+    auto checksum_actual = checksum_compute(
+      op.root_path / record.path,
+      checksum_expected.type
+    );
+
     if (!checksum_compare(checksum_actual, checksum_expected)) {
       return false;
     }

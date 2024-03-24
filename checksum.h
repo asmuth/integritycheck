@@ -25,5 +25,9 @@ std::string checksum_write_value(const Checksum& checksum);
 
 bool checksum_compare(const Checksum& a, const Checksum& b);
 
+Checksum checksum_compute_md5(const std::string& file_path);
+
 Checksum checksum_compute_sha1(const std::string& file_path);
+
+Checksum checksum_compute(const std::string& file_path, ChecksumType type);
 

@@ -1,3 +1,6 @@
+md5_ok.txt 6 md5:0db3eb6f9ad01f8a888d55aed5051cab
+md5_size.txt 6 md5:a6797f903ed236763069f7a0bb87fb6b
+md5_data.txt 6 md5:d0ec668c706a58206cf6c6b857f4b8b7
 sha1_ok.txt 6 sha1:80efb4935837fa67a3ec19578ddf58ae30ac177f
 sha1_size.txt 6 sha1:787fae9078fe0a845949a928f6ca7fc5ce086927
 sha1_data.txt 6 sha1:fb659a70faada04bd5ee334513994d2ae6d597c8
