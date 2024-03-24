@@ -141,7 +141,7 @@ VerifyResult op_verify(const VerifyOp& op) {
   return result;
 }
 
-void op_verify(char** args, size_t arg_count) {
+int op_verify(char** args, size_t arg_count) {
   VerifyOp op;
 
   auto opts_short = std::string("i:");
@@ -201,4 +201,10 @@ void op_verify(char** args, size_t arg_count) {
   std::cerr << "Missing: " << op_result.count_missing << std::endl;
   std::cerr << "Corrupt: " << op_result.count_corrupt << std::endl;
   std::cerr << "Omitted: " << op_result.count_omit << std::endl;
+
+  if (op_verify_result_summarize(op_result) == VerifyResultSummary::PASS) {
+    return EXIT_SUCCESS;
+  } else {
+    return EXIT_FAILURE;
+  }
 }

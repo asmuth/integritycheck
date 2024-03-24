@@ -36,4 +36,4 @@ enum class VerifyResultSummary {
 
 VerifyResult op_verify(const VerifyOp& op);
 
-void op_verify(char** args, size_t arg_count);
+int op_verify(char** args, size_t arg_count);

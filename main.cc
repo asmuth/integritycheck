@@ -18,8 +18,7 @@ int main(int argc, char** argv) {
   }
 
   if (cmd == "verify") {
-    op_verify(argv + 1, argc - 1);
-    return EXIT_SUCCESS;
+    return op_verify(argv + 1, argc - 1);
   }
 
   std::cerr << "ERROR: invalid command" << std::endl;
