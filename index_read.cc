@@ -73,7 +73,7 @@ void index_read_record_checksum(
 
   Checksum checksum;
   checksum.type = checksum_read_type(checksum_type);
-  checksum.value = checksum_read_value(checksum_value);
+  checksum.value = checksum_read_value(checksum_value, checksum.type);
 
   record->checksums.push_back(checksum);
 }
