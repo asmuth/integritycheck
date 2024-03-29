@@ -39,3 +39,7 @@ void index_read(
   const std::string& file_path,
   Index* index
 );
+
+uint64_t index_total_file_count(const Index& index);
+uint64_t index_total_file_size(const Index& index);
+
