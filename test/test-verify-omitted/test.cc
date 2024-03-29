@@ -32,10 +32,7 @@ int main(int argc, char** argv) {
 
   auto op_result = op_verify(op);
 
-  EXPECT(op_result.count_ok == 6);
-  EXPECT(op_result.count_missing == 0);
-  EXPECT(op_result.count_corrupt == 0);
-  EXPECT(op_result.count_omit == 5);
+  EXPECT(op_result.status == VerifyResultStatus::WARN);
   EXPECT(op_result.messages.size() == 5);
 
   std::unordered_set<std::string> omitted;

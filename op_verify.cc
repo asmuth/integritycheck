@@ -9,12 +9,19 @@
 #include <stdexcept>
 #include <fmt/core.h>
 
-void op_verify_result_add_ok(VerifyResult* result) {
-  result->count_ok++;
+void op_verify_result_update_status(VerifyResult* result, VerifyResultStatus status) {
+  if (!result->status || status > *result->status) {
+    result->status = status;
+  }
+}
+
+void op_verify_result_add_match(VerifyResult* result) {
+  op_verify_result_update_status(result, VerifyResultStatus::PASS);
 }
 
 void op_verify_result_add_missing(const std::string& path, VerifyResult* result) {
-  result->count_missing++;
+  op_verify_result_update_status(result, VerifyResultStatus::FAIL);
+
   result->messages.push_back(VerifyMessage {
     .type = VerifyMessageType::MISSING,
     .path = path
@@ -22,7 +29,8 @@ void op_verify_result_add_missing(const std::string& path, VerifyResult* result)
 }
 
 void op_verify_result_add_corrupt_size(const std::string& path, VerifyResult* result) {
-  result->count_corrupt++;
+  op_verify_result_update_status(result, VerifyResultStatus::FAIL);
+
   result->messages.push_back(VerifyMessage {
     .type = VerifyMessageType::CORRUPT_SIZE,
     .path = path
@@ -30,7 +38,8 @@ void op_verify_result_add_corrupt_size(const std::string& path, VerifyResult* re
 }
 
 void op_verify_result_add_corrupt_data(const std::string& path, VerifyResult* result) {
-  result->count_corrupt++;
+  op_verify_result_update_status(result, VerifyResultStatus::FAIL);
+
   result->messages.push_back(VerifyMessage {
     .type = VerifyMessageType::CORRUPT_DATA,
     .path = path
@@ -38,7 +47,8 @@ void op_verify_result_add_corrupt_data(const std::string& path, VerifyResult* re
 }
 
 void op_verify_result_add_omitted(const std::string& path, VerifyResult* result) {
-  result->count_omit++;
+  op_verify_result_update_status(result, VerifyResultStatus::WARN);
+
   result->messages.push_back(VerifyMessage {
     .type = VerifyMessageType::OMITTED,
     .path = path
@@ -84,7 +94,7 @@ void op_verify_record(
     return;
   }
 
-  op_verify_result_add_ok(result);
+  op_verify_result_add_match(result);
 }
 
 void op_verify_tree(
@@ -108,28 +118,12 @@ void op_verify_tree(
   }
 }
 
-VerifyResultSummary op_verify_result_summarize(const VerifyResult& result) {
-  if (result.count_missing || result.count_corrupt) {
-    return VerifyResultSummary::FAIL;
-  }
-
-  if (result.count_omit > 0) {
-    return VerifyResultSummary::WARN;
-  }
-
-  if (result.count_ok > 0) {
-    return VerifyResultSummary::PASS;
-  } else {
-    return VerifyResultSummary::WARN;
-  }
+VerifyResultStatus op_verify_result_status(const VerifyResult& result) {
+  return result.status.value_or(VerifyResultStatus::WARN);
 }
 
 VerifyResult op_verify(const VerifyOp& op) {
   VerifyResult result;
-  result.count_ok = 0;
-  result.count_missing = 0;
-  result.count_corrupt = 0;
-  result.count_omit = 0;
 
   Index index;
   index_read(op.index_path, &index);
@@ -145,21 +139,18 @@ VerifyResult op_verify(const VerifyOp& op) {
 
 void op_verify_output_result_tty(const VerifyResult& result) {
   auto summary = fmt::format(
-    "valid={} missing={} corrupt={} omitted={}",
-    result.count_ok,
-    result.count_missing,
-    result.count_corrupt,
-    result.count_omit
+    "diff={}",
+    result.messages.size()
   );
 
-  switch (op_verify_result_summarize(result)) {
-    case VerifyResultSummary::PASS:
+  switch (op_verify_result_status(result)) {
+    case VerifyResultStatus::PASS:
       std::cout << fmt::format("{} {}", tty_print_success("PASS"), summary) << std::endl;
       break;
-    case VerifyResultSummary::WARN:
+    case VerifyResultStatus::WARN:
       std::cout << fmt::format("{} {}", tty_print_warning("WARN"), summary) << std::endl;
       break;
-    case VerifyResultSummary::FAIL:
+    case VerifyResultStatus::FAIL:
       std::cout << fmt::format("{} {}", tty_print_error("FAIL"), summary) << std::endl;
       break;
   }
@@ -204,15 +195,17 @@ void op_verify_output_result_text(const VerifyResult& result) {
     }
   }
 
-  auto summary = fmt::format(
-    "result valid={} missing={} corrupt={} omitted={}",
-    result.count_ok,
-    result.count_missing,
-    result.count_corrupt,
-    result.count_omit
-  );
-
-  std::cout << summary << std::endl;
+  switch (op_verify_result_status(result)) {
+    case VerifyResultStatus::PASS:
+      std::cout << "pass" << std::endl;
+      break;
+    case VerifyResultStatus::WARN:
+      std::cout << "warn" << std::endl;
+      break;
+    case VerifyResultStatus::FAIL:
+      std::cout << "fail" << std::endl;
+      break;
+  }
 }
 
 VerifyOutputType op_verify_output_type_read(const std::string& x) {
@@ -280,7 +273,7 @@ int op_verify(char** args, size_t arg_count) {
       break;
   }
 
-  if (op_verify_result_summarize(result) == VerifyResultSummary::PASS) {
+  if (op_verify_result_status(result) == VerifyResultStatus::PASS) {
     return EXIT_SUCCESS;
   } else {
     return EXIT_FAILURE;

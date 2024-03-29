@@ -19,10 +19,7 @@ int main(int argc, char** argv) {
 
   auto op_result = op_verify(op);
 
-  EXPECT(op_result.count_ok == 4);
-  EXPECT(op_result.count_missing == 0);
-  EXPECT(op_result.count_corrupt == 0);
-  EXPECT(op_result.count_omit == 0);
+  EXPECT(op_result.status == VerifyResultStatus::PASS);
   EXPECT(op_result.messages.size() == 0);
 
   return EXIT_SUCCESS;

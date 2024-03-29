@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -22,17 +23,15 @@ struct VerifyMessage {
   std::string path;
 };
 
-struct VerifyResult {
-  size_t count_ok;
-  size_t count_missing;
-  size_t count_corrupt;
-  size_t count_omit;
-
-  std::vector<VerifyMessage> messages;
+enum class VerifyResultStatus : int {
+  PASS = 1,
+  WARN = 2,
+  FAIL = 3
 };
 
-enum class VerifyResultSummary {
-  PASS, WARN, FAIL
+struct VerifyResult {
+  std::optional<VerifyResultStatus> status;
+  std::vector<VerifyMessage> messages;
 };
 
 enum class VerifyOutputType {
