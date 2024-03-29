@@ -30,6 +30,8 @@ enum class VerifyResultStatus : int {
 };
 
 struct VerifyResult {
+  uint64_t total_file_count;
+  uint64_t total_file_size;
   std::optional<VerifyResultStatus> status;
   std::vector<VerifyMessage> messages;
 };

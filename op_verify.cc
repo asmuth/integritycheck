@@ -123,10 +123,12 @@ VerifyResultStatus op_verify_result_status(const VerifyResult& result) {
 }
 
 VerifyResult op_verify(const VerifyOp& op) {
-  VerifyResult result;
-
   Index index;
   index_read(op.index_path, &index);
+
+  VerifyResult result;
+  result.total_file_count = index_total_file_count(index);
+  result.total_file_size = index_total_file_size(index);
 
   op_verify_tree(op, index, &result);
 
@@ -139,7 +141,9 @@ VerifyResult op_verify(const VerifyOp& op) {
 
 void op_verify_output_result_tty(const VerifyResult& result) {
   auto summary = fmt::format(
-    "diff={}",
+    "files={} size={} diff={}",
+    result.total_file_count,
+    tty_print_value_bytes(result.total_file_size),
     result.messages.size()
   );
 
