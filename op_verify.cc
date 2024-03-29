@@ -143,7 +143,7 @@ VerifyResult op_verify(const VerifyOp& op) {
   return result;
 }
 
-void op_verify_output(const VerifyResult& result) {
+void op_verify_output_result_tty(const VerifyResult& result) {
   auto summary = fmt::format(
     "valid={} missing={} corrupt={} omitted={}",
     result.count_ok,
@@ -186,12 +186,22 @@ void op_verify_output(const VerifyResult& result) {
   }
 }
 
+VerifyOutputType op_verify_output_type_read(const std::string& x) {
+  if (x == "tty") {
+    return VerifyOutputType::TTY;
+  }
+
+  throw std::runtime_error("invalid output type");
+}
+
 int op_verify(char** args, size_t arg_count) {
   VerifyOp op;
+  VerifyOutputType output_type;
 
   auto opts_short = std::string("i:");
-  auto opts_long = std::array<struct option, 2>{{
+  auto opts_long = std::array<struct option, 3>{{
     {"index", required_argument, 0, 'i'},
+    {"output", required_argument, 0, 'o'},
     {0, 0, 0, 0}
   }};
 
@@ -212,6 +222,9 @@ int op_verify(char** args, size_t arg_count) {
       case 'i':
         op.index_path = optarg;
         break;
+      case 'o':
+        output_type = op_verify_output_type_read(optarg);
+        break;
     }
   }
 
@@ -225,7 +238,11 @@ int op_verify(char** args, size_t arg_count) {
 
   auto result = op_verify(op);
 
-  op_verify_output(result);
+  switch (output_type) {
+    case VerifyOutputType::TTY:
+      op_verify_output_result_tty(result);
+      break;
+  }
 
   if (op_verify_result_summarize(result) == VerifyResultSummary::PASS) {
     return EXIT_SUCCESS;

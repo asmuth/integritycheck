@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdlib>
 #include <filesystem>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -32,6 +33,10 @@ struct VerifyResult {
 
 enum class VerifyResultSummary {
   PASS, WARN, FAIL
+};
+
+enum class VerifyOutputType {
+  TTY
 };
 
 VerifyResult op_verify(const VerifyOp& op);
