@@ -186,9 +186,42 @@ void op_verify_output_result_tty(const VerifyResult& result) {
   }
 }
 
+void op_verify_output_result_text(const VerifyResult& result) {
+  for (const auto& msg : result.messages) {
+    switch (msg.type) {
+      case VerifyMessageType::OMITTED:
+        std::cout << fmt::format("omitted {}", msg.path) << std::endl;
+        break;
+      case VerifyMessageType::MISSING:
+        std::cout << fmt::format("not_found {}", msg.path) << std::endl;
+        break;
+      case VerifyMessageType::CORRUPT_SIZE:
+        std::cout << fmt::format("conflict_size {}", msg.path) << std::endl;
+        break;
+      case VerifyMessageType::CORRUPT_DATA:
+        std::cout << fmt::format("conflict_data {}", msg.path) << std::endl;
+        break;
+    }
+  }
+
+  auto summary = fmt::format(
+    "result valid={} missing={} corrupt={} omitted={}",
+    result.count_ok,
+    result.count_missing,
+    result.count_corrupt,
+    result.count_omit
+  );
+
+  std::cout << summary << std::endl;
+}
+
 VerifyOutputType op_verify_output_type_read(const std::string& x) {
   if (x == "tty") {
     return VerifyOutputType::TTY;
+  }
+
+  if (x == "text") {
+    return VerifyOutputType::TEXT;
   }
 
   throw std::runtime_error("invalid output type");
@@ -241,6 +274,9 @@ int op_verify(char** args, size_t arg_count) {
   switch (output_type) {
     case VerifyOutputType::TTY:
       op_verify_output_result_tty(result);
+      break;
+    case VerifyOutputType::TEXT:
+      op_verify_output_result_text(result);
       break;
   }
 

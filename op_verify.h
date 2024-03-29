@@ -36,7 +36,7 @@ enum class VerifyResultSummary {
 };
 
 enum class VerifyOutputType {
-  TTY
+  TTY, TEXT
 };
 
 VerifyResult op_verify(const VerifyOp& op);
