@@ -33,11 +33,11 @@ int main(int argc, char** argv) {
   auto op_result = op_verify(op);
 
   EXPECT(op_result.status == VerifyResultStatus::WARN);
-  EXPECT(op_result.messages.size() == 5);
+  EXPECT(op_result.diff.size() == 5);
 
   std::unordered_set<std::string> omitted;
-  for (const auto& msg : op_result.messages) {
-    EXPECT(msg.type == VerifyMessageType::OMITTED);
+  for (const auto& msg : op_result.diff) {
+    EXPECT(msg.type == VerifyDiffType::OMITTED);
     omitted.insert(msg.path);
   }
 

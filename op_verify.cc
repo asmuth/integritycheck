@@ -22,8 +22,8 @@ void op_verify_result_add_match(VerifyResult* result) {
 void op_verify_result_add_missing(const std::string& path, VerifyResult* result) {
   op_verify_result_update_status(result, VerifyResultStatus::FAIL);
 
-  result->messages.push_back(VerifyMessage {
-    .type = VerifyMessageType::MISSING,
+  result->diff.push_back(VerifyDiff {
+    .type = VerifyDiffType::MISSING,
     .path = path
   });
 }
@@ -31,8 +31,8 @@ void op_verify_result_add_missing(const std::string& path, VerifyResult* result)
 void op_verify_result_add_corrupt_size(const std::string& path, VerifyResult* result) {
   op_verify_result_update_status(result, VerifyResultStatus::FAIL);
 
-  result->messages.push_back(VerifyMessage {
-    .type = VerifyMessageType::CORRUPT_SIZE,
+  result->diff.push_back(VerifyDiff {
+    .type = VerifyDiffType::CORRUPT_SIZE,
     .path = path
   });
 }
@@ -40,8 +40,8 @@ void op_verify_result_add_corrupt_size(const std::string& path, VerifyResult* re
 void op_verify_result_add_corrupt_data(const std::string& path, VerifyResult* result) {
   op_verify_result_update_status(result, VerifyResultStatus::FAIL);
 
-  result->messages.push_back(VerifyMessage {
-    .type = VerifyMessageType::CORRUPT_DATA,
+  result->diff.push_back(VerifyDiff {
+    .type = VerifyDiffType::CORRUPT_DATA,
     .path = path
   });
 }
@@ -49,8 +49,8 @@ void op_verify_result_add_corrupt_data(const std::string& path, VerifyResult* re
 void op_verify_result_add_omitted(const std::string& path, VerifyResult* result) {
   op_verify_result_update_status(result, VerifyResultStatus::WARN);
 
-  result->messages.push_back(VerifyMessage {
-    .type = VerifyMessageType::OMITTED,
+  result->diff.push_back(VerifyDiff {
+    .type = VerifyDiffType::OMITTED,
     .path = path
   });
 }
@@ -144,7 +144,7 @@ void op_verify_output_result_tty(const VerifyResult& result) {
     "files={} size={} diff={}",
     result.total_file_count,
     tty_print_value_bytes(result.total_file_size),
-    result.messages.size()
+    result.diff.size()
   );
 
   switch (op_verify_result_status(result)) {
@@ -159,22 +159,22 @@ void op_verify_output_result_tty(const VerifyResult& result) {
       break;
   }
 
-  if (result.messages.size() > 0) {
+  if (result.diff.size() > 0) {
     std::cout << std::endl;
   }
 
-  for (const auto& msg : result.messages) {
+  for (const auto& msg : result.diff) {
     switch (msg.type) {
-      case VerifyMessageType::OMITTED:
+      case VerifyDiffType::OMITTED:
         std::cout << fmt::format("- {} (omitted)", msg.path) << std::endl;
         break;
-      case VerifyMessageType::MISSING:
+      case VerifyDiffType::MISSING:
         std::cout << fmt::format("- {} (not found)", msg.path) << std::endl;
         break;
-      case VerifyMessageType::CORRUPT_SIZE:
+      case VerifyDiffType::CORRUPT_SIZE:
         std::cout << fmt::format("- {} (invalid size)", msg.path) << std::endl;
         break;
-      case VerifyMessageType::CORRUPT_DATA:
+      case VerifyDiffType::CORRUPT_DATA:
         std::cout << fmt::format("- {} (corrupt data)", msg.path) << std::endl;
         break;
     }
@@ -182,18 +182,18 @@ void op_verify_output_result_tty(const VerifyResult& result) {
 }
 
 void op_verify_output_result_text(const VerifyResult& result) {
-  for (const auto& msg : result.messages) {
+  for (const auto& msg : result.diff) {
     switch (msg.type) {
-      case VerifyMessageType::OMITTED:
+      case VerifyDiffType::OMITTED:
         std::cout << fmt::format("omitted {}", msg.path) << std::endl;
         break;
-      case VerifyMessageType::MISSING:
+      case VerifyDiffType::MISSING:
         std::cout << fmt::format("not_found {}", msg.path) << std::endl;
         break;
-      case VerifyMessageType::CORRUPT_SIZE:
+      case VerifyDiffType::CORRUPT_SIZE:
         std::cout << fmt::format("conflict_size {}", msg.path) << std::endl;
         break;
-      case VerifyMessageType::CORRUPT_DATA:
+      case VerifyDiffType::CORRUPT_DATA:
         std::cout << fmt::format("conflict_data {}", msg.path) << std::endl;
         break;
     }

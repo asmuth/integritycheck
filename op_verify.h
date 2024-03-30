@@ -11,15 +11,15 @@ struct VerifyOp {
   std::filesystem::path root_path;
 };
 
-enum class VerifyMessageType {
+enum class VerifyDiffType {
   MISSING,
   CORRUPT_DATA,
   CORRUPT_SIZE,
   OMITTED
 };
 
-struct VerifyMessage {
-  VerifyMessageType type;
+struct VerifyDiff {
+  VerifyDiffType type;
   std::string path;
 };
 
@@ -33,7 +33,7 @@ struct VerifyResult {
   uint64_t total_file_count;
   uint64_t total_file_size;
   std::optional<VerifyResultStatus> status;
-  std::vector<VerifyMessage> messages;
+  std::vector<VerifyDiff> diff;
 };
 
 enum class VerifyOutputType {

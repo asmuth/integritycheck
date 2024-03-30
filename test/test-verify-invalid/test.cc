@@ -18,9 +18,9 @@ int main(int argc, char** argv) {
   auto op_result = op_verify(op);
 
   EXPECT(op_result.status == VerifyResultStatus::FAIL);
-  EXPECT(op_result.messages.size() == 1);
-  EXPECT(op_result.messages[0].type == VerifyMessageType::CORRUPT_DATA);
-  EXPECT(op_result.messages[0].path == "invalid.txt");
+  EXPECT(op_result.diff.size() == 1);
+  EXPECT(op_result.diff[0].type == VerifyDiffType::CORRUPT_DATA);
+  EXPECT(op_result.diff[0].path == "invalid.txt");
 
   return EXIT_SUCCESS;
 }
