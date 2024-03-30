@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 
   EXPECT(op_result.status == VerifyResultStatus::FAIL);
   EXPECT(op_result.diff.size() == 1);
-  EXPECT(op_result.diff[0].type == VerifyDiffType::CORRUPT_DATA);
+  EXPECT(op_result.diff[0].type == VerifyDiffType::CONFLICT_DATA);
   EXPECT(op_result.diff[0].path == "invalid.txt");
 
   return EXIT_SUCCESS;

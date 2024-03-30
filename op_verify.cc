@@ -28,29 +28,29 @@ void op_verify_result_add_missing(const std::string& path, VerifyResult* result)
   });
 }
 
-void op_verify_result_add_corrupt_size(const std::string& path, VerifyResult* result) {
+void op_verify_result_add_conflict_size(const std::string& path, VerifyResult* result) {
   op_verify_result_update_status(result, VerifyResultStatus::FAIL);
 
   result->diff.push_back(VerifyDiff {
-    .type = VerifyDiffType::CORRUPT_SIZE,
+    .type = VerifyDiffType::CONFLICT_SIZE,
     .path = path
   });
 }
 
-void op_verify_result_add_corrupt_data(const std::string& path, VerifyResult* result) {
+void op_verify_result_add_conflict_data(const std::string& path, VerifyResult* result) {
   op_verify_result_update_status(result, VerifyResultStatus::FAIL);
 
   result->diff.push_back(VerifyDiff {
-    .type = VerifyDiffType::CORRUPT_DATA,
+    .type = VerifyDiffType::CONFLICT_DATA,
     .path = path
   });
 }
 
-void op_verify_result_add_omitted(const std::string& path, VerifyResult* result) {
+void op_verify_result_add_extraneous(const std::string& path, VerifyResult* result) {
   op_verify_result_update_status(result, VerifyResultStatus::WARN);
 
   result->diff.push_back(VerifyDiff {
-    .type = VerifyDiffType::OMITTED,
+    .type = VerifyDiffType::EXTRA,
     .path = path
   });
 }
@@ -85,12 +85,12 @@ void op_verify_record(
   }
 
   if (std::filesystem::file_size(op.root_path / record.path) != record.size) {
-    op_verify_result_add_corrupt_size(record.path, result);
+    op_verify_result_add_conflict_size(record.path, result);
     return;
   }
 
   if (!op_verify_record_checksums(op, record)) {
-    op_verify_result_add_corrupt_data(record.path, result);
+    op_verify_result_add_conflict_data(record.path, result);
     return;
   }
 
@@ -113,7 +113,7 @@ void op_verify_tree(
     }
 
     if (!index_path_set.paths.contains(tree_path)) {
-      op_verify_result_add_omitted(tree_path, result);
+      op_verify_result_add_extraneous(tree_path, result);
     }
   }
 }
@@ -165,50 +165,43 @@ void op_verify_output_result_tty(const VerifyResult& result) {
 
   for (const auto& msg : result.diff) {
     switch (msg.type) {
-      case VerifyDiffType::OMITTED:
-        std::cout << fmt::format("- {} (omitted)", msg.path) << std::endl;
+      case VerifyDiffType::EXTRA:
+        std::cout << fmt::format("- {} (extraneous file)", msg.path) << std::endl;
         break;
       case VerifyDiffType::MISSING:
-        std::cout << fmt::format("- {} (not found)", msg.path) << std::endl;
+        std::cout << fmt::format("- {} (missing file)", msg.path) << std::endl;
         break;
-      case VerifyDiffType::CORRUPT_SIZE:
-        std::cout << fmt::format("- {} (invalid size)", msg.path) << std::endl;
+      case VerifyDiffType::CONFLICT_SIZE:
+        std::cout << fmt::format("- {} (size mismatch)", msg.path) << std::endl;
         break;
-      case VerifyDiffType::CORRUPT_DATA:
-        std::cout << fmt::format("- {} (corrupt data)", msg.path) << std::endl;
+      case VerifyDiffType::CONFLICT_DATA:
+        std::cout << fmt::format("- {} (data mismatch)", msg.path) << std::endl;
         break;
     }
   }
 }
 
 void op_verify_output_result_text(const VerifyResult& result) {
-  for (const auto& msg : result.diff) {
-    switch (msg.type) {
-      case VerifyDiffType::OMITTED:
-        std::cout << fmt::format("omitted {}", msg.path) << std::endl;
-        break;
-      case VerifyDiffType::MISSING:
-        std::cout << fmt::format("not_found {}", msg.path) << std::endl;
-        break;
-      case VerifyDiffType::CORRUPT_SIZE:
-        std::cout << fmt::format("conflict_size {}", msg.path) << std::endl;
-        break;
-      case VerifyDiffType::CORRUPT_DATA:
-        std::cout << fmt::format("conflict_data {}", msg.path) << std::endl;
-        break;
-    }
+  if (result.diff.size() == 0) {
+    std::cout << "nodiff" << std::endl;
+    return;
   }
 
-  switch (op_verify_result_status(result)) {
-    case VerifyResultStatus::PASS:
-      std::cout << "pass" << std::endl;
-      break;
-    case VerifyResultStatus::WARN:
-      std::cout << "warn" << std::endl;
-      break;
-    case VerifyResultStatus::FAIL:
-      std::cout << "fail" << std::endl;
-      break;
+  for (const auto& msg : result.diff) {
+    switch (msg.type) {
+      case VerifyDiffType::EXTRA:
+        std::cout << fmt::format("diff extra {}", msg.path) << std::endl;
+        break;
+      case VerifyDiffType::MISSING:
+        std::cout << fmt::format("diff missing {}", msg.path) << std::endl;
+        break;
+      case VerifyDiffType::CONFLICT_SIZE:
+        std::cout << fmt::format("diff size {}", msg.path) << std::endl;
+        break;
+      case VerifyDiffType::CONFLICT_DATA:
+        std::cout << fmt::format("diff data {}", msg.path) << std::endl;
+        break;
+    }
   }
 }
 

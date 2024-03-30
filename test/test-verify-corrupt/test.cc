@@ -23,13 +23,13 @@ int main(int argc, char** argv) {
 
   EXPECT(op_result.status == VerifyResultStatus::FAIL);
   EXPECT(op_result.diff.size() == 4);
-  EXPECT(op_result.diff[0].type == VerifyDiffType::CORRUPT_SIZE);
+  EXPECT(op_result.diff[0].type == VerifyDiffType::CONFLICT_SIZE);
   EXPECT(op_result.diff[0].path == "md5_size.txt");
-  EXPECT(op_result.diff[1].type == VerifyDiffType::CORRUPT_DATA);
+  EXPECT(op_result.diff[1].type == VerifyDiffType::CONFLICT_DATA);
   EXPECT(op_result.diff[1].path == "md5_data.txt");
-  EXPECT(op_result.diff[2].type == VerifyDiffType::CORRUPT_SIZE);
+  EXPECT(op_result.diff[2].type == VerifyDiffType::CONFLICT_SIZE);
   EXPECT(op_result.diff[2].path == "sha1_size.txt");
-  EXPECT(op_result.diff[3].type == VerifyDiffType::CORRUPT_DATA);
+  EXPECT(op_result.diff[3].type == VerifyDiffType::CONFLICT_DATA);
   EXPECT(op_result.diff[3].path == "sha1_data.txt");
 
   return EXIT_SUCCESS;

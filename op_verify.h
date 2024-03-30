@@ -11,11 +11,21 @@ struct VerifyOp {
   std::filesystem::path root_path;
 };
 
+// Describes the type of difference between index and actual files
 enum class VerifyDiffType {
+
+  // A file was listed in the index, but not found in the filesystem
   MISSING,
-  CORRUPT_DATA,
-  CORRUPT_SIZE,
-  OMITTED
+
+  // A file was found in the filesystem, but not listed in the index
+  EXTRA,
+
+  // A file's data checksum does not match the checksum listed in the index
+  CONFLICT_DATA,
+
+  // A file's size does not match the size listed in the index
+  CONFLICT_SIZE,
+
 };
 
 struct VerifyDiff {

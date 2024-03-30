@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 
   std::unordered_set<std::string> omitted;
   for (const auto& msg : op_result.diff) {
-    EXPECT(msg.type == VerifyDiffType::OMITTED);
+    EXPECT(msg.type == VerifyDiffType::EXTRA);
     omitted.insert(msg.path);
   }
 
