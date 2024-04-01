@@ -16,6 +16,8 @@ set(
   sources
   checksum.h
   checksum.cc
+  clock.h
+  clock.cc
   index.h
   index.cc
   index_read.cc
