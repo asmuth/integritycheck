@@ -1,4 +1,5 @@
 #include "op_verify.h"
+#include "clock.h"
 #include "index.h"
 #include "output_tty.h"
 
@@ -117,6 +118,10 @@ void op_verify_tree(
     }
 
     result->tree_file_count++;
+
+    if (op.progress) {
+      op.progress(*result);
+    }
   }
 }
 
@@ -130,6 +135,10 @@ void op_verify_index(
 
     result->verified_file_count += 1;
     result->verified_file_size += record.size;
+
+    if (op.progress) {
+      op.progress(*result);
+    }
   }
 }
 
@@ -147,6 +156,10 @@ VerifyResult op_verify(const VerifyOp& op) {
   result.tree_file_count = 0;
   result.verified_file_count = 0;
   result.verified_file_size = 0;
+
+  if (op.progress) {
+    op.progress(result);
+  }
 
   op_verify_tree(op, index, &result);
   op_verify_index(op, index, &result);
@@ -226,6 +239,38 @@ void op_verify_output_result_text(const VerifyResult& result) {
   }
 }
 
+void op_verify_output_progress(const VerifyResult& result) {
+  auto progress_text =  fmt::format(
+    "[{}] index: {} ({}), tree: {}, check: {} ({}), {:.2f}%",
+    clock_isodate(),
+    result.index_file_count,
+    tty_print_value_bytes(result.index_file_size),
+    result.tree_file_count,
+    result.verified_file_count,
+    tty_print_value_bytes(result.verified_file_size),
+    result.verified_file_size / double(result.index_file_size) * 100
+  );
+
+  std::cerr
+    << progress_text
+    << std::endl;
+}
+
+void op_verify_output_progress_setup(VerifyOp* op) {
+  auto time_last = 0;
+
+  op->progress = [time_last] (const auto& result) mutable {
+    if (auto t = clock_monotonic(); clock_elapsed(t, time_last) > 1000) {
+      op_verify_output_progress(result);
+      time_last = t;
+    }
+  };
+}
+
+void op_verify_output_progress_flush() {
+  std::cerr << std::endl;
+}
+
 VerifyOutputType op_verify_output_type_read(const std::string& x) {
   if (x == "tty") {
     return VerifyOutputType::TTY;
@@ -241,11 +286,13 @@ VerifyOutputType op_verify_output_type_read(const std::string& x) {
 int op_verify(char** args, size_t arg_count) {
   VerifyOp op;
   VerifyOutputType output_type;
+  bool output_progress = false;
 
-  auto opts_short = std::string("i:");
-  auto opts_long = std::array<struct option, 3>{{
+  auto opts_short = std::string("i:o:p");
+  auto opts_long = std::array<struct option, 4>{{
     {"index", required_argument, 0, 'i'},
     {"output", required_argument, 0, 'o'},
+    {"progress", no_argument, 0, 'p'},
     {0, 0, 0, 0}
   }};
 
@@ -269,6 +316,9 @@ int op_verify(char** args, size_t arg_count) {
       case 'o':
         output_type = op_verify_output_type_read(optarg);
         break;
+      case 'p':
+        output_progress = true;
+        break;
     }
   }
 
@@ -280,7 +330,16 @@ int op_verify(char** args, size_t arg_count) {
     op.root_path = std::filesystem::current_path();
   }
 
+  if (output_progress) {
+    op_verify_output_progress_setup(&op);
+  }
+
   auto result = op_verify(op);
+
+  if (output_progress) {
+    op_verify_output_progress(result);
+    op_verify_output_progress_flush();
+  }
 
   switch (output_type) {
     case VerifyOutputType::TTY:

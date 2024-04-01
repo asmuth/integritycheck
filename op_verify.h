@@ -6,11 +6,6 @@
 #include <string>
 #include <vector>
 
-struct VerifyOp {
-  std::filesystem::path index_path;
-  std::filesystem::path root_path;
-};
-
 // Describes the type of difference between index and actual files
 enum class VerifyDiffType {
 
@@ -47,6 +42,12 @@ struct VerifyResult {
   uint64_t verified_file_size;
   std::optional<VerifyResultStatus> status;
   std::vector<VerifyDiff> diff;
+};
+
+struct VerifyOp {
+  std::filesystem::path index_path;
+  std::filesystem::path root_path;
+  std::function<void (const VerifyResult&)> progress;
 };
 
 enum class VerifyOutputType {
