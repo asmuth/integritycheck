@@ -40,8 +40,11 @@ enum class VerifyResultStatus : int {
 };
 
 struct VerifyResult {
-  uint64_t total_file_count;
-  uint64_t total_file_size;
+  uint64_t index_file_count;
+  uint64_t index_file_size;
+  uint64_t tree_file_count;
+  uint64_t verified_file_count;
+  uint64_t verified_file_size;
   std::optional<VerifyResultStatus> status;
   std::vector<VerifyDiff> diff;
 };

@@ -115,6 +115,21 @@ void op_verify_tree(
     if (!index_path_set.paths.contains(tree_path)) {
       op_verify_result_add_extraneous(tree_path, result);
     }
+
+    result->tree_file_count++;
+  }
+}
+
+void op_verify_index(
+  const VerifyOp& op,
+  const Index& index,
+  VerifyResult* result
+) {
+  for (const auto& record : index.entries) {
+    op_verify_record(op, record, result);
+
+    result->verified_file_count += 1;
+    result->verified_file_size += record.size;
   }
 }
 
@@ -127,14 +142,14 @@ VerifyResult op_verify(const VerifyOp& op) {
   index_read(op.index_path, &index);
 
   VerifyResult result;
-  result.total_file_count = index_total_file_count(index);
-  result.total_file_size = index_total_file_size(index);
+  result.index_file_count = index_total_file_count(index);
+  result.index_file_size = index_total_file_size(index);
+  result.tree_file_count = 0;
+  result.verified_file_count = 0;
+  result.verified_file_size = 0;
 
   op_verify_tree(op, index, &result);
-
-  for (const auto& record : index.entries) {
-    op_verify_record(op, record, &result);
-  }
+  op_verify_index(op, index, &result);
 
   return result;
 }
@@ -142,8 +157,8 @@ VerifyResult op_verify(const VerifyOp& op) {
 void op_verify_output_result_tty(const VerifyResult& result) {
   auto summary = fmt::format(
     "files={} size={} diff={}",
-    result.total_file_count,
-    tty_print_value_bytes(result.total_file_size),
+    result.index_file_count,
+    tty_print_value_bytes(result.index_file_size),
     result.diff.size()
   );
 
