@@ -155,24 +155,30 @@ VerifyResult op_verify(const VerifyOp& op) {
 }
 
 void op_verify_output_result_tty(const VerifyResult& result) {
-  auto summary = fmt::format(
-    "files={} size={} diff={}",
-    result.index_file_count,
-    tty_print_value_bytes(result.index_file_size),
-    result.diff.size()
-  );
-
+  std::string code;
   switch (op_verify_result_status(result)) {
     case VerifyResultStatus::PASS:
-      std::cout << fmt::format("{} {}", tty_print_success("PASS"), summary) << std::endl;
+      code = tty_print_success("PASS");
       break;
     case VerifyResultStatus::WARN:
-      std::cout << fmt::format("{} {}", tty_print_warning("WARN"), summary) << std::endl;
+      code = tty_print_warning("WARN");
       break;
     case VerifyResultStatus::FAIL:
-      std::cout << fmt::format("{} {}", tty_print_error("FAIL"), summary) << std::endl;
+      code = tty_print_error("FAIL");
       break;
   }
+
+  std::cout << fmt::format(
+    "status: {}\n"
+    "index:  {} files, {}\n"
+    "tree:   {} files\n"
+    "diff:   {} files\n",
+    code,
+    result.index_file_count,
+    tty_print_value_bytes(result.index_file_size),
+    result.tree_file_count,
+    result.diff.size()
+  );
 
   if (result.diff.size() > 0) {
     std::cout << std::endl;
