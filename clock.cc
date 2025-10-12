@@ -1,3 +1,5 @@
+#include "clock.h"
+
 #include <time.h>
 #include <stdexcept>
 #include <string>

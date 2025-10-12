@@ -1,5 +1,6 @@
 #include "checksum.h"
 
+#include <array>
 #include <cstring>
 #include <fstream>
 #include <string>

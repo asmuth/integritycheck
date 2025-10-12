@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include <string>
 
 std::string tty_print_success(const std::string& s);

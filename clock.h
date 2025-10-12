@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+#include <string>
 
 uint64_t clock_monotonic();
 
