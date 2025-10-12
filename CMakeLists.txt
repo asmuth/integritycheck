@@ -25,6 +25,8 @@ set(
   cmd_search.cc
   output_progress.h
   output_progress.cc
+  output_text.h
+  output_text.cc
   output_tty.h
   output_tty.cc
 )

@@ -50,12 +50,6 @@ struct VerifyOp {
   std::function<void (const VerifyResult&)> progress;
 };
 
-enum class VerifyOutputType {
-  TTY, TEXT
-};
-
 VerifyResult op_verify(const VerifyOp& op);
 
-void op_verify_output_result_text(const VerifyResult& result);
-void op_verify_output_result_tty(const VerifyResult& result);
 VerifyResultStatus op_verify_result_status(const VerifyResult& result);

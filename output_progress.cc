@@ -11,10 +11,10 @@ void output_progress(const VerifyResult& result) {
     "[{}] index: {} ({}), tree: {}, check: {} ({}), {:.2f}%",
     clock_isodate(),
     result.index_file_count,
-    tty_print_value_bytes(result.index_file_size),
+    output_tty::print_value_bytes(result.index_file_size),
     result.tree_file_count,
     result.verified_file_count,
-    tty_print_value_bytes(result.verified_file_size),
+    output_tty::print_value_bytes(result.verified_file_size),
     result.verified_file_size / double(result.index_file_size) * 100
   );
 

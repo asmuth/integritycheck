@@ -8,6 +8,8 @@
 #include "cmd_search.h"
 #include "op_verify.h"
 #include "output_progress.h"
+#include "output_text.h"
+#include "output_tty.h"
 
 enum class OpMode {
   CHECK,
@@ -16,10 +18,15 @@ enum class OpMode {
   HELP
 };
 
+enum class OutputType {
+  TTY,
+  TEXT
+};
+
 struct Options {
   OpMode mode;
   std::vector<std::string> path_list;
-  std::string output;
+  OutputType output;
   bool progress;
 };
 
@@ -46,6 +53,19 @@ void print_help() {
     "   $ flix -s index.lst file1 file2\n" \
     "   $ flix -s index.lst - < file_list.txt\n" \
     ;
+}
+
+bool parse_output_type(Options* opts, const std::string& value) {
+  if (value == "tty") {
+    opts->output = OutputType::TTY;
+    return true;
+  } else if (value == "text") {
+    opts->output = OutputType::TEXT;
+    return true;
+  } else {
+    fmt::println(stderr, "ERROR: invalid output type");
+    return false;
+  }
 }
 
 bool parse_options(Options* opts, int argc, char** argv) {
@@ -81,7 +101,9 @@ bool parse_options(Options* opts, int argc, char** argv) {
         opts->mode = OpMode::SEARCH;
         break;
       case 'o':
-        opts->output = optarg;
+        if (!parse_output_type(opts, optarg)) {
+          return false;
+        }
         break;
       case 'p':
         opts->progress = true;
@@ -103,7 +125,6 @@ bool parse_options(Options* opts, int argc, char** argv) {
 
 bool run_check(const Options& opts) {
   VerifyOp op;
-  VerifyOutputType output_type = VerifyOutputType::TTY;
 
   if (opts.path_list.size() > 0) {
     op.index_path = std::filesystem::path(opts.path_list[0]);
@@ -134,12 +155,12 @@ bool run_check(const Options& opts) {
     output_progress_flush();
   }
 
-  switch (output_type) {
-    case VerifyOutputType::TTY:
-      op_verify_output_result_tty(result);
+  switch (opts.output) {
+    case OutputType::TTY:
+      output_tty::print_result(result);
       break;
-    case VerifyOutputType::TEXT:
-      op_verify_output_result_text(result);
+    case OutputType::TEXT:
+      output_text::print_result(result);
       break;
   }
 
@@ -153,6 +174,7 @@ bool run_check(const Options& opts) {
 int main(int argc, char** argv) {
   Options opts;
   opts.mode = OpMode::CHECK;
+  opts.output = OutputType::TTY;
   opts.progress = false;
   if (!parse_options(&opts, argc, argv)) {
     return EXIT_FAILURE;
