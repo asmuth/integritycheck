@@ -6,10 +6,10 @@
 #include <vector>
 
 #include "cmd_search.h"
-#include "op_verify.h"
 #include "output_progress.h"
 #include "output_text.h"
 #include "output_tty.h"
+#include "verify.h"
 
 enum class OpMode {
   CHECK,

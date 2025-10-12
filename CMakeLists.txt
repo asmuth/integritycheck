@@ -21,7 +21,6 @@ set(
   index.h
   index.cc
   index_read.cc
-  op_verify.cc
   cmd_search.cc
   output_progress.h
   output_progress.cc
@@ -29,6 +28,8 @@ set(
   output_text.cc
   output_tty.h
   output_tty.cc
+  verify.h
+  verify.cc
 )
 
 set(
