@@ -21,3 +21,6 @@ void test_create_directory(
 
 TestDataGenerator test_generate_zeroes();
 
+std::string test_read_file(
+  const std::filesystem::path& file_path
+);

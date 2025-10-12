@@ -39,3 +39,13 @@ void test_create_directory(
 TestDataGenerator test_generate_zeroes() {
   return [] (auto i) { return 0; };
 }
+
+std::string test_read_file(
+  const std::filesystem::path& file_path
+) {
+  auto data_len = std::filesystem::file_size(file_path);
+  auto data = std::string(data_len, '\0');
+  auto data_reader = std::ifstream(file_path);
+  data_reader.read(data.data(), data_len);
+  return data;
+}

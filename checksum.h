@@ -22,6 +22,8 @@ ChecksumType checksum_read_type(const std::string& input);
 
 ChecksumValue checksum_read_value(const std::string& input, ChecksumType type);
 
+std::string checksum_write_type(const ChecksumType& type);
+
 std::string checksum_write_value(const Checksum& checksum);
 
 bool checksum_compare(const Checksum& a, const Checksum& b);

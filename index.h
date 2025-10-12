@@ -40,6 +40,11 @@ void index_read(
   Index* index
 );
 
+void index_write(
+  const std::string& file_path,
+  const Index& index
+);
+
 uint64_t index_total_file_count(const Index& index);
 uint64_t index_total_file_size(const Index& index);
 

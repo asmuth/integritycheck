@@ -21,6 +21,7 @@ set(
   index.h
   index.cc
   index_read.cc
+  index_write.cc
   cmd_search.cc
   output_progress.h
   output_progress.cc

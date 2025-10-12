@@ -74,6 +74,14 @@ ChecksumValue checksum_read_value(const std::string& input, ChecksumType type) {
   return value;
 }
 
+std::string checksum_write_type(const ChecksumType& type) {
+  switch (type) {
+    case ChecksumType::MD5: return "md5";
+    case ChecksumType::SHA1: return "sha1";
+    default: throw std::runtime_error("invalid checksum type");
+  }
+}
+
 char checksum_write_value_byte(uint8_t x) {
   switch (x) {
     case 0: return '0';
