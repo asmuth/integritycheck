@@ -7,6 +7,7 @@
 
 #include "cmd_search.h"
 #include "op_verify.h"
+#include "output_progress.h"
 
 enum class OpMode {
   CHECK,
@@ -123,14 +124,14 @@ bool run_check(const Options& opts) {
   }
 
   if (opts.progress) {
-    op_verify_output_progress_setup(&op);
+    output_progress_bind(&op);
   }
 
   auto result = op_verify(op);
 
   if (opts.progress) {
-    op_verify_output_progress(result);
-    op_verify_output_progress_flush();
+    output_progress(result);
+    output_progress_flush();
   }
 
   switch (output_type) {

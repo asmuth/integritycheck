@@ -23,6 +23,8 @@ set(
   index_read.cc
   op_verify.cc
   cmd_search.cc
+  output_progress.h
+  output_progress.cc
   output_tty.h
   output_tty.cc
 )

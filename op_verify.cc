@@ -239,38 +239,6 @@ void op_verify_output_result_text(const VerifyResult& result) {
   }
 }
 
-void op_verify_output_progress(const VerifyResult& result) {
-  auto progress_text =  fmt::format(
-    "[{}] index: {} ({}), tree: {}, check: {} ({}), {:.2f}%",
-    clock_isodate(),
-    result.index_file_count,
-    tty_print_value_bytes(result.index_file_size),
-    result.tree_file_count,
-    result.verified_file_count,
-    tty_print_value_bytes(result.verified_file_size),
-    result.verified_file_size / double(result.index_file_size) * 100
-  );
-
-  std::cerr
-    << progress_text
-    << std::endl;
-}
-
-void op_verify_output_progress_setup(VerifyOp* op) {
-  auto time_last = 0;
-
-  op->progress = [time_last] (const auto& result) mutable {
-    if (auto t = clock_monotonic(); clock_elapsed(t, time_last) > 1000) {
-      op_verify_output_progress(result);
-      time_last = t;
-    }
-  };
-}
-
-void op_verify_output_progress_flush() {
-  std::cerr << std::endl;
-}
-
 VerifyOutputType op_verify_output_type_read(const std::string& x) {
   if (x == "tty") {
     return VerifyOutputType::TTY;
