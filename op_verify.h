@@ -56,4 +56,9 @@ enum class VerifyOutputType {
 
 VerifyResult op_verify(const VerifyOp& op);
 
-int op_verify(char** args, size_t arg_count);
+void op_verify_output_progress(const VerifyResult& result);
+void op_verify_output_progress_setup(VerifyOp* op);
+void op_verify_output_progress_flush();
+void op_verify_output_result_text(const VerifyResult& result);
+void op_verify_output_result_tty(const VerifyResult& result);
+VerifyResultStatus op_verify_result_status(const VerifyResult& result);
