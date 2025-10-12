@@ -35,6 +35,8 @@ void index_add(IndexRecord entry, Index* index);
 
 IndexPathSet index_build_path_set(const Index& index);
 
+void index_sort(Index* index);
+
 void index_read(
   const std::string& file_path,
   Index* index

@@ -1,4 +1,6 @@
 #include "index.h"
+
+#include <algorithm>
 #include <numeric>
 
 void index_add(IndexRecord entry, Index* index) {
@@ -13,6 +15,14 @@ IndexPathSet index_build_path_set(const Index& index) {
   }
 
   return path_set;
+}
+
+void index_sort(Index* index) {
+  std::sort(
+    index->entries.begin(),
+    index->entries.end(),
+    [] (const auto& a, const auto& b) { return a.path < b.path; }
+  );
 }
 
 uint64_t index_total_file_count(const Index& index) {

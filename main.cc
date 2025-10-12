@@ -9,6 +9,7 @@
 #include "output_progress.h"
 #include "output_text.h"
 #include "output_tty.h"
+#include "update.h"
 #include "verify.h"
 
 enum class OpMode {
@@ -166,6 +167,26 @@ bool run_check(const Options& opts) {
   }
 }
 
+bool run_update(const Options& opts) {
+  UpdateOp op;
+  op.checksum_type = ChecksumType::SHA1;
+
+  if (opts.path_list.size() == 2) {
+    op.index_path = std::filesystem::path(opts.path_list[0]);
+    op.root_path = std::filesystem::path(opts.path_list[1]);
+  } else {
+    std::cerr << "ERROR: need a an index and data path" << std::endl;
+    return false;
+  }
+
+  if (opts.progress) {
+    output_progress::bind(&op.progress);
+  }
+
+  update_index(op);
+  return true;
+}
+
 int main(int argc, char** argv) {
   Options opts;
   opts.mode = OpMode::CHECK;
@@ -180,6 +201,14 @@ int main(int argc, char** argv) {
     case OpMode::CHECK:
       try {
         result = run_check(opts);
+      } catch (const std::runtime_error& e) {
+        std::cerr << "ERROR: " << e.what() << std::endl;
+        result = false;
+      }
+      break;
+    case OpMode::UPDATE:
+      try {
+        result = run_update(opts);
       } catch (const std::runtime_error& e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
         result = false;

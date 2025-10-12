@@ -30,6 +30,8 @@ set(
   output_tty.h
   output_tty.cc
   progress.h
+  update.h
+  update.cc
   verify.h
   verify.cc
 )
