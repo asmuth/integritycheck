@@ -145,15 +145,10 @@ bool run_check(const Options& opts) {
   }
 
   if (opts.progress) {
-    output_progress_bind(&op);
+    output_progress::bind(&op.progress);
   }
 
   auto result = op_verify(op);
-
-  if (opts.progress) {
-    output_progress(result);
-    output_progress_flush();
-  }
 
   switch (opts.output) {
     case OutputType::TTY:

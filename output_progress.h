@@ -1,6 +1,9 @@
 #pragma once
-#include "verify.h"
+#include "progress.h"
 
-void output_progress(const VerifyResult& result);
-void output_progress_bind(VerifyOp* op);
-void output_progress_flush();
+namespace output_progress {
+
+void print(const Progress& progress);
+void bind(ProgressFn* fn);
+
+} // namespace output_progress

@@ -6,16 +6,19 @@
 #include <iostream>
 #include <fmt/core.h>
 
-void output_progress(const VerifyResult& result) {
+namespace output_progress {
+
+void print(const Progress& progress) {
   auto progress_text =  fmt::format(
-    "[{}] index: {} ({}), tree: {}, check: {} ({}), {:.2f}%",
+    "[{}] {:.2f}%, {}/{}, {}/{} files",
     clock_isodate(),
-    result.index_file_count,
-    output_tty::print_value_bytes(result.index_file_size),
-    result.tree_file_count,
-    result.verified_file_count,
-    output_tty::print_value_bytes(result.verified_file_size),
-    result.verified_file_size / double(result.index_file_size) * 100
+    progress.bytes_total > 0
+      ? progress.bytes / double(progress.bytes_total) * 100
+      : 0,
+    output_tty::print_value_bytes(progress.bytes),
+    output_tty::print_value_bytes(progress.bytes_total),
+    progress.files,
+    progress.files_total
   );
 
   std::cerr
@@ -23,17 +26,15 @@ void output_progress(const VerifyResult& result) {
     << std::endl;
 }
 
-void output_progress_bind(VerifyOp* op) {
+void bind(ProgressFn* fn) {
   auto time_last = 0;
 
-  op->progress = [time_last] (const auto& result) mutable {
-    if (auto t = clock_monotonic(); clock_elapsed(t, time_last) > 1000) {
-      output_progress(result);
+  *fn = [time_last] (const auto& result, bool flush) mutable {
+    if (auto t = clock_monotonic(); clock_elapsed(t, time_last) > 1000 || flush) {
+      print(result);
       time_last = t;
     }
   };
 }
 
-void output_progress_flush() {
-  std::cerr << std::endl;
-}
+} // namespace output_progress

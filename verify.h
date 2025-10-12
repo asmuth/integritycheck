@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "progress.h"
+
 // Describes the type of difference between index and actual files
 enum class VerifyDiffType {
 
@@ -47,7 +49,7 @@ struct VerifyResult {
 struct VerifyOp {
   std::filesystem::path index_path;
   std::filesystem::path root_path;
-  std::function<void (const VerifyResult&)> progress;
+  ProgressFn progress;
 };
 
 VerifyResult op_verify(const VerifyOp& op);

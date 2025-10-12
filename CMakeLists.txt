@@ -28,6 +28,7 @@ set(
   output_text.cc
   output_tty.h
   output_tty.cc
+  progress.h
   verify.h
   verify.cc
 )

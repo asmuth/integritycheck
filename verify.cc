@@ -2,7 +2,7 @@
 
 #include "clock.h"
 #include "index.h"
-#include "output_tty.h"
+#include "progress.h"
 
 #include <array>
 #include <filesystem>
@@ -10,6 +10,20 @@
 #include <iostream>
 #include <stdexcept>
 #include <fmt/core.h>
+
+void op_verify_progress(const VerifyOp& op, const VerifyResult& result, bool flush) {
+  if (op.progress) {
+    op.progress(
+      Progress {
+        .files = result.verified_file_count,
+        .files_total = result.index_file_count,
+        .bytes = result.verified_file_size,
+        .bytes_total = result.index_file_size,
+      },
+      flush
+    );
+  }
+}
 
 void op_verify_result_update_status(VerifyResult* result, VerifyResultStatus status) {
   if (!result->status || status > *result->status) {
@@ -120,9 +134,7 @@ void op_verify_tree(
 
     result->tree_file_count++;
 
-    if (op.progress) {
-      op.progress(*result);
-    }
+    op_verify_progress(op, *result, false);
   }
 }
 
@@ -137,9 +149,7 @@ void op_verify_index(
     result->verified_file_count += 1;
     result->verified_file_size += record.size;
 
-    if (op.progress) {
-      op.progress(*result);
-    }
+    op_verify_progress(op, *result, false);
   }
 }
 
@@ -158,12 +168,12 @@ VerifyResult op_verify(const VerifyOp& op) {
   result.verified_file_count = 0;
   result.verified_file_size = 0;
 
-  if (op.progress) {
-    op.progress(result);
-  }
+  op_verify_progress(op, result, false);
 
   op_verify_tree(op, index, &result);
   op_verify_index(op, index, &result);
+
+  op_verify_progress(op, result, true);
 
   return result;
 }
