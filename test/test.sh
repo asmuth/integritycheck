@@ -2,7 +2,7 @@
 set -ue -o pipefail
 
 TEST_SRCDIR="$(dirname "$(realpath "$0")")"
-TEST_RUNDIR="$(pwd)"
+TEST_RUNDIR="$(readlink -f "$(pwd)")"
 TEST_TMPDIR="$(readlink -f "$(mktemp -d "filecheck-test-XXXXXXX")")"
 trap "rm -rf ${TEST_TMPDIR};" EXIT
 
@@ -62,6 +62,15 @@ for failed in ${failed[@]}; do
   sed -e 's/^/  | /' < "${TEST_TMPDIR}/${failed}.log"
   echo
 done
+
+if [[ "${TEST_COVERAGE}" == "ON" ]]; then
+  print_info "Test Coverage:"
+  echo
+  mkdir -p "${TEST_RUNDIR}/coverage"
+  gcovr -s -r "${TEST_SRCDIR}/.." "${TEST_RUNDIR}" --html-details "${TEST_RUNDIR}/coverage/index.html" 2>&1 | grep -Ev "(INFO)"
+  echo "full report: ${TEST_RUNDIR}/coverage/index.html"
+  echo
+fi
 
 print_info "Test Summary: "
 if [[ ${num_passed} -eq ${num_total} && ${num_total} -gt 0 ]]; then

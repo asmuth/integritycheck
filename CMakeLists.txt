@@ -52,6 +52,14 @@ set(
   fmt::fmt
 )
 
+# Test Coverage
+option(TEST_COVERAGE "Enable code coverage reports" OFF)
+if(TEST_COVERAGE)
+  find_program(GCOVR gcovr REQUIRED)
+  add_compile_options(--coverage)
+  add_link_options(--coverage)
+endif(TEST_COVERAGE)
+
 # Build main executable
 add_executable(filecheck ${sources} main.cc)
 target_link_libraries(filecheck ${linklibs})
@@ -62,10 +70,12 @@ install(TARGETS filecheck)
 # Add the test target
 add_custom_target(
   test
-  COMMAND ${PROJECT_SOURCE_DIR}/test/test.sh
-  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMAND ${CMAKE_COMMAND} -E env "TEST_COVERAGE=${TEST_COVERAGE}" ${PROJECT_SOURCE_DIR}/test/test.sh
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMENT "Run all tests"
 )
+
+add_dependencies(test filecheck)
 
 # Build unit tests
 file(GLOB test_paths "test/test-*")
