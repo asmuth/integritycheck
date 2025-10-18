@@ -69,6 +69,13 @@ if(TEST_COVERAGE)
   add_link_options(--coverage)
 endif(TEST_COVERAGE)
 
+# cppcheck
+option(TEST_CPPCHECK "Enable cppcheck reports" OFF)
+if(TEST_CPPCHECK)
+  find_program(CPPCHECK cppcheck REQUIRED)
+  find_program(CPPCHECKHTMLREPORT cppcheck-htmlreport REQUIRED)
+endif(TEST_CPPCHECK)
+
 # Build main executable
 add_executable(filecheck ${sources} main.cc)
 target_link_libraries(filecheck ${linklibs})
@@ -79,7 +86,9 @@ install(TARGETS filecheck)
 # Add the test target
 add_custom_target(
   test
-  COMMAND ${CMAKE_COMMAND} -E env "TEST_COVERAGE=${TEST_COVERAGE}" ${PROJECT_SOURCE_DIR}/test/test.sh
+  COMMAND ${CMAKE_COMMAND}
+    -E env "TEST_COVERAGE=${TEST_COVERAGE}" "TEST_CPPCHECK=${TEST_CPPCHECK}"
+    ${PROJECT_SOURCE_DIR}/test/test.sh
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMENT "Run all tests"
 )

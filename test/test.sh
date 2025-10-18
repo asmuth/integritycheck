@@ -72,6 +72,23 @@ if [[ "${TEST_COVERAGE}" == "ON" ]]; then
   echo
 fi
 
+if [[ "${TEST_CPPCHECK}" == "ON" ]]; then
+  print_info "Static analysis:"
+  echo
+  cppcheck \
+    --enable=all \
+    --quiet --xml --xml-version=2 \
+    "${TEST_SRCDIR}/.."  2> "${TEST_RUNDIR}/cppcheck.xml"
+  cppcheck-htmlreport \
+    --title "filecheck" \
+    --source-dir="${TEST_SRCDIR}/.." \
+    --report-dir="${TEST_RUNDIR}/cppcheck" \
+    --file "${TEST_RUNDIR}/cppcheck.xml" \
+    &>/dev/null
+  echo "full report: ${TEST_RUNDIR}/cppcheck/index.html"
+  echo
+fi
+
 print_info "Test Summary: "
 if [[ ${num_passed} -eq ${num_total} && ${num_total} -gt 0 ]]; then
   print_success "PASS (${num_passed}/${num_total})"
