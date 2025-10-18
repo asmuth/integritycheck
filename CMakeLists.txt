@@ -1,4 +1,4 @@
-project(flix)
+project(filecheck)
 cmake_minimum_required(VERSION 3.8)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -53,11 +53,11 @@ set(
 )
 
 # Build main executable
-add_executable(flix ${sources} main.cc)
-target_link_libraries(flix ${linklibs})
+add_executable(filecheck ${sources} main.cc)
+target_link_libraries(filecheck ${linklibs})
 
 # Install the main executable
-install(TARGETS flix)
+install(TARGETS filecheck)
 
 # Add the test target
 add_custom_target(

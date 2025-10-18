@@ -33,7 +33,7 @@ struct Options {
 
 void print_help() {
   std::cerr <<
-    "Usage: $ flix [OPTION...] [INDEX] [PATH...]\n" \
+    "Usage: $ filecheck [OPTION...] [INDEX] [PATH...]\n" \
     "   -c, --check                   Check the integrity of files referenced by the index file (default)\n" \
     "   -u, --update                  Update the index file\n" \
     "   -s, --search                  Search in the index file\n" \
@@ -49,10 +49,10 @@ void print_help() {
     "   -q, --quick                   Disable checksum verification, only verify file presence and size\n" \
     "\n" \
     "Examples:\n" \
-    "   $ flix index.lst .\n" \
-    "   $ flix -u index.lst path/to/files\n" \
-    "   $ flix -s index.lst file1 file2\n" \
-    "   $ flix -s index.lst - < file_list.txt\n" \
+    "   $ filecheck index.lst .\n" \
+    "   $ filecheck -u index.lst path/to/files\n" \
+    "   $ filecheck -s index.lst file1 file2\n" \
+    "   $ filecheck -s index.lst - < file_list.txt\n" \
     ;
 }
 
