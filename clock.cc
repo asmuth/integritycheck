@@ -34,7 +34,7 @@ std::string clock_isodate() {
   }
 
   char time_text[80];
-  if (strftime(time_text, 80, "%F %H:%M:%S", &time_info) == 0) {
+  if (strftime(time_text, 80, "%F %H:%M:%S %z", &time_info) == 0) {
     throw std::runtime_error("strftime() failed");
   }
 
