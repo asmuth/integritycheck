@@ -1,33 +1,104 @@
-integritycheck
-==============
+filecheck
+=========
 
-This is a little utility program I use to check the integrity of my important
-data. The binary is called `ic` because I invoke it frequently and it is much
-easier to type than 'integritycheck'.
+**filecheck** is a simple command-line tool for verifying and maintaining file
+integrity. It computes checksums for files on disk and compares them against a list
+of expected values stored in an *index file*.
 
-The user interface of `ic` is somewhat similar to version control systems
-like `git` or `svn`. Like most version control systems, ic works on a "repository".
-In ic's case, the repository is just any directory on your disk that contains the data
-you want to monitor. Note that ic will never touch any of the files in the
-repository - it is a read-only tool with regards to your data directory.
+An example index file looks like this:
 
-The command line interface should also be intuitive to use if you have used a
-version control system before: There is a `status` command that displays any
-unacknowledged modifications to the repository, an `ack` command that you can use
-to acknowledge changes in the repository (this is the equivalent to svn or git's
-`commit`) and a `log` command that displays the history of changes to the
-repository.
+```
+> cat index.lst
+file1.bin 1205 sha1:19b162f03f28273c383e5b834ec037518d751a05
+file2.bin 1205 sha1:19b162f03f28273c383e5b834ec037518d751a05
+```
 
-However, unlike a version control system, ic does not actually store any copies
-of your data! It merely stores an index containing the checksums of all files
-as well as some other metadata. This means that it can only check the integrity
-of your data and tell you if any of the files are corrupted or missing. Now, in
-case there *are* corrupted or missing files, ic is *not* able to restore them on
-its own; you have to retrieve them from your backup manually.
+When verifying an an index file, filecheck confirms not only that the files
+listed in the index are intact, but also that the index itself is complete -
+ensuring that every file in the data directory is accounted for. This helps
+detect not only modified or missing files, but also unexpected additions.
 
-The upside of this approach is that it allows you to use ic in addition to your
-existing backup or version control system. It also allows ic to handle very large
-repositories, such as a photo collection or a library of gamedev assets.
+In addition to verifying these index files, filecheck can create new ones,
+update existing entries, and search for specific files within them.
+
+filecheck is completely read-only; it never touches the actual files in your
+data directory. It also doesn't store any copies of your data, but only the index
+containing checksums and metadata. This means that it can detect corrupt or
+missing files, but cannot restore them.
+
+This design allows it to play nicely with your existing backup or version control
+setup and scales easily to very large collections, such as photo archives or asset
+libraries.
+
+
+Usage
+-----
+
+The filecheck distribution consists of a single command-line program called
+`filecheck`.
+
+```
+Usage: $ filecheck [OPTION...]
+   -i, --index=<path>            Index file path
+   -d, --directory=<path>        Data directory path (default: '.')
+   -c, --check                   Check the integrity of files referenced by the index file (default)
+   -u, --update                  Update the index file
+   -s, --search                  Search in the index file
+   -?, --help                    Display this help text and exit
+   -V, --version                 Display the version of this program and exit
+
+Output format:
+   -o, --output=<format>         Output format (tty or text)
+   -p, --progress                Enable progress output to STDERR
+   -P, --noprogress              Disable progress output to STDERR
+
+Options for the 'check' mode:
+   -q, --quick                   Disable checksum verification, only verify file presence and size
+```
+
+
+
+Getting started
+---------------
+
+FIXME
+
+
+Verification
+------------
+
+FIXME
+
+
+Update
+------
+
+FIXME
+
+
+Search
+------
+
+FIXME
+
+
+Non-exhaustive Mode
+-------------------
+
+FIXME
+
+
+Partial Verification and Updates
+--------------------------------
+
+FIXME
+
+
+Index File Format
+-----------------
+
+FIXME
+
 
 
 Build & Installation
@@ -48,32 +119,6 @@ If you have modified the source code, run the test suite:
 
     $ make test
 
-
-Usage
------
-
-    usage: ic <command> [options]
-    Yet another file integrity monitoring tool.
-
-    global options:
-      -d,--data_dir=PATH     Set the path of the repository/data directory
-                             default: '.'
-      -x,--index_dir=PATH    Set the path of the index directory. Note that this
-                             path is relative to the data directory. Absolute
-                             paths are allowed. default: '.fh'
-      --progress=[on/off]    Turn progress reporting on stderr on or off
-      --colours=[on/off]     Turn coloured terminal output on or off. default: on
-      -v,--verbose           Enable verbose output,
-      -h,--help              Print this help message and exit
-
-    commands:
-      init      Create a new index file.
-      status    Compare the current state of the repository to the latest snapshot
-      ack       Acknowledge changes to files in the repository and create a new snapshot
-      log       Display a historical log of snapshots and changes to the repository
-      verify    Perform a full check of the repository's integrity
-      version   Print the version of this program and exit
-      help      Print the help message for one of the commands and exit
 
 
 License
