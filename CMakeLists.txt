@@ -44,6 +44,8 @@ set(
   filecheck-test/environment.cc
   filecheck-test/generate.h
   filecheck-test/generate.cc
+  filecheck-test/shell.h
+  filecheck-test/shell.cc
 )
 
 # Linker Flags

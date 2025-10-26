@@ -25,6 +25,7 @@ run_test () {
     cd "${test_path}";
     TEST_SRCDIR="${TEST_SRCDIR}/$1" \
     TEST_TMPDIR="${TEST_TMPDIR}/$1" \
+    TEST_RUNDIR="${TEST_RUNDIR}" \
     "${TEST_RUNDIR}/$1"
   ) &> "${TEST_TMPDIR}/$1.log"
 }

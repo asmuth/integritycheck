@@ -1,0 +1,9 @@
+status: [1;41mFAIL[0m
+index:  6 files, 36B
+tree:   6 files
+diff:   4 files
+
+- md5_size.txt (size mismatch)
+- md5_data.txt (data mismatch)
+- sha1_size.txt (size mismatch)
+- sha1_data.txt (data mismatch)

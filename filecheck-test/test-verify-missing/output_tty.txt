@@ -1,0 +1,6 @@
+status: [1;41mFAIL[0m
+index:  3 files, 12B
+tree:   2 files
+diff:   1 files
+
+- two.txt (missing file)

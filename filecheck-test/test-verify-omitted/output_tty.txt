@@ -1,0 +1,10 @@
+status: [1;43mWARN[0m
+index:  6 files, 7B
+tree:   11 files
+diff:   5 files
+
+- 2.txt (extraneous file)
+- B/X/11.txt (extraneous file)
+- A/X/7.txt (extraneous file)
+- A/Y/9.txt (extraneous file)
+- A/4.txt (extraneous file)

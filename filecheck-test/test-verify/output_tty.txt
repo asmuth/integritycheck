@@ -1,0 +1,4 @@
+status: [1;42mPASS[0m
+index:  4 files, 100.014KB
+tree:   4 files
+diff:   0 files

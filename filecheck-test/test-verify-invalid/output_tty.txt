@@ -1,0 +1,6 @@
+status: [1;41mFAIL[0m
+index:  2 files, 8B
+tree:   2 files
+diff:   1 files
+
+- invalid.txt (data mismatch)
