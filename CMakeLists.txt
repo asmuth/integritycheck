@@ -10,39 +10,40 @@ find_package(fmt REQUIRED)
 include_directories(${PROJECT_SOURCE_DIR})
 include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories(${fmt_INCLUDE_DIRS})
+include_directories(filecheck)
 
 # Source Files
 set(
   sources
-  checksum.h
-  checksum.cc
-  clock.h
-  clock.cc
-  index.h
-  index.cc
-  index_read.cc
-  index_write.cc
-  cmd_search.cc
-  output_progress.h
-  output_progress.cc
-  output_text.h
-  output_text.cc
-  output_tty.h
-  output_tty.cc
-  progress.h
-  update.h
-  update.cc
-  verify.h
-  verify.cc
+  filecheck/checksum.h
+  filecheck/checksum.cc
+  filecheck/clock.h
+  filecheck/clock.cc
+  filecheck/index.h
+  filecheck/index.cc
+  filecheck/index_read.cc
+  filecheck/index_write.cc
+  filecheck/cmd_search.cc
+  filecheck/output_progress.h
+  filecheck/output_progress.cc
+  filecheck/output_text.h
+  filecheck/output_text.cc
+  filecheck/output_tty.h
+  filecheck/output_tty.cc
+  filecheck/progress.h
+  filecheck/update.h
+  filecheck/update.cc
+  filecheck/verify.h
+  filecheck/verify.cc
 )
 
 set(
   test_sources
-  test/assert.h
-  test/environment.h
-  test/environment.cc
-  test/generate.h
-  test/generate.cc
+  filecheck-test/assert.h
+  filecheck-test/environment.h
+  filecheck-test/environment.cc
+  filecheck-test/generate.h
+  filecheck-test/generate.cc
 )
 
 # Linker Flags
@@ -77,7 +78,7 @@ if(TEST_CPPCHECK)
 endif(TEST_CPPCHECK)
 
 # Build main executable
-add_executable(filecheck ${sources} main.cc)
+add_executable(filecheck ${sources} filecheck/main.cc)
 target_link_libraries(filecheck ${linklibs})
 
 # Install the main executable
@@ -88,7 +89,7 @@ add_custom_target(
   test
   COMMAND ${CMAKE_COMMAND}
     -E env "TEST_COVERAGE=${TEST_COVERAGE}" "TEST_CPPCHECK=${TEST_CPPCHECK}"
-    ${PROJECT_SOURCE_DIR}/test/test.sh
+    ${PROJECT_SOURCE_DIR}/filecheck-test/test.sh
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
   COMMENT "Run all tests"
 )
@@ -96,7 +97,7 @@ add_custom_target(
 add_dependencies(test filecheck)
 
 # Build unit tests
-file(GLOB test_paths "test/test-*")
+file(GLOB test_paths "filecheck-test/test-*")
 
 foreach(test_path ${test_paths})
   get_filename_component(test_name ${test_path} NAME)

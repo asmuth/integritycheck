@@ -1,7 +1,7 @@
 #include "index.h"
-#include "test/assert.h"
-#include "test/environment.h"
-#include "test/generate.h"
+#include "filecheck-test/assert.h"
+#include "filecheck-test/environment.h"
+#include "filecheck-test/generate.h"
 
 #include <fstream>
 

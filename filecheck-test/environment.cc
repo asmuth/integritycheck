@@ -1,4 +1,4 @@
-#include "environment.h"
+#include "filecheck-test/environment.h"
 #include <stdexcept>
 
 std::filesystem::path test_get_tmpdir() {

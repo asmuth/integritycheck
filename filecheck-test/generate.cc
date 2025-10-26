@@ -1,4 +1,4 @@
-#include "generate.h"
+#include "filecheck-test/generate.h"
 #include <fstream>
 
 void test_create_file(

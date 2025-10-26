@@ -1,5 +1,5 @@
 #include "index.h"
-#include "test/assert.h"
+#include "filecheck-test/assert.h"
 
 int main(int argc, char** argv) {
   Index index;
