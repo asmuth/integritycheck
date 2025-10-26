@@ -1,15 +1,16 @@
-- [ ] add tests for corrupt index (invalid line, missing size, invalid checksum sizes md5/sha1)
 - [ ] add prompt/cli tests
-- [ ] add tests for relative paths starting with . and absolute paths
-
-- [ ] add alternative output modes (tty/text/json) to stdout; autodetect tty mode
-- [ ] add a --progress output to stderr
-- [ ] improved exception/error output on stderr
-- [ ] print total index size in bytes
-
-- [ ] add support for ignoring omitted files
-- [ ] add recursive index files (includes)
+- [ ] remove exceptions (errors as valus)
+- [ ] add support for partial update/verify
+- [ ] add support for exclude paths
+- [ ] add support for ignoring extraneous files
+- [ ] auto-exclude the index file
+- [ ] don't overwrite index files by default? (-y, --overwrite/--non-interactive)
+- [ ] add support for block-level progress
+- [ ] add a speed (bytes/time) indicator to progress output
 - [ ] add "quick" verify mode (size only)
-
-- [ ] update readme (usage/examples)
+- [ ] add the json output format
+- [ ] autodetect the tty output format
+- [ ] add tests for corrupt index (invalid line, missing size, invalid checksum sizes md5/sha1)
+- [ ] add tests for relative paths starting with . and absolute paths
+- [ ] update readme
 - [ ] add documentation/spec for index format
