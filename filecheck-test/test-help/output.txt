@@ -1,0 +1,23 @@
+Usage: $ filecheck [OPTION...]
+   -i, --index=<path>            Index file path
+   -d, --directory=<path>        Data directory path (default: '.')
+   -c, --check                   Check the integrity of files referenced by the index file (default)
+   -u, --update                  Update the index file
+   -s, --search                  Search in the index file
+   -?, --help                    Display this help text and exit
+   -V, --version                 Display the version of this program and exit
+
+Output format:
+   -o, --output=<format>         Output format (tty or text)
+   -p, --progress                Enable progress output to STDERR
+   -P, --noprogress              Disable progress output to STDERR
+
+Options for the 'check' mode:
+   -q, --quick                   Disable checksum verification, only verify file presence and size
+
+Examples:
+   $ filecheck -i index.lst
+   $ filecheck -i index.lst -D path/to/files
+   $ filecheck -i index.lst -u
+   $ filecheck -i index.lst -s file1 file2
+   $ filecheck -i index.lst -s - < file_list.txt
