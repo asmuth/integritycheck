@@ -47,8 +47,8 @@ struct VerifyResult {
 };
 
 struct VerifyOp {
-  std::filesystem::path index_path;
   std::filesystem::path root_path;
+  std::filesystem::path index_path;
   ProgressFn progress;
 };
 

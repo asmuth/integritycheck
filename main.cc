@@ -26,14 +26,17 @@ enum class OutputType {
 
 struct Options {
   OpMode mode;
-  std::vector<std::string> path_list;
+  std::string index_path;
+  std::string data_path;
   OutputType output;
   bool progress;
 };
 
 void print_help() {
   std::cerr <<
-    "Usage: $ filecheck [OPTION...] [INDEX] [PATH...]\n" \
+    "Usage: $ filecheck [OPTION...]\n" \
+    "   -i, --index=<path>            Index file path\n" \
+    "   -d, --directory=<path>        Data directory path (default: '.')\n" \
     "   -c, --check                   Check the integrity of files referenced by the index file (default)\n" \
     "   -u, --update                  Update the index file\n" \
     "   -s, --search                  Search in the index file\n" \
@@ -41,7 +44,7 @@ void print_help() {
     "   -V, --version                 Display the version of this program and exit\n" \
     "\n" \
     "Output format:\n" \
-    "   -o, --output                  Output format (tty or text)\n" \
+    "   -o, --output=<format>         Output format (tty or text)\n" \
     "   -p, --progress                Enable progress output to STDERR\n" \
     "   -P, --noprogress              Disable progress output to STDERR\n" \
     "\n" \
@@ -49,10 +52,11 @@ void print_help() {
     "   -q, --quick                   Disable checksum verification, only verify file presence and size\n" \
     "\n" \
     "Examples:\n" \
-    "   $ filecheck index.lst .\n" \
-    "   $ filecheck -u index.lst path/to/files\n" \
-    "   $ filecheck -s index.lst file1 file2\n" \
-    "   $ filecheck -s index.lst - < file_list.txt\n" \
+    "   $ filecheck -i index.lst\n" \
+    "   $ filecheck -i index.lst -D path/to/files\n" \
+    "   $ filecheck -i index.lst -u\n" \
+    "   $ filecheck -i index.lst -s file1 file2\n" \
+    "   $ filecheck -i index.lst -s - < file_list.txt\n" \
     ;
 }
 
@@ -70,15 +74,17 @@ bool parse_output_type(Options* opts, const std::string& value) {
 }
 
 bool parse_options(Options* opts, int argc, char** argv) {
-  auto opts_short = std::string("hcuso:pP");
-  auto opts_long = std::array<struct option, 8>{{
-    {"help", no_argument, 0, 'h'},
+  auto opts_short = std::string("i:d:cuso:pPh");
+  auto opts_long = std::array<struct option, 10>{{
+    {"index", required_argument, 0, 'i'},
+    {"directory", required_argument, 0, 'd'},
     {"check", no_argument, 0, 'c'},
     {"update", no_argument, 0, 'u'},
     {"search", no_argument, 0, 's'},
     {"output", required_argument, 0, 'o'},
     {"progress", no_argument, 0, 'p'},
     {"noprogress", no_argument, 0, 'P'},
+    {"help", no_argument, 0, 'h'},
     {0, 0, 0, 0}
   }};
 
@@ -89,8 +95,11 @@ bool parse_options(Options* opts, int argc, char** argv) {
     }
 
     switch (opt) {
-      case 'h':
-        opts->mode = OpMode::HELP;
+      case 'i':
+        opts->index_path = optarg;
+        break;
+      case 'd':
+        opts->data_path = optarg;
         break;
       case 'c':
         opts->mode = OpMode::CHECK;
@@ -112,13 +121,17 @@ bool parse_options(Options* opts, int argc, char** argv) {
       case 'P':
         opts->progress = false;
         break;
+      case 'h':
+        opts->mode = OpMode::HELP;
+        break;
       case '?':
         return false;
     }
   }
 
   for (auto argn = optind; argn < argc; ++argn) {
-    opts->path_list.push_back(argv[argn]);
+    std::cerr << "ERROR: invalid argument: " << argv[argn] << std::endl;
+    return false;
   }
 
   return true;
@@ -126,24 +139,8 @@ bool parse_options(Options* opts, int argc, char** argv) {
 
 bool run_check(const Options& opts) {
   VerifyOp op;
-
-  if (opts.path_list.size() > 0) {
-    op.index_path = std::filesystem::path(opts.path_list[0]);
-  } else {
-    std::cerr << "ERROR: need a an index file" << std::endl;
-    return false;
-  }
-
-  if (opts.path_list.size() > 1) {
-    op.root_path = std::filesystem::path(opts.path_list[1]);
-  } else {
-    op.root_path = std::filesystem::current_path();
-  }
-
-  if (opts.path_list.size() > 2) {
-    std::cerr << "ERROR: extraneous arguments" << std::endl;
-    return false;
-  }
+  op.index_path = std::filesystem::path(opts.index_path);
+  op.root_path = std::filesystem::path(opts.data_path);
 
   if (opts.progress) {
     output_progress::bind(&op.progress);
@@ -169,15 +166,9 @@ bool run_check(const Options& opts) {
 
 bool run_update(const Options& opts) {
   UpdateOp op;
+  op.index_path = std::filesystem::path(opts.index_path);
+  op.root_path = std::filesystem::path(opts.data_path);
   op.checksum_type = ChecksumType::SHA1;
-
-  if (opts.path_list.size() == 2) {
-    op.index_path = std::filesystem::path(opts.path_list[0]);
-    op.root_path = std::filesystem::path(opts.path_list[1]);
-  } else {
-    std::cerr << "ERROR: need a an index and data path" << std::endl;
-    return false;
-  }
 
   if (opts.progress) {
     output_progress::bind(&op.progress);
@@ -189,10 +180,21 @@ bool run_update(const Options& opts) {
 
 int main(int argc, char** argv) {
   Options opts;
+  opts.data_path = ".";
   opts.mode = OpMode::CHECK;
   opts.output = OutputType::TTY;
   opts.progress = false;
   if (!parse_options(&opts, argc, argv)) {
+    return EXIT_FAILURE;
+  }
+
+  if (opts.mode == OpMode::HELP) {
+    print_help();
+    return EXIT_SUCCESS;
+  }
+
+  if (opts.index_path.empty()) {
+    std::cerr << "ERROR: need an index file path (--index)" << std::endl;
     return EXIT_FAILURE;
   }
 
@@ -213,9 +215,6 @@ int main(int argc, char** argv) {
         std::cerr << "ERROR: " << e.what() << std::endl;
         result = false;
       }
-      break;
-    case OpMode::HELP:
-      print_help();
       break;
     default:
       std::cerr << "ERROR: invalid command" << std::endl;
