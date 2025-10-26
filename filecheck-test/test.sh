@@ -68,7 +68,7 @@ if [[ "${TEST_COVERAGE}" == "ON" ]]; then
   print_info "Test Coverage:"
   echo
   mkdir -p "${TEST_RUNDIR}/coverage"
-  gcovr -s -r "${TEST_SRCDIR}/.." "${TEST_RUNDIR}" --html-details "${TEST_RUNDIR}/coverage/index.html" 2>&1 | grep -Ev "(INFO)"
+  gcovr -s -r "${TEST_SRCDIR}/../filecheck" "${TEST_RUNDIR}" --html-details "${TEST_RUNDIR}/coverage/index.html" 2>&1 | grep -Ev "(INFO)"
   echo "full report: ${TEST_RUNDIR}/coverage/index.html"
   echo
 fi
