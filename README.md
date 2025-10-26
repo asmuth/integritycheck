@@ -104,21 +104,34 @@ FIXME
 Build & Installation
 --------------------
 
-Before you can compile `ic`, you have to install the rust compiler and the
-cargo package manager.
+Before you can compile filecheck you need to install some build dependencies.
+Currently you need a modern c++ compiler, cmake and openssl 3.
 
-To build `ic`, check out this repo and run:
+```
+# Ubuntu
+$ apt install clang cmake libssl-dev
 
-    $ make
 
-To install the `ic` binary into your system, execute this command:
+# OSX
+$ brew install cmake openssl@3
+```
 
-    $ make install
+To build and install `filecheck`, check out this repo and run:
+
+    $ cmake -B build && make -C build install
+
+
+Test Suite
+----------
 
 If you have modified the source code, run the test suite:
 
-    $ make test
+    $ make -C build test
 
+You can also run static analysis and test coverage checks using the following command:
+
+    $ cmake -B build -DTEST_CPPCHECK=ON -DTEST_COVERAGE=ON -DCMAKE_BUILD_TYPE=DEBUG
+    $ make -C build test
 
 
 License
