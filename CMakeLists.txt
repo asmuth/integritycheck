@@ -83,8 +83,12 @@ if(TEST_CPPCHECK)
   find_program(CPPCHECKHTMLREPORT cppcheck-htmlreport REQUIRED)
 endif(TEST_CPPCHECK)
 
+# Build intermediate objects
+add_library(filecheck-main OBJECT ${sources})
+add_library(filecheck-test OBJECT ${test_sources})
+
 # Build main executable
-add_executable(filecheck ${sources} filecheck/main.cc)
+add_executable(filecheck $<TARGET_OBJECTS:filecheck-main> filecheck/main.cc)
 target_link_libraries(filecheck ${linklibs})
 
 # Install the main executable
@@ -115,8 +119,8 @@ foreach(test_path ${test_paths})
   add_executable(
     ${test_name}
     ${test_path}/test.cc
-    ${test_sources}
-    ${sources}
+    $<TARGET_OBJECTS:filecheck-test>
+    $<TARGET_OBJECTS:filecheck-main>
   )
 
   target_link_libraries(
