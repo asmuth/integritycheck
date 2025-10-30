@@ -1,7 +1,8 @@
 - [ ] remove exceptions (errors as valus)
-- [ ] add support for partial update/verify
+- [ ] add support for partial verify
 - [ ] add support for exclude paths
 - [ ] add support for ignoring extraneous files
+- [ ] add handling/tests for special files
 - [ ] auto-exclude the index file
 - [ ] don't overwrite index files by default? (-y, --overwrite/--non-interactive)
 - [ ] add support for block-level progress
