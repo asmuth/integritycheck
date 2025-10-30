@@ -1,0 +1,4 @@
+status: [1;42mPASS[0m
+index:  1 files, 4B
+tree:   1 files
+diff:   0 files

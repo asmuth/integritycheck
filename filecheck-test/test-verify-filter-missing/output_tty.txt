@@ -1,0 +1,6 @@
+status: [1;41mFAIL[0m
+index:  1 files, 5B
+tree:   0 files
+diff:   1 files
+
+- c/3.txt (missing file)

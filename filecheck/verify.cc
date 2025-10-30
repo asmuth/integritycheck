@@ -113,6 +113,43 @@ void op_verify_record(
   op_verify_result_add_match(result);
 }
 
+void op_verify_tree_file(
+  const VerifyOp& op,
+  const IndexPathSet& index_path_set,
+  const std::filesystem::path& file_path,
+  VerifyResult* result
+) {
+  auto file_path_normal = std::filesystem::relative(file_path, op.root_path);
+
+  if (!path_filter_match(op.filter, file_path_normal)) {
+    return;
+  }
+
+  if (!index_path_set.paths.contains(file_path_normal)) {
+    op_verify_result_add_extraneous(file_path_normal, result);
+  }
+
+  result->tree_file_count++;
+
+  op_verify_progress(op, *result, false);
+}
+
+void op_verify_tree_directory(
+  const VerifyOp& op,
+  const IndexPathSet& index_path_set,
+  const std::filesystem::path& part_path,
+  VerifyResult* result
+) {
+  std::filesystem::recursive_directory_iterator directory_iter(part_path);
+  for (const auto& directory_entry : directory_iter) {
+    if (directory_entry.is_directory()) {
+      continue;
+    }
+
+    op_verify_tree_file(op, index_path_set, directory_entry, result);
+  }
+}
+
 void op_verify_tree(
   const VerifyOp& op,
   const Index& index,
@@ -120,25 +157,21 @@ void op_verify_tree(
 ) {
   auto index_path_set = index_build_path_set(index);
 
-  auto tree_iter = std::filesystem::recursive_directory_iterator(op.root_path);
-  for (const auto& tree_path_absolute : tree_iter) {
-    auto tree_path = std::filesystem::relative(tree_path_absolute, op.root_path);
+  if (op.filter.select.empty()) {
+    op_verify_tree_directory(op, index_path_set, op.root_path, result);
+  } else {
+    for (const auto& filter_path : op.filter.select) {
+      auto tree_path = op.root_path / filter_path;
+      if (!std::filesystem::exists(tree_path)) {
+        continue;
+      }
 
-    if (std::filesystem::is_directory(tree_path_absolute)) {
-      continue;
+      if (std::filesystem::is_directory(tree_path)) {
+        op_verify_tree_directory(op, index_path_set, tree_path, result);
+      } else {
+        op_verify_tree_file(op, index_path_set, tree_path, result);
+      }
     }
-
-    if (!path_filter_match(op.filter, tree_path)) {
-      continue;
-    }
-
-    if (!index_path_set.paths.contains(tree_path)) {
-      op_verify_result_add_extraneous(tree_path, result);
-    }
-
-    result->tree_file_count++;
-
-    op_verify_progress(op, *result, false);
   }
 }
 
