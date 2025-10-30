@@ -1,4 +1,4 @@
-Usage: $ filecheck [OPTION...]
+Usage: $ filecheck [OPTION...] [PATH...]
    -i, --index=<path>            Index file path
    -d, --directory=<path>        Data directory path (default: '.')
    -c, --check                   Check the integrity of files referenced by the index file (default)

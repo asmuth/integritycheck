@@ -28,13 +28,14 @@ struct Options {
   OpMode mode;
   std::string index_path;
   std::string data_path;
+  std::vector<std::string> input_paths;
   OutputType output;
   bool progress;
 };
 
 void print_help() {
   std::cerr <<
-    "Usage: $ filecheck [OPTION...]\n" \
+    "Usage: $ filecheck [OPTION...] [PATH...]\n" \
     "   -i, --index=<path>            Index file path\n" \
     "   -d, --directory=<path>        Data directory path (default: '.')\n" \
     "   -c, --check                   Check the integrity of files referenced by the index file (default)\n" \
@@ -130,8 +131,7 @@ bool parse_options(Options* opts, int argc, char** argv) {
   }
 
   for (auto argn = optind; argn < argc; ++argn) {
-    std::cerr << "ERROR: invalid argument: " << argv[argn] << std::endl;
-    return false;
+    opts->input_paths.push_back(argv[argn]);
   }
 
   return true;
@@ -141,6 +141,10 @@ bool run_check(const Options& opts) {
   VerifyOp op;
   op.index_path = std::filesystem::path(opts.index_path);
   op.root_path = std::filesystem::path(opts.data_path);
+
+  for (const auto& input_path : opts.input_paths) {
+    path_filter_add_select(&op.filter, input_path);
+  }
 
   if (opts.progress) {
     output_progress::bind(&op.progress);
@@ -165,6 +169,11 @@ bool run_check(const Options& opts) {
 }
 
 bool run_update(const Options& opts) {
+  if (opts.input_paths.size() > 0) {
+    std::cerr << "ERROR: invalid argument: " << opts.input_paths[0] << std::endl;
+    return false;
+  }
+
   UpdateOp op;
   op.index_path = std::filesystem::path(opts.index_path);
   op.root_path = std::filesystem::path(opts.data_path);

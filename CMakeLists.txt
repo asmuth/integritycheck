@@ -30,6 +30,10 @@ set(
   filecheck/output_text.cc
   filecheck/output_tty.h
   filecheck/output_tty.cc
+  filecheck/path.h
+  filecheck/path.cc
+  filecheck/path_filter.h
+  filecheck/path_filter.cc
   filecheck/progress.h
   filecheck/update.h
   filecheck/update.cc

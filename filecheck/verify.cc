@@ -1,8 +1,8 @@
-#include "verify.h"
+#include "filecheck/verify.h"
 
-#include "clock.h"
-#include "index.h"
-#include "progress.h"
+#include "filecheck/clock.h"
+#include "filecheck/index.h"
+#include "filecheck/progress.h"
 
 #include <array>
 #include <filesystem>
@@ -128,6 +128,10 @@ void op_verify_tree(
       continue;
     }
 
+    if (!path_filter_match(op.filter, tree_path)) {
+      continue;
+    }
+
     if (!index_path_set.paths.contains(tree_path)) {
       op_verify_result_add_extraneous(tree_path, result);
     }
@@ -160,6 +164,7 @@ VerifyResultStatus op_verify_result_status(const VerifyResult& result) {
 VerifyResult op_verify(const VerifyOp& op) {
   Index index;
   index_read(op.index_path, &index);
+  index_filter(op.filter, &index);
 
   VerifyResult result;
   result.index_file_count = index_total_file_count(index);

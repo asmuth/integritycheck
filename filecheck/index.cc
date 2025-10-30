@@ -1,4 +1,4 @@
-#include "index.h"
+#include "filecheck/index.h"
 
 #include <algorithm>
 #include <numeric>
@@ -23,6 +23,19 @@ void index_sort(Index* index) {
     index->entries.end(),
     [] (const auto& a, const auto& b) { return a.path < b.path; }
   );
+}
+
+void index_filter(
+  const PathFilter& filter,
+  Index* index
+) {
+  for (auto iter = index->entries.begin(); iter != index->entries.end(); ){
+    if (path_filter_match(filter, iter->path)) {
+      ++iter;
+    } else {
+      iter = index->entries.erase(iter);
+    }
+  }
 }
 
 uint64_t index_total_file_count(const Index& index) {

@@ -1,5 +1,7 @@
 #pragma once
-#include "checksum.h"
+#include "filecheck/checksum.h"
+#include "filecheck/path_filter.h"
+
 #include <string>
 #include <vector>
 #include <unordered_set>
@@ -36,6 +38,8 @@ void index_add(IndexRecord entry, Index* index);
 IndexPathSet index_build_path_set(const Index& index);
 
 void index_sort(Index* index);
+
+void index_filter(const PathFilter& filter, Index* index);
 
 void index_read(
   const std::string& file_path,

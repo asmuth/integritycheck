@@ -6,7 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "progress.h"
+#include "filecheck/path_filter.h"
+#include "filecheck/progress.h"
 
 // Describes the type of difference between index and actual files
 enum class VerifyDiffType {
@@ -49,6 +50,7 @@ struct VerifyResult {
 struct VerifyOp {
   std::filesystem::path root_path;
   std::filesystem::path index_path;
+  PathFilter filter;
   ProgressFn progress;
 };
 
