@@ -54,3 +54,7 @@ void path_filter_add_select(PathFilter* filter, const std::string& path) {
 
   filter->select.push_back(path_normal);
 }
+
+bool path_filter_is_trivial(const PathFilter& filter) {
+  return filter.select.empty();
+}

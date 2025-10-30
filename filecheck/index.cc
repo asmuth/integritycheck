@@ -29,13 +29,19 @@ void index_filter(
   const PathFilter& filter,
   Index* index
 ) {
-  for (auto iter = index->entries.begin(); iter != index->entries.end(); ){
-    if (path_filter_match(filter, iter->path)) {
-      ++iter;
-    } else {
-      iter = index->entries.erase(iter);
+  if (path_filter_is_trivial(filter)) {
+    return;
+  }
+
+  std::vector<IndexRecord> entries_filtered;
+  entries_filtered.reserve(index->entries.size());
+  for (const auto& entry : index->entries) {
+    if (path_filter_match(filter, entry.path)) {
+      entries_filtered.emplace_back(std::move(entry));
     }
   }
+
+  std::swap(index->entries, entries_filtered);
 }
 
 uint64_t index_total_file_count(const Index& index) {
