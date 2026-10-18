@@ -1,0 +1,52 @@
+basic command line usage
+
+# create an index file
+flix scan --index path/to/index.json --data path/to/data
+
+# update an index file, only allow new files to be added
+flix scan --update-new --index path/to/index.json --data path/to/data
+
+# update an index file, allow new files and renames, but disallow deletions
+flix scan --update-same --index path/to/index.json --data path/to/data
+
+# update an index files, allow new files, renames, and deletions
+flix scan --update-all --index path/to/index.json --data path/to/data
+
+# verify that all files in the index are present and their checksums match
+flix verify --index path/to/index.json --data path/to/data
+
+# verify that all files in the index are present, but don't compute checksums
+flix verify --quick --index path/to/index.json --data path/to/data
+
+# print all files in an index
+flix list --index path/to/index.json
+
+# compare two index files; consider two files to be the same if their content and name is the same
+flix diff --exact --index-new path/to/index2.json --index-old  path/to/index1.json
+
+# compare two index files; consider two files to be the same if their content is the same
+flix diff --content-only --index-new path/to/index2.json --index-old  path/to/index1.json
+
+# check if a given file is contained in the index
+flix search --index path/to/index.json --query path/to/file
+
+# check if a given file is contained in any of the given indexes
+flix search --index path/to/index1.json  --index path/to/index2.json --query path/to/file
+
+# check, for all files under a given path, whether they are contained in the index
+flix search --index path/to/index.json --query-all path/to/directory
+
+
+json output
+
+# check if a given file is contained in the index and output the result as json
+flix search --index path/to/index.json --query path/to/file --output-json
+
+# check, for all files under a given path, whether they are contained in the index and output the result as json
+flix search --index path/to/index.json --query-all path/to/directory --output-json
+
+
+html output
+
+# output recent changes in an index file as an html report
+flix history --index path/to/index.json --output-html
