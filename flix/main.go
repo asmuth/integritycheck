@@ -33,11 +33,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	var err error
 	switch os.Args[1] {
 	case "scan":
-		commands.Scan()
+		err = commands.Scan()
 	default:
 		fmt.Println("Invalid command")
+		os.Exit(1)
+	}
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %v\n", err)
 		os.Exit(1)
 	}
 }

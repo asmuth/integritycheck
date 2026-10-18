@@ -2,6 +2,7 @@ package commands
 
 import (
 	"flag"
+	"flix/scan"
 	"fmt"
 	"os"
 )
@@ -27,7 +28,7 @@ type ScanOptions struct {
   help bool
 }
 
-func Scan() {
+func Scan() error {
 	options := ScanOptions{}
 
   flags := flag.NewFlagSet("scan", flag.ExitOnError)
@@ -50,7 +51,12 @@ func Scan() {
     fmt.Fprintln(os.Stderr, "ERROR: need an index path (--index)")
     os.Exit(0)
   }
-  //fmt.Println(options)
-	//_ = indexPath
-	//_ = dataPath
+
+	idx, err := scan.Scan(options.dataPath)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(idx)
+	return nil
 }
