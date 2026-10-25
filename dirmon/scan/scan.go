@@ -5,13 +5,20 @@ import (
 	"path/filepath"
 	"io/fs"
 	"dirmon/index"
+	"dirmon/progress"
 	"fmt"
 )
 
-func listFiles(dataPath string) (index.Index, error) {
+type ScanOp struct {
+	indexPath string
+	dataPath string
+	progress progress.ProgressFunc
+}
+
+func listFiles(op ScanOp, progress *progress.Progress) (index.Index, error) {
 	idx := index.Index{}
 
-	err := filepath.Walk(dataPath, func(filePath string, fileInfo fs.FileInfo, err error) error {
+	err := filepath.Walk(op.dataPath, func(filePath string, fileInfo fs.FileInfo, err error) error {
 		if err != nil {
 			return fmt.Errorf("while scanning %q: %w", filePath, err)
 			return err
@@ -21,15 +28,24 @@ func listFiles(dataPath string) (index.Index, error) {
 			return nil
 		}
 
-		filePathRel, err := filepath.Rel(dataPath, filePath)
+		filePathRel, err := filepath.Rel(op.dataPath, filePath)
 		if err != nil {
 			return fmt.Errorf("while scanning %q: %w", filePath, err)
 		}
 
+		fileSize := fileInfo.Size()
+
 		idx.AddEntry(index.IndexRecord {
 			Path: filePathRel,
-			Size: fileInfo.Size(),
+			Size: fileSize,
 		})
+
+		progress.FilesTotal += 1
+		progress.BytesTotal += uint64(fileSize)
+
+		if op.progress != nil {
+			op.progress(*progress)
+		}
 
 		return nil
 	})
@@ -53,23 +69,32 @@ func computeChecksum(dataPath string, rec *index.IndexRecord) error {
 	return nil
 }
 
-func computeChecksums(dataPath string, idx *index.Index) error {
+func computeChecksums(op ScanOp, idx *index.Index, progress *progress.Progress) error {
 	for i := range idx.Entries {
-		if err := computeChecksum(dataPath, &idx.Entries[i]); err != nil {
+		if err := computeChecksum(op.dataPath, &idx.Entries[i]); err != nil {
 			return err
+		}
+
+		progress.Files += 1
+		progress.Bytes += uint64(idx.Entries[i].Size)
+
+		if op.progress != nil {
+			op.progress(*progress)
 		}
 	}
 
 	return nil
 }
 
-func Scan(dataPath string) (index.Index, error) {
-	idx, err := listFiles(dataPath)
+func Scan(op ScanOp) (index.Index, error) {
+	progress := progress.Progress {}
+
+	idx, err := listFiles(op, &progress)
 	if err != nil {
 		return index.Index{}, err
 	}
 
-	err = computeChecksums(dataPath, &idx)
+	err = computeChecksums(op, &idx, &progress)
 	if err != nil {
 		return index.Index{}, err
 	}
