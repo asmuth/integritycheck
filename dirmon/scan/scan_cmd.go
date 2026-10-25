@@ -61,11 +61,10 @@ func ScanCommand() error {
 		}
 	}
 
-	idx, err := Scan(op)
+	err := Scan(op)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(idx)
 	return nil
 }

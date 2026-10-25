@@ -86,18 +86,23 @@ func computeChecksums(op ScanOp, idx *index.Index, progress *progress.Progress) 
 	return nil
 }
 
-func Scan(op ScanOp) (index.Index, error) {
+func Scan(op ScanOp) (error) {
 	progress := progress.Progress {}
 
 	idx, err := listFiles(op, &progress)
 	if err != nil {
-		return index.Index{}, err
+		return err
 	}
 
-	err = computeChecksums(op, &idx, &progress)
-	if err != nil {
-		return index.Index{}, err
+	if err := computeChecksums(op, &idx, &progress); err != nil {
+		return err
 	}
 
-	return idx, nil
+	idx.Sort()
+
+	if err := idx.WriteFile(op.indexPath); err != nil {
+		return err
+	}
+
+	return nil
 }

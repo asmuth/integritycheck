@@ -1,5 +1,9 @@
 package index
 
+import (
+	"sort"
+)
+
 type Index struct {
 	ChecksumType string
 	Entries      []IndexRecord
@@ -18,3 +22,10 @@ func (idx *Index) AddEntry(rec IndexRecord) {
 	idx.Entries = append(idx.Entries, rec)
 }
 
+func (idx *Index) Sort() {
+	sort.Slice(idx.Entries, func(i, j int) bool {
+		a := idx.Entries[i]
+		b := idx.Entries[j]
+		return b.Path > a.Path
+	})
+}
