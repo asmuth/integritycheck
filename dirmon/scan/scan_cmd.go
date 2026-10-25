@@ -1,8 +1,7 @@
-package commands
+package scan
 
 import (
 	"flag"
-	"dirmon/scan"
 	"fmt"
 	"os"
 )
@@ -23,15 +22,15 @@ const ScanHelpText = "" +
 	"   $ dirmon scan -i path/to/index.json\n"
 
 type ScanOptions struct {
-  indexPath string
-  dataPath string
-  help bool
+	indexPath string
+	dataPath string
+	help bool
 }
 
-func Scan() error {
+func ScanCommand() error {
 	options := ScanOptions{}
 
-  flags := flag.NewFlagSet("scan", flag.ExitOnError)
+	flags := flag.NewFlagSet("scan", flag.ExitOnError)
 	flags.Usage = func() { fmt.Print(ScanHelpText) }
 	flags.StringVar(&options.indexPath, "i", "", "index")
 	flags.StringVar(&options.indexPath, "index", "", "index")
@@ -41,18 +40,19 @@ func Scan() error {
 	flags.BoolVar(&options.help, "?", false, "help")
 	flags.Parse(os.Args[2:])
 
-  if (options.help) {
-    flags.Usage()
-    os.Exit(0)
-  }
+	if (options.help) {
+		flags.Usage()
+		os.Exit(0)
+	}
 
-  fmt.Printf("%+v\n", options)
-  if (options.indexPath == "") {
-    fmt.Fprintln(os.Stderr, "ERROR: need an index path (--index)")
-    os.Exit(0)
-  }
+	fmt.Printf("%+v\n", options)
+	if (options.indexPath == "") {
+		fmt.Fprintln(os.Stderr, "ERROR: need an index path (--index)")
+		os.Exit(0)
+	}
 
-	idx, err := scan.Scan(options.dataPath)
+
+	idx, err := Scan(options.dataPath)
 	if err != nil {
 		return err
 	}
