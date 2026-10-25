@@ -16,7 +16,7 @@ type ScanOp struct {
 }
 
 func listFiles(op ScanOp, progress *progress.Progress) (index.Index, error) {
-	idx := index.Index{}
+	idx := index.Index{ChecksumType: "md5"}
 
 	err := filepath.Walk(op.dataPath, func(filePath string, fileInfo fs.FileInfo, err error) error {
 		if err != nil {
