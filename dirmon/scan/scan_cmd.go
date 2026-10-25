@@ -1,8 +1,9 @@
 package scan
 
 import (
-	"flag"
 	"dirmon/progress"
+	"dirmon/tty"
+	"flag"
 	"fmt"
 	"os"
 )
@@ -27,6 +28,8 @@ func ScanCommand() error {
 	op := ScanOp{}
 
 	flagHelp := false
+	flagProgress := true
+	flagNoProgress := false
 	flags := flag.NewFlagSet("scan", flag.ExitOnError)
 	flags.Usage = func() { fmt.Print(ScanHelpText) }
 	flags.StringVar(&op.indexPath, "i", "", "index")
@@ -35,21 +38,27 @@ func ScanCommand() error {
 	flags.StringVar(&op.dataPath, "data", "", "data")
 	flags.BoolVar(&flagHelp, "h", false, "help")
 	flags.BoolVar(&flagHelp, "?", false, "help")
+	flags.BoolVar(&flagProgress, "p", true, "progress")
+	flags.BoolVar(&flagProgress, "progress", true, "progress")
+	flags.BoolVar(&flagNoProgress, "P", false, "noprogress")
+	flags.BoolVar(&flagNoProgress, "noprogress", false, "noprogress")
+
 	flags.Parse(os.Args[2:])
 
-	if (flagHelp) {
+	if flagHelp {
 		flags.Usage()
 		os.Exit(0)
 	}
 
-	fmt.Printf("%+v\n", op)
-	if (op.indexPath == "") {
+	if op.indexPath == "" {
 		fmt.Fprintln(os.Stderr, "ERROR: need an index path (--index)")
 		os.Exit(0)
 	}
 
-	op.progress = func(p progress.Progress) {
-		fmt.Printf("%+v\n", p)
+	if flagProgress && !flagNoProgress {
+		op.progress = func(p progress.Progress) {
+			tty.PrintProgress(p)
+		}
 	}
 
 	idx, err := Scan(op)
