@@ -1,0 +1,6 @@
+[
+  ["path", "size", "md5"],
+  ["a/file with whitespace.txt", 4, "6f1ed002ab5595859014ebf0951522d9"],
+  ["exce\\\\ent\n🔥file\\\n\\ name/zero", 100000, "0019d23bef56a136a1891211d7007f6f"],
+  ["file1.bin", 5, "b15e400c8dbd6697f26385216d32a40f"]
+]
