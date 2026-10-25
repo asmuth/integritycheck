@@ -2,13 +2,13 @@ package commands
 
 import (
 	"flag"
-	"flix/scan"
+	"dirmon/scan"
 	"fmt"
 	"os"
 )
 
 const ScanHelpText = "" +
-	"Usage: $ flix scan [<option>]\n" +
+	"Usage: $ dirmon scan [<option>]\n" +
 	"   -i, --index=<path>            Index file path\n" +
 	"   -d, --data=<path>             Data directory path (default: '.')\n" +
 	"   -h, --help                    Display this help text and exit\n" +
@@ -19,8 +19,8 @@ const ScanHelpText = "" +
 	"   -P, --noprogress              Disable progress output to STDERR\n" +
 	"\n" +
 	"Examples:\n" +
-	"   $ flix scan -i index.json -D path/to/files\n" +
-	"   $ flix scan -i path/to/index.json\n"
+	"   $ dirmon scan -i index.json -D path/to/files\n" +
+	"   $ dirmon scan -i path/to/index.json\n"
 
 type ScanOptions struct {
   indexPath string

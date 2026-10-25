@@ -4,7 +4,7 @@ import (
 	"path"
 	"path/filepath"
 	"io/fs"
-	"flix/index"
+	"dirmon/index"
 	"fmt"
 )
 

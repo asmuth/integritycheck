@@ -1,13 +1,13 @@
 package main
 
 import (
-	"flix/commands"
+	"dirmon/commands"
 	"fmt"
 	"os"
 )
 
 const ScanHelpText = "" +
-	"Usage: $ flix scan [<option>]\n" +
+	"Usage: $ dirmon scan [<option>]\n" +
 	"   -i, --index=<path>            Index file path\n" +
 	"   -d, --data=<path>             Data directory path (default: '.')\n" +
 	"   -?, --help                    Display this help text and exit\n" +
@@ -18,15 +18,15 @@ const ScanHelpText = "" +
 	"   -P, --noprogress              Disable progress output to STDERR\n" +
 	"\n" +
 	"Examples:\n" +
-	"   $ filecheck -i index.lst\n" +
-	"   $ filecheck -i index.lst -D path/to/files\n" +
-	"   $ filecheck -i index.lst -u\n" +
-	"   $ filecheck -i index.lst -s file1 file2\n" +
-	"   $ filecheck -i index.lst -s - < file_list.txt\n"
+	"   $ dirmon scan -i index.lst\n" +
+	"   $ dirmon scan -i index.lst -D path/to/files\n" +
+	"   $ dirmon scan -i index.lst -u\n" +
+	"   $ dirmon scan -i index.lst -s file1 file2\n" +
+	"   $ dirmon scan -i index.lst -s - < file_list.txt\n"
 
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: $ flix <command> [<option>]")
+		fmt.Println("Usage: $ dirmon <command> [<option>]")
 		fmt.Println("")
 		fmt.Println("Commands:")
 		fmt.Println("    scan       Create or update an index file")

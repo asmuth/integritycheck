@@ -2,7 +2,7 @@ package index
 
 type Index struct {
 	ChecksumType string
-	Entries []IndexRecord
+	Entries      []IndexRecord
 }
 
 type IndexRecord struct {
@@ -12,7 +12,7 @@ type IndexRecord struct {
 	Size int64
 	// The checksum of the file
 	Checksum string
-};
+}
 
 func (idx *Index) AddEntry(rec IndexRecord) {
 	idx.Entries = append(idx.Entries, rec)
